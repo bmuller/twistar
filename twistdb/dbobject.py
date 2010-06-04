@@ -1,7 +1,9 @@
 from twisted.python import log
+from twisted.internet import defer
+
+
 DBPOOL = None
-COLTYPE_STRING = 'string'
-COLTYPE_INT = 'int'
+
 
 def getDBAPI():
     if DBPOOL == None:
@@ -26,48 +28,51 @@ class DBConfig:
         log.msg("query: %s" % query)
         return DBPOOL.runQuery(query)
         
-    def select(klass, where="", distinct=False):
+    def select(self, klass, where="", distinct=False):
         raise NotImplementedError
 
-    def insert(klass, vals):
+    def insert(self, klass, vals):
         raise NotImplementedError
 
-    def delete(klass, where=""):
+    def delete(self, klass, where=""):
         raise NotImplementedError
 
-    def update(klass, vals, where="", distinct=False):
+    def update(self, klass, id, vals, where="", distinct=False):
         raise NotImplementedError
 
-    def createTable(klass):
+    def createTable(self, klass):
         raise NotImplementedError
 
     
 class MySQLDBConfig(DBConfig):
-    def select(klass, where="", distinct=False):
+    def select(self, klass, where="", distinct=False):
         raise NotImplementedError
 
-    def insert(klass, vals):
+    def insert(self, klass, vals):
+        # HERE
+        args = (klass.tablename(), cols, values)
+        q = "INSERT INTO %s (%s) VALUES(%s)" % args
+        return self.execute(q)
+
+    def delete(self, klass, where=""):
         raise NotImplementedError
 
-    def delete(klass, where=""):
+    def update(self, klass, id, vals, where="", distinct=False):
         raise NotImplementedError
 
-    def update(klass, vals, where="", distinct=False):
-        raise NotImplementedError
-
-    def createTable(klass, engine="innodb"):
+    def createTable(self, klass, engine="innodb"):
         parts = []
         types = {self.dbapi.STRING: "VARCHAR(255)", self.dbapi.NUMBER: "INT"}
         for name, ctype in klass.COLS.iteritems():
             parts.append(name + " " + types[ctype])
-        args = (klass.tablename(), parts.join(","), engine)
-        q = "CREATE TABLE %s (id INT NOT NULL auto_increment, %s) ENGINE=%s" % args
+        args = (klass.tablename(), ",".join(parts), engine)
+        q = "CREATE TABLE %s (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, %s) ENGINE=%s" % args
         return self.execute(q)
         
 
 class DBObject:
-    def __init__(self, dbid=None, initial_values=None):
-        self.dbid = dbid
+    def __init__(self, id=None, initial_values=None):
+        self.id = id
         if initial_values is not None:
             cname = initial_values.__class__.__name__
             if cname == 'list' or cname == 'tuple':
@@ -89,15 +94,26 @@ class DBObject:
     @classmethod
     def tablename(klass):
         if hasattr(klass, 'TABLENAME'):
-            tablename = klass.TABLENAME
+            return klass.TABLENAME
         else:
-            tablename = klass.__name__.lower() + 's'
+            return klass.__name__.lower() + 's'
 
 
     @classmethod
     def createTable(klass, *args, **kwargs):
         config = DBConfig.getConfig()
-        config.createTable(klass, args, kwargs)
+        return config.createTable(klass, *args, **kwargs)
+
+
+    def save(self):
+        config = DBConfig.getConfig()
+        setargs = {}
+        for name, ctype in self.__class__.COLS.iteritems():
+            if hasattr(self, name):
+                setarts[name] = ctype
+        if self.id is None:
+            return config.insert(self.__class__, setargs)
+        return config.update(self.__class__, self.id, setargs)
 
                 
     def toHash(self, includeBlank=False, exclude=None, base=None):
