@@ -24,10 +24,18 @@ class DBConfig:
     def __init__(self, dbapi):
         self.dbapi = dbapi
 
-    def execute(self, query):
+    def execute(self, query, *args, **kwargs):
         log.msg("query: %s" % query)
-        return DBPOOL.runQuery(query)
-        
+        if len(args) > 0:
+            log.msg("args: %s" % ",".join(map(lambda x: str(x), *args)))
+        return DBPOOL.runQuery(query, *args, **kwargs)
+
+    def getTypes(self, klass, vals):
+        valswtype = {}
+        for valname in vals.keys():
+            valswtype[valname] = klass.COLS[valname]
+        return valswtype
+    
     def select(self, klass, where="", distinct=False):
         raise NotImplementedError
 
@@ -48,11 +56,11 @@ class MySQLDBConfig(DBConfig):
     def select(self, klass, where="", distinct=False):
         raise NotImplementedError
 
-    def insert(self, klass, vals):
-        # HERE
-        args = (klass.tablename(), cols, values)
-        q = "INSERT INTO %s (%s) VALUES(%s)" % args
-        return self.execute(q)
+    def insert(self, klass, vals):      
+        args = (klass.tablename(), ",".join(vals.keys()))
+        valswtype = self.getTypes(klass, vals)
+        q = "INSERT INTO %s (%s) VALUES(" % args + klass.makeParams(valswtype) + ")"
+        return self.execute(q, vals.values())
 
     def delete(self, klass, where=""):
         raise NotImplementedError
@@ -81,14 +89,16 @@ class DBObject:
                 setattr(self, k, v)
 
     @classmethod
-    def makeWhereArgs(klass, args):
+    def makeParams(klass, args):
         dbapi = getDBAPI()
+        nargs = []        
         if dbapi.paramstyle == 'format':
-            nargs = []
             argtypes = {dbapi.STRING: '%s', dbapi.NUMBER: '%i'}
             for name, vtype in args.iteritems():
-                nargs = name + "=" + argtypes[vtype]
-        return nargs.join(",")
+                nargs.append(argtypes[vtype])
+        else:
+            raise NotImplementedError, "no support for param style %s" % dbapi.paramstyle
+        return ",".join(nargs)
 
 
     @classmethod
@@ -108,9 +118,9 @@ class DBObject:
     def save(self):
         config = DBConfig.getConfig()
         setargs = {}
-        for name, ctype in self.__class__.COLS.iteritems():
+        for name in self.__class__.COLS.keys():
             if hasattr(self, name):
-                setarts[name] = ctype
+                setargs[name] = getattr(self, name)
         if self.id is None:
             return config.insert(self.__class__, setargs)
         return config.update(self.__class__, self.id, setargs)

@@ -31,8 +31,10 @@ dbobject.DBPOOL = adbapi.ConnectionPool('MySQLdb', db='twisteddb', user='twisted
 u = User()
 u.first_name = "brian"
 u.last_name = "muller"
-u.age = 10
+#u.age = 10
 u.save().addCallback(complete).addErrback(problem)
+
+#dbobject.DBPOOL.runQuery("INSERT INTO users (first_name,last_name) VALUES(%s,%s)", ("brian", "muller"))
 
 reactor.callLater(2, reactor.stop)
 reactor.run()
