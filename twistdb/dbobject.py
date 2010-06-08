@@ -56,11 +56,15 @@ class MySQLDBConfig(DBConfig):
     def select(self, klass, where="", distinct=False):
         raise NotImplementedError
 
-    def insert(self, klass, vals):      
+    def insert(self, klass, vals):
+        def _doinsert(txn
+
+                      "SELECT LAST_INSERT_ID()"
         args = (klass.tablename(), ",".join(vals.keys()))
         valswtype = self.getTypes(klass, vals)
-        q = "INSERT INTO %s (%s) VALUES(" % args + klass.makeParams(valswtype) + ")"
-        return self.execute(q, vals.values())
+        params, values = klass.makeArgList(valswtype, vals)
+        q = "INSERT INTO %s (%s) VALUES(" % args + params + ")"
+        return self.execute(q, values)
 
     def delete(self, klass, where=""):
         raise NotImplementedError
@@ -88,17 +92,23 @@ class DBObject:
             for k, v in initial_values.items():
                 setattr(self, k, v)
 
+    ## args is a dictionary {argname: type}
+    ## values is a dictionary {argname: value}
+    ## returns (arglist, values) where values is a
+    ## list for all but pyformat, and a dictionary then
     @classmethod
-    def makeParams(klass, args):
+    def makeArgList(klass, args, values):
         dbapi = getDBAPI()
-        nargs = []        
+        arglist = []        
         if dbapi.paramstyle == 'format':
-            argtypes = {dbapi.STRING: '%s', dbapi.NUMBER: '%i'}
+            # yes, dbapi.NUMBER is %s - MySQLdb converts to string literal for numbers
+            argtypes = {dbapi.STRING: '%s', dbapi.NUMBER: '%s'}
             for name, vtype in args.iteritems():
-                nargs.append(argtypes[vtype])
+                arglist.append(argtypes[vtype])
+            values = values.values()
         else:
             raise NotImplementedError, "no support for param style %s" % dbapi.paramstyle
-        return ",".join(nargs)
+        return (",".join(arglist), values)
 
 
     @classmethod
@@ -167,4 +177,7 @@ class DBObject:
         return dbpool.runInteraction(_fromValue, dbpool, key, value)
                                                         
 
-
+    @classmethod
+    def findOne(klass, where):
+        config = DBConfig.getConfig()
+        #config.

@@ -17,7 +17,7 @@ class User(dbobject.DBObject):
     
 
 def complete(result):
-    log.msg("done: %s" % result)
+    log.msg("done")
     reactor.stop()
 
 def problem(error):
@@ -29,9 +29,9 @@ dbobject.DBPOOL = adbapi.ConnectionPool('MySQLdb', db='twisteddb', user='twisted
 #User.createTable() #.addCallback(complete).addErrback(problem)
 
 u = User()
-u.first_name = "brian"
-u.last_name = "muller"
-#u.age = 10
+u.first_name = "another"
+u.last_name = "namer"
+u.age = 20
 u.save().addCallback(complete).addErrback(problem)
 
 #dbobject.DBPOOL.runQuery("INSERT INTO users (first_name,last_name) VALUES(%s,%s)", ("brian", "muller"))
