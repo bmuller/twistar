@@ -4,7 +4,6 @@ from twisted.internet import defer
 
 DBPOOL = None
 
-
 def getDBAPI():
     if DBPOOL == None:
         msg = "You must set dbobject.DBPOOL to a adbapi.ConnectionPool before calling this method."
@@ -24,11 +23,20 @@ class DBConfig:
     def __init__(self, dbapi):
         self.dbapi = dbapi
 
-    def execute(self, query, *args, **kwargs):
+    def log(self, query, args, kwargs):
         log.msg("query: %s" % query)
         if len(args) > 0:
             log.msg("args: %s" % ",".join(map(lambda x: str(x), *args)))
+        elif len(kwargs) > 0:
+            log.msg("kargs: %s" % str(kwargs))        
+
+    def execute(self, query, *args, **kwargs):
+        self.log(query, args, kwargs)
         return DBPOOL.runQuery(query, *args, **kwargs)
+
+    def executeTxn(self, txn, query, *args, **kwargs):
+        self.log(query, args, kwargs)
+        return txn.execute(query, *args, **kwargs)
 
     def getTypes(self, klass, vals):
         valswtype = {}
@@ -51,26 +59,67 @@ class DBConfig:
     def createTable(self, klass):
         raise NotImplementedError
 
+    def whereToString(self, where):
+        w = WHERESTRS[where.wheretype]
+        if where.isnot:
+            w = "NOT " + w
+        value = where.value
+        if where.wheretype == STARTSWITH:
+            value = self.FORMATCHAR + "%%"
+        elif where.wheretype == ENDSWITH:
+            value = "%%" + self.FORMATCHAR
+        elif where.wheretype == CONTAINS:
+            value = "%%" + self.FORMATCHAR + "%%"
+        else:
+            value = self.FORMATCHAR
+        return (where, w, value)
     
 class MySQLDBConfig(DBConfig):
     def select(self, klass, where="", distinct=False):
-        raise NotImplementedError
+        def _doselect(txn, q):
+            results = []
+            self.executeTxn(txn, q)
+            for result in txn.fetchall():
+                results.append(klass(initial_values=result))
+            return defer.succeed(results)
+            
+        if distinct:
+            distinct = "DISTINCT "
+        else:
+            distinct = ""
+        q = "SELECT %s* FROM %s" % (distinct, klass.tablename())
+        if where != "":
+            q += " WHERE %s" % where
+        return DBPOOL.runInteraction(_doselect, q)
 
-    def insert(self, klass, vals):
-        def _doinsert(txn
 
-                      "SELECT LAST_INSERT_ID()"
-        args = (klass.tablename(), ",".join(vals.keys()))
-        valswtype = self.getTypes(klass, vals)
-        params, values = klass.makeArgList(valswtype, vals)
-        q = "INSERT INTO %s (%s) VALUES(" % args + params + ")"
-        return self.execute(q, values)
+    def insert(self, obj, vals):
+        def _doinsert(txn):
+            klass = obj.__class__
+            args = (klass.tablename(), ",".join(vals.keys()))
+            valswtype = self.getTypes(klass, vals)
+            params, values = klass.makeArgList(valswtype, vals)
+            q = "INSERT INTO %s (%s) VALUES(" % args + params + ")"
+            self.executeTxn(txn, q, values)            
+            q = "SELECT LAST_INSERT_ID()"
+            self.executeTxn(txn, q)            
+            result = txn.fetchall()
+            obj.id = result[0][0]
+        return DBPOOL.runInteraction(_doinsert)
+
 
     def delete(self, klass, where=""):
         raise NotImplementedError
 
-    def update(self, klass, id, vals, where="", distinct=False):
-        raise NotImplementedError
+
+    def update(self, obj, vals):
+        klass = obj.__class__
+        args = (klass.tablename(), ",".join(vals.keys()))
+        valswtype = self.getTypes(klass, vals)
+        params, values = klass.makeArgList(valswtype, vals)
+        q = "UPDATE %s SET (%s) VALUES(" % args + params + ")"
+        return self.execute(q)
+
 
     def createTable(self, klass, engine="innodb"):
         parts = []
@@ -83,7 +132,7 @@ class MySQLDBConfig(DBConfig):
         
 
 class DBObject:
-    def __init__(self, id=None, initial_values=None):
+    def __init__(self, initial_values=None):
         self.id = id
         if initial_values is not None:
             cname = initial_values.__class__.__name__
@@ -132,8 +181,8 @@ class DBObject:
             if hasattr(self, name):
                 setargs[name] = getattr(self, name)
         if self.id is None:
-            return config.insert(self.__class__, setargs)
-        return config.update(self.__class__, self.id, setargs)
+            return config.insert(self, setargs)
+        return config.update(self, setargs)
 
                 
     def toHash(self, includeBlank=False, exclude=None, base=None):
@@ -162,22 +211,16 @@ class DBObject:
             
 
     @classmethod
-    def fromValue(klass, dbpool, key, value):
-        def _fromValue(txn, dbpool, key, value):
-            if hasattr(klass, 'TABLENAME'):
-                tablename = klass.TABLENAME
-            else:
-                tablename = klass.__name__.lower() + 's'
-            q = "SELECT * FROM " + tablename + " WHERE " + key + " = %(value)s"
-            txn.execute(q, {'value': value})
-            rows = txn.fetchall()
-            if len(rows) == 0:
-                return None
-            return klass(dbpool, rows[0][0], rows[0])
-        return dbpool.runInteraction(_fromValue, dbpool, key, value)
-                                                        
+    def find(klass, where):
+        config = DBConfig.getConfig()
+        return config.select(klass, where)
+
 
     @classmethod
-    def findOne(klass, where):
-        config = DBConfig.getConfig()
-        #config.
+    def all(klass):
+        return klass.find("")
+
+
+    @classmethod
+    def findByKey(klass, key, value):
+        return klass.find("%s = %s" % (key, value))

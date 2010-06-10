@@ -1,33 +1,6 @@
-    def stringifyWhere(self, where):
-        if where.wheretype == GT and where.isnot:
-            return "<= " + where.value
-        if where.wheretype == GT:
-            return "> " + where.value
-        if where.wheretype == LT and where.isnot:
-            return ">= " + where.value
-        if where.wheretype == LT:
-            return "< " + where.value
-        if where.wheretype == EQ and where.isnot:
-            return "!= " + where.value
-        if where.wheretype == EQ:
-            return "= " + where .value
-        
-        q = ""
-        if where.wheretype == STARTSWITH:
-            q = "LIKE " + where.value + "
+STARTSWITH, ENDSWITH, CONTAINS, GT, LT, GTE, LTE, BETWEEN, EQ, ISNULL = range(10)
+WHERESTRS = ["LIKE %s", "LIKE %s", "LIKE %s", "> %s", "< %s", "BETWEEN %s AND %s", "= %s", "IS NULL"]
 
-
-
-
-
-
-
-
-
-
-
-
-STARTSWITH, ENDSWITH, CONTAINS, GT, LT, BETWEEN, EQ, IN, ISNULL = range(9)
 
 class Where:
     def __init__(self, wheretype, value, isnot=False):

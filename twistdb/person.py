@@ -16,7 +16,8 @@ class User(dbobject.DBObject):
             'age': MySQLdb.NUMBER}
     
 
-def complete(result):
+def complete(result, user):
+    log.msg("id is: %s" % str(user.id))
     log.msg("done")
     reactor.stop()
 
@@ -32,9 +33,13 @@ u = User()
 u.first_name = "another"
 u.last_name = "namer"
 u.age = 20
-u.save().addCallback(complete).addErrback(problem)
+#u.save().addCallback(complete, u).addErrback(problem)
 
+u.first_name = "your mom"
+#u.save()
 #dbobject.DBPOOL.runQuery("INSERT INTO users (first_name,last_name) VALUES(%s,%s)", ("brian", "muller"))
+
+User.find("id = 51").addCallback(complete)
 
 reactor.callLater(2, reactor.stop)
 reactor.run()
