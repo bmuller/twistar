@@ -1,3 +1,1 @@
-DBPOOL = None
-
-from dbobject import *
+from dbobject import DBObject
