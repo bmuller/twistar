@@ -1,5 +1,5 @@
 from twistdb import DBObject
-from twistdb.dbconfig import DBConfig
+from twistdb.dbconfig import Registry, DBConfig
 
 import sys
 from twisted.enterprise import adbapi
@@ -16,8 +16,12 @@ class User(DBObject):
 
 class Picture(DBObject):
     BELONGSTO = ['user']
+    HASONE = ['type']
 
-DBConfig.register(Picture, User)
+class Type(DBObject):
+    pass
+
+Registry.register(Picture, User, Type)
 
 def complete(user):
     #log.msg("id is: %s" % str(user.id))
@@ -46,7 +50,6 @@ def done(pic):
 
     
 Picture.find(1).addCallback(done)
-
 
 reactor.callLater(2, reactor.stop)
 reactor.run()

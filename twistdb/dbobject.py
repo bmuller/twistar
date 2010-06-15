@@ -11,13 +11,13 @@ class DBObject(object):
                 setattr(self, k, v)
         self.config = DBConfig.getConfig()
         self.infl = Inflector()
-        
 
-    def getMany(self, name):
+
+    def getMany(self, name, limit=None):
         klassname = self.infl.classify(name)
         klass = DBConfig.getClass(klassname)
         thisname = self.infl.foreignKey(self.__class__.__name__)
-        return klass.find(where=["%s = ?" % thisname, self.id])
+        return klass.find(where=["%s = ?" % thisname, self.id], limit=limit)
 
 
     def getOne(self, name):
@@ -34,6 +34,9 @@ class DBObject(object):
 
         if hasattr(klass, 'BELONGSTO') and name in klass.BELONGSTO:        
             return self.getOne(name)
+
+        if hasattr(klass, 'HASONE') and name in klass.HASONE:
+            return self.getMany(name, limit=1)
 
         return object.__getattribute__(self, name)
 
