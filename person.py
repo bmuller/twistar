@@ -14,15 +14,16 @@ log.msg("starting...")
 class User(DBObject):
     HASMANY = ['pictures']
 
-
 class Picture(DBObject):
     BELONGSTO = ['user']
 
-def complete(users):
+DBConfig.register(Picture, User)
+
+def complete(user):
     #log.msg("id is: %s" % str(user.id))
     #users.age = 44
     #users.save()
-    log.msg("result: %s" % str(users))
+    log.msg("user: %s" % str(user))
     log.msg("done")
     reactor.stop()
 
@@ -35,15 +36,16 @@ DBConfig.LOG = True
 
 def handlePictures(pictures):
     for pic in pictures:
-        log.msg("found picture with id of %i" % pic.id)
+        log.msg("found picture: %s" % str(pic))
+    log.msg("finale")
     reactor.stop()
 
-def done(user):
-    log.msg("user found with id: %i" % user.id)
-    user.pictures.addCallback("handlePictures")
-    reactor.stop()
+def done(pic):
+    log.msg("pic: %s" % str(pic))
+    pic.user.addCallback(complete)
+
     
-User.find(1).addCallback(done)
+Picture.find(1).addCallback(done)
 
 
 reactor.callLater(2, reactor.stop)

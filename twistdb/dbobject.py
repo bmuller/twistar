@@ -15,23 +15,31 @@ class DBObject(object):
 
     def getMany(self, name):
         klassname = self.infl.classify(name)
-        klass = globals()[klassname]
+        klass = DBConfig.getClass(klassname)
         thisname = self.infl.foreignKey(self.__class__.__name__)
         return klass.find(where=["%s = ?" % thisname, self.id])
 
-    def __getattr__(self, name):
-        klass = self.__class__
-        if hasattr(klass, HASMANY) and name in klass.HASMANY:
+
+    def getOne(self, name):
+        klassname = self.infl.classify(name)
+        klass = DBConfig.getClass(klassname)
+        othername = self.infl.foreignKey(name)
+        return klass.find(where=["id = ?", getattr(self, othername)], limit=1)
+
+
+    def __getattribute__(self, name):
+        klass = object.__getattribute__(self, "__class__")
+        if hasattr(klass, 'HASMANY') and name in klass.HASMANY:
             return self.getMany(name)
 
-        if hasattr(klass, BELONGSTO) and name in klass.HASMANY:        
+        if hasattr(klass, 'BELONGSTO') and name in klass.BELONGSTO:        
             return self.getOne(name)
 
-        return object.__getattr__(self, name)
+        return object.__getattribute__(self, name)
 
 
     def __setattr__(self, name, value):
-        pass
+        return object.__setattr__(self, name, value)
 
 
     @classmethod
@@ -55,9 +63,8 @@ class DBObject(object):
     def __str__(self):
         tablename = self.tablename()
         attrs = {}
-        log.msg(str(SCHEMAS))
-        if SCHEMAS.has_key(tablename):
-            for key in SCHEMAS[tablename]:
+        if DBConfig.SCHEMAS.has_key(tablename):
+            for key in DBConfig.SCHEMAS[tablename]:
                 attrs[key] = getattr(self, key, None)
         return "<%s object: %s>" % (self.__class__.__name__, str(attrs))
 

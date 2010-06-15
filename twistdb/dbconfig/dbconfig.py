@@ -5,6 +5,20 @@ class DBConfig:
     IMPL = None
     LOG = False
     SCHEMAS = {}
+    REGISTRATION = {}
+
+    @classmethod
+    def register(_, *klasses):
+        for klass in klasses:
+            DBConfig.REGISTRATION[klass.__name__] = klass
+
+
+    @classmethod
+    def getClass(_, name):
+        if not DBConfig.REGISTRATION.has_key(name):
+            raise RuntimeError, "You never registered the class named %s" % name
+        return DBConfig.REGISTRATION[name]
+    
     
     @classmethod
     def getConfig(klass):

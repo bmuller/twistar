@@ -7,6 +7,8 @@ class MySQLDBConfig(DBConfig):
         if id is not None:
             where = ["id = ?", id]
             one = True
+        if limit is not None and int(limit) == 1:
+            one = True
         q = "SELECT * FROM %s" % klass.tablename()
         args = None
         if where is not None:
