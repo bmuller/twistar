@@ -9,14 +9,14 @@ class Registry:
     @classmethod
     def register(_, *klasses):
         for klass in klasses:
-            DBConfig.REGISTRATION[klass.__name__] = klass
+            Registry.REGISTRATION[klass.__name__] = klass
 
 
     @classmethod
     def getClass(_, name):
-        if not DBConfig.REGISTRATION.has_key(name):
+        if not Registry.REGISTRATION.has_key(name):
             raise RuntimeError, "You never registered the class named %s" % name
-        return DBConfig.REGISTRATION[name]
+        return Registry.REGISTRATION[name]
     
     
     @classmethod

@@ -4,6 +4,7 @@ from twistdb.dbconfig import Registry, DBConfig
 import sys
 from twisted.enterprise import adbapi
 from twisted.internet import reactor
+from twisted.internet.defer import DeferredList
 from twisted.python import log
 
 
@@ -44,12 +45,15 @@ def handlePictures(pictures):
     log.msg("finale")
     reactor.stop()
 
-def done(pic):
-    log.msg("pic: %s" % str(pic))
-    pic.user.addCallback(complete)
-
+def done(*args):
+    pic = args[0][0][1]
+    user = args[0][1][1]
+    pic.user.set(user).addCallback(complete)
+    #User.find(1)
+    #pic.user.get().addCallback(complete)
     
-Picture.find(1).addCallback(done)
+
+d = DeferredList([Picture.find(1), User.find(1)]).addCallback(done)
 
 reactor.callLater(2, reactor.stop)
 reactor.run()

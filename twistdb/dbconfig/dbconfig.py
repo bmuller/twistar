@@ -1,5 +1,4 @@
 from twisted.python import log
-from registry import Registry
 
 class DBConfig:
     DBPOOL = None
@@ -71,6 +70,7 @@ class DBConfig:
 
 
     def getSchema(self, tablename, txn):
+        from registry import Registry
         if not Registry.SCHEMAS.has_key(tablename):
             self.executeTxn(txn, "DESCRIBE %s" % tablename)
             Registry.SCHEMAS[tablename] = [row[0] for row in txn.fetchall()]
