@@ -1,4 +1,5 @@
 from twisted.python import log
+from dbconfig import DBConfig
 
 class MySQLDBConfig(DBConfig):
     def select(self, klass, id=None, where=None, group=None, limit=None):
@@ -11,7 +12,11 @@ class MySQLDBConfig(DBConfig):
         if where is not None:
             wherestr, args = self.whereToString(where)
             q += " WHERE " + wherestr
-        return DBPOOL.runInteraction(self._doselect, klass, q, args, one)
+        if group is not None:
+            q += " GROUP BY " + group
+        if limit is not None:
+            q += " LIMIT " + str(limit)
+        return DBConfig.DBPOOL.runInteraction(self._doselect, klass, q, args, one)
 
 
     def whereToString(self, where):
@@ -35,7 +40,7 @@ class MySQLDBConfig(DBConfig):
             result = txn.fetchall()
             obj.id = result[0][0]
             return obj
-        return DBPOOL.runInteraction(_doinsert)
+        return DBConfig.DBPOOL.runInteraction(_doinsert)
 
 
     def delete(self, klass, where=None):
@@ -57,72 +62,6 @@ class MySQLDBConfig(DBConfig):
             q = "UPDATE %s " % tablename + "SET " + args + " WHERE id = %s"
             self.executeTxn(txn, q, vals.values() + [obj.id])
             return obj
-        return DBPOOL.runInteraction(_doupdate)
+        return DBConfig.DBPOOL.runInteraction(_doupdate)
 
-
-class DBObject:
-    def __init__(self, initial_values=None):
-        self.id = None
-        if initial_values is not None:
-            for k, v in initial_values.items():
-                setattr(self, k, v)
-        self.config = DBConfig.getConfig()
-
-
-    @classmethod
-    def tablename(klass):
-        if not hasattr(klass, 'TABLENAME'):
-            klass.TABLENAME = klass.__name__.lower() + 's'
-        return klass.TABLENAME
-
-
-    def save(self):
-        if self.id is None:
-            return self.config.insert(self)
-        return self.config.update(self)
-
-
-    def __repr__(self):
-        return str(self)
-
-
-    def __str__(self):
-        tablename = self.tablename()
-        attrs = {}
-        log.msg(str(SCHEMAS))
-        if SCHEMAS.has_key(tablename):
-            for key in SCHEMAS[tablename]:
-                attrs[key] = getattr(self, key, None)
-        return "<%s object: %s>" % (self.__class__.__name__, str(attrs))
-
-                
-    def toHash(self, cols, includeBlank=False, exclude=None, base=None):
-        exclude = exclude or []
-        h = base or {}
-        for col in cols:
-            if col in exclude:
-                continue
-            value = getattr(self, col, None)
-            if (value != None or includeBlank):
-                h[col] = str(value)
-        return h
-            
-
-    @classmethod
-    def find(klass, id=None, where=None, group=None, limit=None):
-        config = DBConfig.getConfig()
-        return config.select(klass, id, where, group, limit)
-
-
-    @classmethod
-    def all(klass):
-        return klass.find()
-
-    @classmethod
-    def deleteAll(klass, where=None):
-        config = DBConfig.getConfig()
-        return config.delete(klass, where)
-
-    def delete(self):
-        return self.__class__.deleteAll(where=["id = ?", self.id])
 

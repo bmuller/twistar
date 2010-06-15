@@ -1,20 +1,44 @@
 from twisted.python import log
 from twisted.internet import defer
-from dbconfig.dbconfigbase import DBConfigBase
+from dbconfig import DBConfig
+from BermiInflector.Inflector import Inflector
 
-class DBObject:
+class DBObject(object):
     def __init__(self, initial_values=None):
         self.id = None
         if initial_values is not None:
             for k, v in initial_values.items():
                 setattr(self, k, v)
-        self.config = DBConfigBase.getConfig()
+        self.config = DBConfig.getConfig()
+        self.infl = Inflector()
+        
+
+    def getMany(self, name):
+        klassname = self.infl.classify(name)
+        klass = globals()[klassname]
+        thisname = self.infl.foreignKey(self.__class__.__name__)
+        return klass.find(where=["%s = ?" % thisname, self.id])
+
+    def __getattr__(self, name):
+        klass = self.__class__
+        if hasattr(klass, HASMANY) and name in klass.HASMANY:
+            return self.getMany(name)
+
+        if hasattr(klass, BELONGSTO) and name in klass.HASMANY:        
+            return self.getOne(name)
+
+        return object.__getattr__(self, name)
+
+
+    def __setattr__(self, name, value):
+        pass
 
 
     @classmethod
     def tablename(klass):
         if not hasattr(klass, 'TABLENAME'):
-            klass.TABLENAME = klass.__name__.lower() + 's'
+            inf = Inflector()
+            klass.TABLENAME = inf.tableize(klass.__name__.lower())
         return klass.TABLENAME
 
 
@@ -52,7 +76,7 @@ class DBObject:
 
     @classmethod
     def find(klass, id=None, where=None, group=None, limit=None):
-        config = DBConfigBase.getConfig()
+        config = DBConfig.getConfig()
         return config.select(klass, id, where, group, limit)
 
 
@@ -62,7 +86,7 @@ class DBObject:
 
     @classmethod
     def deleteAll(klass, where=None):
-        config = DBConfigBase.getConfig()
+        config = DBConfig.getConfig()
         return config.delete(klass, where)
 
     def delete(self):

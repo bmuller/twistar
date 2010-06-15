@@ -1,22 +1,34 @@
 from twisted.python import log
-from twistdb import DBObject
 
-class DBConfigBase:
+class DBConfig:
+    DBPOOL = None
+    IMPL = None
+    LOG = False
+    SCHEMAS = {}
+    
     @classmethod
     def getConfig(klass):
-        if DBObject.DBPOOL == None:
+        if DBConfig.IMPL is not None:
+            return DBConfig.IMPL
+        
+        if DBConfig.DBPOOL is None:
             msg = "You must set DBObject.DBPOOL to a adbapi.ConnectionPool before calling this method."
             raise RuntimeError, msg
-        dbapi = DBObject.DBPOOL.dbapi
+        dbapi = DBConfig.DBPOOL.dbapi
         if dbapi.__name__ == "MySQLdb":
-            return MySQLDBConfig(dbapi)
+            from mysql import MySQLDBConfig            
+            DBConfig.IMPL = MySQLDBConfig(dbapi)
         else:
             raise NotImplementedError, "twisteddb does not support the %s driver" % dbapi.__name__
+        
+        return DBConfig.IMPL
 
     def __init__(self, dbapi):
         self.dbapi = dbapi
 
     def log(self, query, args, kwargs):
+        if not DBConfig.LOG:
+            return
         log.msg("TWISTDB query: %s" % query)
         if len(args) > 0:
             log.msg("TWISTDB args: %s" % ",".join(map(lambda x: str(x), *args)))
@@ -25,7 +37,7 @@ class DBConfigBase:
 
     def execute(self, query, *args, **kwargs):
         self.log(query, args, kwargs)
-        return DBPOOL.runQuery(query, *args, **kwargs)
+        return DBConfig.DBPOOL.runQuery(query, *args, **kwargs)
 
     def executeTxn(self, txn, query, *args, **kwargs):
         self.log(query, args, kwargs)
@@ -69,9 +81,9 @@ class DBConfigBase:
 
 
     def getSchema(self, tablename, txn):
-        if not SCHEMAS.has_key(tablename):
+        if not DBConfig.SCHEMAS.has_key(tablename):
             self.executeTxn(txn, "DESCRIBE %s" % tablename)
-            SCHEMAS[tablename] = [row[0] for row in txn.fetchall()]
-        return SCHEMAS[tablename]
+            DBConfig.SCHEMAS[tablename] = [row[0] for row in txn.fetchall()]
+        return DBConfig.SCHEMAS[tablename]
             
 

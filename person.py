@@ -1,4 +1,6 @@
 from twistdb import DBObject
+from twistdb.dbconfig import DBConfig
+
 import sys
 from twisted.enterprise import adbapi
 from twisted.internet import reactor
@@ -9,9 +11,12 @@ log.startLogging(sys.stdout)
 log.msg("starting...")
 
 
-class User(twistdb.DBObject):
-    pass
-    
+class User(DBObject):
+    HASMANY = ['pictures']
+
+
+class Picture(DBObject):
+    BELONGSTO = ['user']
 
 def complete(users):
     #log.msg("id is: %s" % str(user.id))
@@ -25,24 +30,21 @@ def problem(error):
     log.msg("error: %s" % error)
     reactor.stop()
 
-DBObject.DBPOOL = adbapi.ConnectionPool('MySQLdb', db='twisteddb', user='twisteddb', passwd='tw1$t3dd8')
-#dbobject.DBPOOL.runQuery("describe users").addCallback(complete).addErrback(problem)
-#dbobject.DBPOOL.runQuery("update users set age=%s where id=%s", [69, 58]).addCallback(complete).addErrback(problem)
-#User.createTable() #.addCallback(complete).addErrback(problem)
+DBConfig.DBPOOL = adbapi.ConnectionPool('MySQLdb', db='twisteddb', user='twisteddb', passwd='tw1$t3dd8')
+DBConfig.LOG = True
 
-#u = User()
-#u.first_name = "brian"
-#u.last_name = "muller test again"
-#u.age = 20
-#u.save().addCallback(complete).addErrback(problem)
+def handlePictures(pictures):
+    for pic in pictures:
+        log.msg("found picture with id of %i" % pic.id)
+    reactor.stop()
 
-#u.first_name = "your mom"
-#u.save()
-#dbobject.DBPOOL.runQuery("INSERT INTO users (first_name,last_name) VALUES(%s,%s)", ("brian", "muller"))
+def done(user):
+    log.msg("user found with id: %i" % user.id)
+    user.pictures.addCallback("handlePictures")
+    reactor.stop()
+    
+User.find(1).addCallback(done)
 
-#User.find(where=['last_name = ?', 'muller test again']).addCallback(complete)
-
-User.deleteAll()
 
 reactor.callLater(2, reactor.stop)
 reactor.run()
