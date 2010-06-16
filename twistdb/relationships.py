@@ -3,12 +3,12 @@ from BermiInflector.Inflector import Inflector
 from dbconfig import DBConfig, Registry
 
 class Relationship:
-    def __init__(self, inst, otherklassname):
+    def __init__(self, inst, propname):
         self.infl = Inflector()
         self.inst = inst
-        klassname = self.infl.classify(otherklassname)
+        klassname = self.infl.classify(propname)
         self.otherklass = Registry.getClass(klassname)
-        self.othername = self.infl.foreignKey(otherklassname)
+        self.othername = self.infl.foreignKey(propname)
         self.thisname = self.infl.foreignKey(self.inst.__class__.__name__)
 
 
@@ -30,6 +30,8 @@ class HasMany(Relationship):
         pass
 
     def set(self, others):
+        self.
+        
         return self.otherklass.delete(where=["%s = ?" % self.thisname, self.inst.id]).addCallback(self.update, others)
 
 
@@ -41,7 +43,7 @@ class HasOne(Relationship):
         pass
 
 
-class HasAndBelongsToMany(Relationship):
+class HABTM(Relationship):
     def get(self):
         pass
 

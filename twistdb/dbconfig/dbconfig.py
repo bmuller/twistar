@@ -77,3 +77,21 @@ class DBConfig:
         return Registry.SCHEMAS[tablename]
             
 
+    def insertObj(self, obj):
+        def _doinsert(txn):
+            klass = obj.__class__
+            tablename = klass.tablename()
+            cols = self.getSchema(tablename, txn)
+            vals = obj.toHash(cols)
+            obj.id = self.insert(tablename, vals, txn)
+        return DBConfig.DBPOOL.runInteraction(_doinsert)
+
+
+    def updateObj(self, obj):
+        def _doupdate(txn):
+            klass = obj.__class__
+            tablename = klass.tablename()
+            cols = self.getSchema(tablename, txn)
+            vals = obj.toHash(cols, exclude=['id'])
+            return self.update(tablename, vals, where=['id = ?', obj.id], txn=txn)
+        return DBConfig.DBPOOL.runInteraction(_doupdate)    

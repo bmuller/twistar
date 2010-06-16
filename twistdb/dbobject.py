@@ -1,7 +1,7 @@
 from twisted.python import log
 from twisted.internet import defer
 from dbconfig import DBConfig, Registry
-from relationships import HasOne, HasMany, BelongsTo, HasAndBelongsToMany
+from relationships import HasOne, HasMany, BelongsTo, HABTM
 
 from BermiInflector.Inflector import Inflector
 
@@ -25,6 +25,9 @@ class DBObject(object):
         if hasattr(klass, 'HASONE') and name in klass.HASONE:
             return HasOne(self, name)
 
+        if hasattr(klass, 'HABTM') and name in klass.HABTM:
+            return HABTM(self, name)
+
         return object.__getattribute__(self, name)
 
 
@@ -38,8 +41,8 @@ class DBObject(object):
 
     def save(self):
         if self.id is None:
-            return self.config.insert(self)
-        return self.config.update(self)
+            return self.config.insertObj(self)
+        return self.config.updateObj(self)
 
 
     def __str__(self):
