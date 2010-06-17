@@ -10,6 +10,7 @@ class Relationship:
         self.otherklass = Registry.getClass(klassname)
         self.othername = self.infl.foreignKey(propname)
         self.thisname = self.infl.foreignKey(self.inst.__class__.__name__)
+        self.dbconfig = Registry.getConfig()
 
 
 class BelongsTo(Relationship):       
@@ -26,21 +27,29 @@ class HasMany(Relationship):
     def get(self):
         return self.otherklass.find(where=["%s = ?" % self.thisname, self.inst.id])
 
-    def update(self, _):
-        pass
+    def update(self, _, others):
+        tablename = self.otherclass.tablename()
+#HERE
+        args = {self.thisname: }
+        where = ["%s = ?" % self.thisname, self.inst.id]                
+        self.config.update(tablename, 
 
     def set(self, others):
-        self.
+        tablename = self.otherclass.tablename()
+        args = {self.thisname: None}
+        where = ["%s = ?" % self.thisname, self.inst.id]        
+        return self.dbconfig.update(tablename, args, where).addCallback(self.update, others)
         
-        return self.otherklass.delete(where=["%s = ?" % self.thisname, self.inst.id]).addCallback(self.update, others)
-
 
 class HasOne(Relationship):
     def get(self):
         return self.otherklass.find(where=["%s = ?" % self.thisname, self.inst.id], limit=1)        
 
     def set(self, other):
-        pass
+        tablename = self.otherclass.tablename()
+        args = {self.thisname: other.id}
+        where = ["%s = ?" % self.thisname, self.inst.id]        
+        return self.dbconfig.update(tablename, args, where)
 
 
 class HABTM(Relationship):

@@ -23,6 +23,7 @@ class MySQLDBConfig(DBConfig):
 
 
     def whereToString(self, where):
+        assert(type(where) is list)
         query = where[0].replace("?", "%s")
         args = where[1:]
         return (query, args)

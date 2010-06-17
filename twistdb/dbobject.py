@@ -1,3 +1,7 @@
+"""
+Code relating to the base L{DBObject} object.
+"""
+
 from twisted.python import log
 from twisted.internet import defer
 from dbconfig import DBConfig, Registry
@@ -6,7 +10,17 @@ from relationships import HasOne, HasMany, BelongsTo, HABTM
 from BermiInflector.Inflector import Inflector
 
 class DBObject(object):
+    """
+    A base class for representing objects stored in a RDBMS.
+    """
+    
     def __init__(self, initial_values=None):
+        """
+        @param initial_values: A dictionary containing the properties that
+        should be set for this object.
+
+        @type initial_values: C{dict}
+        """
         self.id = None
         if initial_values is not None:
             for k, v in initial_values.items():
