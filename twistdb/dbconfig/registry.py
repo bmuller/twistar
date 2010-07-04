@@ -1,6 +1,8 @@
 from BermiInflector.Inflector import Inflector
 from dbconfig import DBConfig
 
+# might be able to use 'twisted.python.reflect.namedAny' instead of registering classes
+
 class Registry:
     SCHEMAS = {}
     REGISTRATION = {}
@@ -31,6 +33,9 @@ class Registry:
         if dbapi.__name__ == "MySQLdb":
             from mysql import MySQLDBConfig            
             Registry.IMPL = MySQLDBConfig(dbapi)
+        elif dbapi.__name__ == "sqlite3":
+            from sqlite import SQLiteDBConfig            
+            Registry.IMPL = SQLiteDBConfig(dbapi)
         else:
             raise NotImplementedError, "twisteddb does not support the %s driver" % dbapi.__name__
         

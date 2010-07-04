@@ -1,0 +1,4 @@
+
+class ReferenceNotSavedError(Exception):
+    pass
+

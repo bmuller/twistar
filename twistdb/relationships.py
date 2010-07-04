@@ -2,6 +2,8 @@ from BermiInflector.Inflector import Inflector
 
 from dbconfig import DBConfig, Registry
 
+from exceptions import *
+
 class Relationship:
     def __init__(self, inst, propname):
         self.infl = Inflector()
@@ -29,10 +31,16 @@ class HasMany(Relationship):
 
     def update(self, _, others):
         tablename = self.otherclass.tablename()
-#HERE
-        args = {self.thisname: }
-        where = ["%s = ?" % self.thisname, self.inst.id]                
-        self.config.update(tablename, 
+        args = {self.thisname: self.inst.id}
+        ids = []
+        for other in others:
+            if other.id is None:
+                msg = "You must save all other instances before defining a relationship"
+                raise ReferenceNotSavedError, msg
+            ids.append(str(other.id))
+        where = ["id IN (%s)" % ",".join(ids)]                
+        return self.config.update(tablename, args, where)
+
 
     def set(self, others):
         tablename = self.otherclass.tablename()

@@ -54,7 +54,7 @@ def done(*args):
     
 
 #d = DeferredList([Picture.find(1), User.find(1)]).addCallback(done)
-User.find(where=["id = 1"]).addCallback(complete)
+User.find(1).addCallback(complete)
 
 reactor.callLater(2, reactor.stop)
 reactor.run()

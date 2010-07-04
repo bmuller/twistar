@@ -12,5 +12,5 @@ setup(
     author_email="",
     license="GPL",
     url="",
-    packages=["twistdb", "twistdb.dbconfig", 'BermiInflector', 'BermiInflector.Rules']
+    packages=["twistdb", "twistdb.dbconfig", "twistdb.tests", 'BermiInflector', 'BermiInflector.Rules']
 )
