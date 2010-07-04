@@ -18,7 +18,7 @@ class SQLiteDBConfig(DBConfig):
     def getSchema(self, tablename, txn):
         from registry import Registry
         if not Registry.SCHEMAS.has_key(tablename):
-            self.executeTxn(txn, "SELECT * FROM sqlite_master") # % tablename)
+            self.executeTxn(txn, "PRAGMA table_info(%s)" % tablename)
             x = txn.fetchall()
             print x
             Registry.SCHEMAS[tablename] = [row[0] for row in x]
