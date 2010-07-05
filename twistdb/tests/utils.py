@@ -17,8 +17,8 @@ class Type(DBObject):
 Registry.register(Picture, User, Type)
 
 
-def initDB():
-    DBConfig.DBPOOL = adbapi.ConnectionPool('sqlite3', ':memory:')
+def initDB(location):
+    DBConfig.DBPOOL = adbapi.ConnectionPool('sqlite3', location, check_same_thread=False)
     DBConfig.LOG = True
     def runInitTxn(txn):
         txn.execute("""CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT,

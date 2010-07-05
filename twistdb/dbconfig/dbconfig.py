@@ -47,11 +47,15 @@ class DBConfig:
         return DBConfig.DBPOOL.runInteraction(self._doselect, klass, q, args, one)
 
 
+    ## Convert {'name': value} to "%s,%s,%s"
+    def insertArgsToString(self, vals):
+        return ",".join(["%s" for _ in vals.items()])        
+
 
     ## Vals should be in form of {'name': value, 'othername': value}
     ## This func should return id of new row
     def insert(self, tablename, vals, txn):
-        params = ",".join(["%s" for _ in vals.items()])
+        params = self.insertArgsToString(vals)
         colnames = ",".join(vals.keys())
         q = "INSERT INTO %s (%s) " % (tablename, colnames)
         q += "VALUES(" + params + ")"

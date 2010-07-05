@@ -19,12 +19,13 @@ class SQLiteDBConfig(DBConfig):
         from registry import Registry
         if not Registry.SCHEMAS.has_key(tablename):
             self.executeTxn(txn, "PRAGMA table_info(%s)" % tablename)
-            x = txn.fetchall()
-            print x
-            Registry.SCHEMAS[tablename] = [row[0] for row in x]
+            Registry.SCHEMAS[tablename] = [row[1] for row in txn.fetchall()]
         return Registry.SCHEMAS[tablename]    
 
 
+    ## Convert {'name': value} to "?,?,?"
+    def insertArgsToString(self, vals):
+        return ",".join(["?" for _ in vals.items()])        
 
     
 
