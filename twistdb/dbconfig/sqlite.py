@@ -8,6 +8,15 @@ class SQLiteDBConfig(DBConfig):
         args = where[1:]
         return (query, args)
 
+
+
+    def getLastInsertID(self, txn):
+        q = "SELECT last_insert_rowid()"
+        self.executeTxn(txn, q)
+        result = txn.fetchall()
+        return result[0][0]
+                            
+
     ## Args should be in form of {'name': value, 'othername': value}
     ## Convert to form 'name = ?, othername = ?, ...'
     def updateArgsToString(self, args):

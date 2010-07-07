@@ -60,11 +60,15 @@ class DBConfig:
         q = "INSERT INTO %s (%s) " % (tablename, colnames)
         q += "VALUES(" + params + ")"
         self.executeTxn(txn, q, vals.values())
+        return self.getLastInsertID(txn)
+
+
+    def getLastInsertID(self, txn):
         q = "SELECT LAST_INSERT_ID()"
         self.executeTxn(txn, q)            
         result = txn.fetchall()
         return result[0][0]
-
+    
 
     def delete(self, klass, where=None):
         q = "DELETE FROM %s" % klass.tablename()
