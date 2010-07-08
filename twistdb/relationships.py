@@ -30,7 +30,7 @@ class HasMany(Relationship):
         return self.otherklass.find(where=["%s = ?" % self.thisname, self.inst.id])
 
     def update(self, _, others):
-        tablename = self.otherclass.tablename()
+        tablename = self.otherklass.tablename()
         args = {self.thisname: self.inst.id}
         ids = []
         for other in others:
@@ -39,11 +39,11 @@ class HasMany(Relationship):
                 raise ReferenceNotSavedError, msg
             ids.append(str(other.id))
         where = ["id IN (%s)" % ",".join(ids)]                
-        return self.config.update(tablename, args, where)
+        return self.dbconfig.update(tablename, args, where)
 
 
     def set(self, others):
-        tablename = self.otherclass.tablename()
+        tablename = self.otherklass.tablename()
         args = {self.thisname: None}
         where = ["%s = ?" % self.thisname, self.inst.id]        
         return self.dbconfig.update(tablename, args, where).addCallback(self.update, others)
@@ -51,7 +51,7 @@ class HasMany(Relationship):
 
 class HasOne(Relationship):
     def get(self):
-        return self.otherklass.find(where=["%s = ?" % self.thisname, self.inst.id], limit=1)        
+        return self.otherklass.find(where=["%s = ?" % self.thisname, self.inst.id], limit=1)
 
     def set(self, other):
         tablename = self.otherclass.tablename()

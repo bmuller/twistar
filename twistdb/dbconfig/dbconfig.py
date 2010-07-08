@@ -24,6 +24,7 @@ class DBConfig:
 
 
     def executeTxn(self, txn, query, *args, **kwargs):
+        print query
         self.log(query, args, kwargs)
         return txn.execute(query, *args, **kwargs)
 
@@ -108,13 +109,15 @@ class DBConfig:
         self.executeTxn(txn, q, args)
 
         if one:
+            if txn.rowcount < 1:
+                return None
             vals = self.valuesToHash(klass, txn, txn.fetchone())
-            return klass(vals)
+            return klass(**vals)
 
         results = []
         for result in txn.fetchall():
             vals = self.valuesToHash(klass, txn, result)
-            results.append(klass(vals))            
+            results.append(klass(**vals))            
         return results    
 
 
@@ -133,6 +136,7 @@ class DBConfig:
             cols = self.getSchema(tablename, txn)
             vals = obj.toHash(cols)
             obj.id = self.insert(tablename, vals, txn)
+            return obj
         return DBConfig.DBPOOL.runInteraction(_doinsert)
 
 
@@ -143,7 +147,18 @@ class DBConfig:
             cols = self.getSchema(tablename, txn)
             vals = obj.toHash(cols, exclude=['id'])
             return self.update(tablename, vals, where=['id = ?', obj.id], txn=txn)
-        return DBConfig.DBPOOL.runInteraction(_doupdate)    
+        # We don't want to return the cursor - so add a blank callback returning the obj
+        return DBConfig.DBPOOL.runInteraction(_doupdate).addCallback(lambda _: obj)    
+
+
+    def refreshObj(self, obj):
+        def _dorefreshObj(self, obj):
+            if obj is None:
+                raise CannotRefreshError, "Can't refresh if id not longer exists."
+            tablename = obj.tablename()
+            for key in Registry.SCHEMAS[tablename]:
+                setattr(self, key, getattr(obj, key))
+        return self.select(obj.__class__, obj.id).addCallback(_dorefreshObj)
 
 
     def whereToString(self, where):
@@ -156,5 +171,5 @@ class DBConfig:
     ## Args should be in form of {'name': value, 'othername': value}
     ## Convert to form 'name = %s, othername = %s, ...'
     def updateArgsToString(self, args):
-        setstring = ",".join([key + " = %s" for key in vals.keys()])
+        setstring = ",".join([key + " = %s" for key in args.keys()])
         return (setstring, args.values())

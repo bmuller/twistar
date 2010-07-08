@@ -14,16 +14,16 @@ class DBObject(object):
     A base class for representing objects stored in a RDBMS.
     """
     
-    def __init__(self, initial_values=None):
+    def __init__(self, **kwargs):
         """
-        @param initial_values: A dictionary containing the properties that
+        @param kwargs: A dictionary containing the properties that
         should be set for this object.
 
         @type initial_values: C{dict}
         """
         self.id = None
-        if initial_values is not None:
-            for k, v in initial_values.items():
+        if len(kwargs) != 0:
+            for k, v in kwargs.items():
                 setattr(self, k, v)
         self.config = Registry.getConfig()
 
@@ -49,7 +49,7 @@ class DBObject(object):
     def tablename(klass):
         if not hasattr(klass, 'TABLENAME'):
             inf = Inflector()
-            klass.TABLENAME = inf.tableize(klass.__name__.lower())
+            klass.TABLENAME = inf.tableize(klass.__name__)
         return klass.TABLENAME
 
 
@@ -57,6 +57,10 @@ class DBObject(object):
         if self.id is None:
             return self.config.insertObj(self)
         return self.config.updateObj(self)
+
+
+    def refresh(self):
+        return self.config.refreshObj(self)
 
 
     def __str__(self):
@@ -78,7 +82,7 @@ class DBObject(object):
             if (value != None or includeBlank):
                 h[col] = str(value)
         return h
-            
+
 
     @classmethod
     def find(klass, id=None, where=None, group=None, limit=None):
@@ -98,5 +102,12 @@ class DBObject(object):
     def delete(self):
         return self.__class__.deleteAll(where=["id = ?", self.id])
 
+    def __eq__(self, other):
+        eqclass = self.__class__.__name__ == other.__class__.__name__
+        eqid = hasattr(other, 'id') and self.id == other.id
+        return eqclass and eqid
+
+    def __neq__(self, other):
+        return not self == other
 
     __repr__ = __str__

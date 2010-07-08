@@ -6,15 +6,15 @@ from twistdb.dbconfig import Registry, DBConfig
 
 class User(DBObject):
     HASMANY = ['pictures']
+    HASONE = ['avatar']
 
 class Picture(DBObject):
     BELONGSTO = ['user']
-    HASONE = ['type']
 
-class Type(DBObject):
+class Avatar(DBObject):
     pass
 
-Registry.register(Picture, User, Type)
+Registry.register(Picture, User, Avatar)
 
 
 def initDB(location):
@@ -23,7 +23,8 @@ def initDB(location):
     def runInitTxn(txn):
         txn.execute("""CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT,
                        first_name TEXT, last_name TEXT, age INTEGER)""")
-        txn.execute("CREATE TABLE types (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)")        
+        txn.execute("""CREATE TABLE avatars (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT,
+                       color TEXT, user_id INTEGER)""")        
         txn.execute("""CREATE TABLE pictures (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT,
-                       size INTEGER, user_id INTEGER, type_id INTEGER)""")
+                       size INTEGER, user_id INTEGER)""")
     return DBConfig.DBPOOL.runInteraction(runInitTxn)

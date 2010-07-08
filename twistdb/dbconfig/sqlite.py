@@ -20,7 +20,7 @@ class SQLiteDBConfig(DBConfig):
     ## Args should be in form of {'name': value, 'othername': value}
     ## Convert to form 'name = ?, othername = ?, ...'
     def updateArgsToString(self, args):
-        setstring = ",".join([key + " = ?" for key in vals.keys()])
+        setstring = ",".join([key + " = ?" for key in args.keys()])
         return (setstring, args.values())
 
 
