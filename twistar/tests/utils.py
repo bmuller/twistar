@@ -1,7 +1,7 @@
 from twisted.enterprise import adbapi
 
-from twistdb import DBObject
-from twistdb.dbconfig import Registry
+from twistar import DBObject
+from twistar.dbconfig import Registry
 
 
 class User(DBObject):

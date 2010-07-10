@@ -1,6 +1,6 @@
 from BermiInflector.Inflector import Inflector
 
-from twistdb.dbconfig import DBConfig, Registry
+from twistar.dbconfig import DBConfig, Registry
 
 from exceptions import *
 

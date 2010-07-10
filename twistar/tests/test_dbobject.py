@@ -2,7 +2,7 @@ from twisted.trial import unittest
 from twisted.enterprise import adbapi
 from twisted.internet.defer import inlineCallbacks
 
-from twistdb.exceptions import EmtpyOrImaginaryTableError
+from twistar.exceptions import EmtpyOrImaginaryTableError
 
 from utils import *
 

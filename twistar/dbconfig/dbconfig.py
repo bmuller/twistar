@@ -1,7 +1,7 @@
 from twisted.python import log
 
-from twistdb.dbconfig import Registry        
-from twistdb.exceptions import EmtpyOrImaginaryTableError
+from twistar.dbconfig import Registry        
+from twistar.exceptions import EmtpyOrImaginaryTableError
 
 class DBConfig:
     LOG = False
@@ -13,11 +13,11 @@ class DBConfig:
     def log(self, query, args, kwargs):
         if not DBConfig.LOG:
             return
-        log.msg("TWISTDB query: %s" % query)
+        log.msg("TWISTAR query: %s" % query)
         if len(args) > 0:
-            log.msg("TWISTDB args: %s" % ",".join(map(lambda x: str(x), *args)))
+            log.msg("TWISTAR args: %s" % ",".join(map(lambda x: str(x), *args)))
         elif len(kwargs) > 0:
-            log.msg("TWISTDB kargs: %s" % str(kwargs))        
+            log.msg("TWISTAR kargs: %s" % str(kwargs))        
 
 
     def execute(self, query, *args, **kwargs):
