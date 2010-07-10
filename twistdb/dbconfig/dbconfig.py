@@ -1,7 +1,9 @@
 from twisted.python import log
 
+from twistdb.dbconfig import Registry        
+from twistdb.exceptions import EmtpyOrImaginaryTableError
+
 class DBConfig:
-    DBPOOL = None
     LOG = False
     
     def __init__(self, dbapi):
@@ -19,25 +21,29 @@ class DBConfig:
 
 
     def execute(self, query, *args, **kwargs):
+        #print query, args
         self.log(query, args, kwargs)
-        return DBConfig.DBPOOL.runQuery(query, *args, **kwargs)
+        return Registry.DBPOOL.runQuery(query, *args, **kwargs)
 
 
     def executeTxn(self, txn, query, *args, **kwargs):
-        print query
+        #print query, args
         self.log(query, args, kwargs)
         return txn.execute(query, *args, **kwargs)
 
 
-    def select(self, klass, id=None, where=None, group=None, limit=None):
+    def select(self, klass, id=None, where=None, group=None, limit=None, tablename=None):
+        tablename = tablename or klass.tablename()
         one = False
+        
         if id is not None:
             where = ["id = ?", id]
             one = True
         if limit is not None and int(limit) == 1:
             one = True
-        q = "SELECT * FROM %s" % klass.tablename()
-        args = None
+            
+        q = "SELECT * FROM %s" % tablename
+        args = []
         if where is not None:
             wherestr, args = self.whereToString(where)
             q += " WHERE " + wherestr
@@ -45,7 +51,7 @@ class DBConfig:
             q += " GROUP BY " + group
         if limit is not None:
             q += " LIMIT " + str(limit)
-        return DBConfig.DBPOOL.runInteraction(self._doselect, klass, q, args, one)
+        return Registry.DBPOOL.runInteraction(self._doselect, klass, q, args, one)
 
 
     ## Convert {'name': value} to "%s,%s,%s"
@@ -77,7 +83,7 @@ class DBConfig:
         if where is not None:
             wherestr, args = self.whereToString(where)
             q += " WHERE " + wherestr
-        self.execute(q, args)
+        return self.execute(q, args)
 
 
     ## Args should be in form of {'name': value, 'othername': value}
@@ -91,7 +97,7 @@ class DBConfig:
             
         if txn is not None:
             return self.executeTxn(txn, q, args)
-        return DBConfig.DBPOOL.runQuery(q, args)
+        return self.execute(q, args)
 
 
     # Values is a row from a db, this method will create a hash with
@@ -109,9 +115,10 @@ class DBConfig:
         self.executeTxn(txn, q, args)
 
         if one:
-            if txn.rowcount < 1:
+            result = txn.fetchone()
+            if not result:
                 return None
-            vals = self.valuesToHash(klass, txn, txn.fetchone())
+            vals = self.valuesToHash(klass, txn, result)
             return klass(**vals)
 
         results = []
@@ -121,12 +128,11 @@ class DBConfig:
         return results    
 
 
-    def getSchema(self, tablename, txn):
-        from registry import Registry
-        if not Registry.SCHEMAS.has_key(tablename):
+    def getSchema(self, tablename, txn=None):
+        if not Registry.SCHEMAS.has_key(tablename) and txn is not None:
             self.executeTxn(txn, "DESCRIBE %s" % tablename)
             Registry.SCHEMAS[tablename] = [row[0] for row in txn.fetchall()]
-        return Registry.SCHEMAS[tablename]
+        return Registry.SCHEMAS.get(tablename, [])
             
 
     def insertObj(self, obj):
@@ -134,10 +140,12 @@ class DBConfig:
             klass = obj.__class__
             tablename = klass.tablename()
             cols = self.getSchema(tablename, txn)
-            vals = obj.toHash(cols)
+            if len(cols) == 0:
+                raise EmtpyOrImaginaryTableError, "Table %s empty or imaginary." % tablename
+            vals = obj.toHash(cols, includeBlank=True, exclude=['id'])
             obj.id = self.insert(tablename, vals, txn)
             return obj
-        return DBConfig.DBPOOL.runInteraction(_doinsert)
+        return Registry.DBPOOL.runInteraction(_doinsert)
 
 
     def updateObj(self, obj):
@@ -145,19 +153,20 @@ class DBConfig:
             klass = obj.__class__
             tablename = klass.tablename()
             cols = self.getSchema(tablename, txn)
+            
             vals = obj.toHash(cols, exclude=['id'])
             return self.update(tablename, vals, where=['id = ?', obj.id], txn=txn)
         # We don't want to return the cursor - so add a blank callback returning the obj
-        return DBConfig.DBPOOL.runInteraction(_doupdate).addCallback(lambda _: obj)    
+        return Registry.DBPOOL.runInteraction(_doupdate).addCallback(lambda _: obj)    
 
 
     def refreshObj(self, obj):
-        def _dorefreshObj(self, obj):
+        def _dorefreshObj(newobj):
             if obj is None:
                 raise CannotRefreshError, "Can't refresh if id not longer exists."
             tablename = obj.tablename()
-            for key in Registry.SCHEMAS[tablename]:
-                setattr(self, key, getattr(obj, key))
+            for key in self.getSchema(tablename):
+                setattr(obj, key, getattr(newobj, key))
         return self.select(obj.__class__, obj.id).addCallback(_dorefreshObj)
 
 

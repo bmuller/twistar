@@ -1,5 +1,4 @@
 from BermiInflector.Inflector import Inflector
-from dbconfig import DBConfig
 
 # might be able to use 'twisted.python.reflect.namedAny' instead of registering classes
 
@@ -7,6 +6,7 @@ class Registry:
     SCHEMAS = {}
     REGISTRATION = {}
     IMPL = None
+    DBPOOL = None
 
     @classmethod
     def register(_, *klasses):
@@ -26,10 +26,10 @@ class Registry:
         if Registry.IMPL is not None:
             return Registry.IMPL
         
-        if DBConfig.DBPOOL is None:
-            msg = "You must set DBConfig.DBPOOL to a adbapi.ConnectionPool before calling this method."
+        if Registry.DBPOOL is None:
+            msg = "You must set Registry.DBPOOL to a adbapi.ConnectionPool before calling this method."
             raise RuntimeError, msg
-        dbapi = DBConfig.DBPOOL.dbapi
+        dbapi = Registry.DBPOOL.dbapi
         if dbapi.__name__ == "MySQLdb":
             from mysql import MySQLDBConfig            
             Registry.IMPL = MySQLDBConfig(dbapi)

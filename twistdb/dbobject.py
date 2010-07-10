@@ -99,15 +99,19 @@ class DBObject(object):
         config = Registry.getConfig()
         return config.delete(klass, where)
 
+
     def delete(self):
         return self.__class__.deleteAll(where=["id = ?", self.id])
+
 
     def __eq__(self, other):
         eqclass = self.__class__.__name__ == other.__class__.__name__
         eqid = hasattr(other, 'id') and self.id == other.id
         return eqclass and eqid
 
+
     def __neq__(self, other):
         return not self == other
+
 
     __repr__ = __str__

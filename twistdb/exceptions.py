@@ -1,4 +1,7 @@
 
+class EmtpyOrImaginaryTableError(Exception):
+    pass
+
 class ReferenceNotSavedError(Exception):
     pass
 
