@@ -1,0 +1,7 @@
+The Twistar Project provides an ActiveRecord pattern interface to 
+the Twisted Project's RDBMS library.
+
+For installation instructions, see INSTALLATION.  Included in those
+instructions are the steps to generating API and HOWTO examples.
+
+For more information, see http://trac.butterfat.net/public/twistar

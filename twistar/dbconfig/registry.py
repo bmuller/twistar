@@ -1,3 +1,5 @@
+from twisted.python import reflect
+
 from BermiInflector.Inflector import Inflector
 
 # might be able to use 'twisted.python.reflect.namedAny' instead of registering classes
@@ -15,11 +17,21 @@ class Registry:
 
 
     @classmethod
-    def getClass(_, name):
+    def getClass(klass, name):
         if not Registry.REGISTRATION.has_key(name):
             raise RuntimeError, "You never registered the class named %s" % name
         return Registry.REGISTRATION[name]
-    
+
+
+    ## Per http://www.python.org/dev/peps/pep-0249/ each driver
+    ## must implement it's own Date/Time/Timestamp/etc classes
+    ## this method provides a generalized way to get them
+    @classmethod
+    def getDBAPIClass(klass, name):
+        driver = Registry.DBPOOL.dbapi.__name__
+        path = "%s.%s" % (driver, name)
+        return reflect.namedAny(path)
+
     
     @classmethod
     def getConfig(klass):

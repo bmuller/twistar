@@ -4,14 +4,15 @@ from twisted.internet.defer import inlineCallbacks
 
 from utils import *
 
-class RelationshipTest(unittest.TestCase):
-    
+class RelationshipTest(unittest.TestCase):    
     @inlineCallbacks
     def setUp(self):
         yield initDB(self.mktemp())
         self.user = yield User(first_name="First", last_name="Last", age=10).save()
         self.avatar = yield Avatar(name="an avatar name", user_id=self.user.id).save()
         self.picture = yield Picture(name="a pic", size=10, user_id=self.user.id).save()
+        self.favcolor = yield FavoriteColor(name="blue").save()
+        self.config = Registry.getConfig()
 
 
     @inlineCallbacks
@@ -79,3 +80,46 @@ class RelationshipTest(unittest.TestCase):
         yield self.user.avatar.set(avatar)
         yield avatar.refresh()
         self.assertEqual(avatar.user_id, self.user.id)
+
+
+    @inlineCallbacks
+    def test_habtm(self):
+        color = yield FavoriteColor(name="red").save()
+        colors = [self.favcolor, color]
+        colorids = [color.id for color in colors]
+
+        args = {'user_id': self.user.id, 'favorite_color_id': colors[0].id}
+        yield self.config.insert('favorite_colors_users', args)
+        args = {'user_id': self.user.id, 'favorite_color_id': colors[1].id}
+        yield self.config.insert('favorite_colors_users', args)
+        
+        newcolors = yield self.user.favorite_colors.get()
+        newcolorids = [color.id for color in newcolors]        
+        self.assertEqual(newcolorids, colorids)
+
+
+    @inlineCallbacks
+    def test_set_habtm(self):
+        user = yield User().save()
+        color = yield FavoriteColor(name="red").save()
+        colors = [self.favcolor, color]
+        colorids = [color.id for color in colors]
+
+        yield user.favorite_colors.set(colors)
+        newcolors = yield user.favorite_colors.get()
+        newcolorids = [color.id for color in newcolors]        
+        self.assertEqual(newcolorids, colorids)        
+
+
+    @inlineCallbacks
+    def test_set_habtm_blank(self):
+        user = yield User().save()
+        color = yield FavoriteColor(name="red").save()
+        colors = [self.favcolor, color]
+        colorids = [color.id for color in colors]
+
+        yield user.favorite_colors.set(colors)
+        # now blank out
+        yield user.favorite_colors.set([])
+        newcolors = yield user.favorite_colors.get()
+        self.assertEqual(len(newcolors), 0)

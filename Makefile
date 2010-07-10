@@ -5,4 +5,4 @@ docs:
 	lore --config template=doc/template.tpl doc/*.xhtml
 
 test:
-	trial twistar.tests
+	trial twistar

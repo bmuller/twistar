@@ -3,6 +3,7 @@ from twisted.enterprise import adbapi
 from twisted.internet.defer import inlineCallbacks
 
 from twistar.exceptions import EmtpyOrImaginaryTableError
+from twistar.dbconfig import Registry
 
 from utils import *
 
@@ -30,6 +31,12 @@ class DBObjectTest(unittest.TestCase):
         f = FakeObject(blah = "something")
         self.failUnlessFailure(f.save(), EmtpyOrImaginaryTableError)
 
+        dateklass = Registry.getDBAPIClass("Date")
+        args = {'first_name': "a", "last_name": "b", "age": 10, "dob": dateklass(2000, 1, 1)}
+        u = yield User(**args).save()
+        for key, value in args.items():
+            self.assertEqual(getattr(u, key), value)
+        
 
     @inlineCallbacks
     def test_find(self):
@@ -71,3 +78,34 @@ class DBObjectTest(unittest.TestCase):
         users = yield User.all()        
         resultids = [user.id for user in users]
         self.assertEqual(resultids, ids)
+
+
+    @inlineCallbacks
+    def test_update(self):
+        dateklass = Registry.getDBAPIClass("Date")
+        args = {'first_name': "a", "last_name": "b", "age": 10}
+        u = yield User(**args).save()
+
+        args = {'first_name': "b", "last_name": "a", "age": 100}
+        for key, value in args.items():
+            setattr(u, key, value)
+        yield u.save()
+
+        u = yield User.find(u.id)
+        for key, value in args.items():
+            self.assertEqual(getattr(u, key), value)
+
+
+    @inlineCallbacks
+    def test_refresh(self):
+        dateklass = Registry.getDBAPIClass("Date")
+        args = {'first_name': "a", "last_name": "b", "age": 10}
+        u = yield User(**args).save()
+
+        # mess up the props, then refresh
+        u.first_name = "something different"
+        u.last_name = "another thing"
+        yield u.refresh()
+        
+        for key, value in args.items():
+            self.assertEqual(getattr(u, key), value)

@@ -34,10 +34,15 @@ class SQLiteDBConfig(DBConfig):
     
     ## Convert {'name': value} to "?,?,?"
     def insertArgsToString(self, vals):
-        return ",".join(["?" for _ in vals.items()])        
+        return "(" + ",".join(["?" for _ in vals.items()]) + ")"
 
     
-
+    ## retarded sqlite can't handle multiple row inserts
+    def insertMany(self, tablename, vals):
+        def _insertMany(txn):
+            for val in vals:
+                self.insert(tablename, val, txn)
+        return Registry.DBPOOL.runInteraction(_insertMany)
 
 
 

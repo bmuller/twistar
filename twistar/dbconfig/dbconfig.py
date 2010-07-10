@@ -51,24 +51,56 @@ class DBConfig:
             q += " GROUP BY " + group
         if limit is not None:
             q += " LIMIT " + str(limit)
-        return Registry.DBPOOL.runInteraction(self._doselect, klass, q, args, one)
+        return Registry.DBPOOL.runInteraction(self._doselect, klass, q, args, tablename, one)
 
 
-    ## Convert {'name': value} to "%s,%s,%s"
+    def _doselect(self, txn, klass, q, args, tablename, one=False):
+        self.executeTxn(txn, q, args)
+
+        if one:
+            result = txn.fetchone()
+            if not result:
+                return None
+            vals = self.valuesToHash(txn, result, tablename)
+            return klass(**vals)
+
+        results = []
+        for result in txn.fetchall():
+            vals = self.valuesToHash(txn, result, tablename)
+            results.append(klass(**vals))            
+        return results
+    
+
+    ## Convert {'name': value} to ("%s,%s,%s)"
     def insertArgsToString(self, vals):
-        return ",".join(["%s" for _ in vals.items()])        
+        return "(" + ",".join(["%s" for _ in vals.items()]) + ")"
 
 
     ## Vals should be in form of {'name': value, 'othername': value}
-    ## This func should return id of new row
-    def insert(self, tablename, vals, txn):
+    ## This func should return id of new row.  If txn is given
+    ## it will use that specific txn, otherwise a typical runQuery
+    ## will be used
+    def insert(self, tablename, vals, txn=None):
         params = self.insertArgsToString(vals)
         colnames = ",".join(vals.keys())
         q = "INSERT INTO %s (%s) " % (tablename, colnames)
-        q += "VALUES(" + params + ")"
-        self.executeTxn(txn, q, vals.values())
-        return self.getLastInsertID(txn)
+        q += "VALUES %s" % params
+        if not txn is None:
+            return self.executeTxn(txn, q, vals.values())
+        return self.execute(q, vals.values())
 
+
+    ## insert many values - vals should be array of {'name': 'value', ...}
+    ## (i.e., array of same type of param regular insert takes)
+    def insertMany(self, tablename, vals):
+        colnames = ",".join(vals[0].keys())
+        params = " ".join([self.insertArgsToString(val) for val in vals])
+        args = []
+        for val in vals:
+            args = args + val.values()
+        q = "INSERT INTO %s (%s) VALUES %s" % (tablename, colnames, params)
+        return self.execute(q, args)
+        
 
     def getLastInsertID(self, txn):
         q = "SELECT LAST_INSERT_ID()"
@@ -77,8 +109,8 @@ class DBConfig:
         return result[0][0]
     
 
-    def delete(self, klass, where=None):
-        q = "DELETE FROM %s" % klass.tablename()
+    def delete(self, tablename, where=None):
+        q = "DELETE FROM %s" % tablename
         args = []
         if where is not None:
             wherestr, args = self.whereToString(where)
@@ -102,30 +134,15 @@ class DBConfig:
 
     # Values is a row from a db, this method will create a hash with
     # key => value of colname => value based on the table description
-    def valuesToHash(self, klass, txn, values):
-        cols = self.getSchema(klass.tablename(), txn)
+    def valuesToHash(self, txn, values, tablename):
+        cols = [row[0] for row in txn.description]
+        if not Registry.SCHEMAS.has_key(tablename):
+            Registry.SCHEMAS[tablename] = cols
         h = {}
         for index in range(len(values)):
             colname = cols[index]
             h[colname] = values[index]
         return h
-
-
-    def _doselect(self, txn, klass, q, args, one=False):
-        self.executeTxn(txn, q, args)
-
-        if one:
-            result = txn.fetchone()
-            if not result:
-                return None
-            vals = self.valuesToHash(klass, txn, result)
-            return klass(**vals)
-
-        results = []
-        for result in txn.fetchall():
-            vals = self.valuesToHash(klass, txn, result)
-            results.append(klass(**vals))            
-        return results    
 
 
     def getSchema(self, tablename, txn=None):
@@ -143,7 +160,8 @@ class DBConfig:
             if len(cols) == 0:
                 raise EmtpyOrImaginaryTableError, "Table %s empty or imaginary." % tablename
             vals = obj.toHash(cols, includeBlank=True, exclude=['id'])
-            obj.id = self.insert(tablename, vals, txn)
+            self.insert(tablename, vals, txn)
+            obj.id = self.getLastInsertID(txn)
             return obj
         return Registry.DBPOOL.runInteraction(_doinsert)
 

@@ -7,3 +7,6 @@ class ReferenceNotSavedError(Exception):
 
 class CannotRefreshError(Exception):
     pass
+
+class InvalidRelationshipError(Exception):
+    pass

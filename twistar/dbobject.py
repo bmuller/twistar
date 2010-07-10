@@ -4,12 +4,23 @@ Code relating to the base L{DBObject} object.
 
 from twisted.python import log
 from twisted.internet import defer
+
 from dbconfig import DBConfig, Registry
-from relationships import HasOne, HasMany, BelongsTo, HABTM
+from relationships import Relationship
+from exceptions import InvalidRelationshipError
 
 from BermiInflector.Inflector import Inflector
 
 class DBObject(object):
+    HASMANY = []
+    HASONE = []
+    HABTM = []
+    BELONGSTO = []
+    # this will just be a hash of relationships for faster property resolution
+    # the keys are the name and the values are classes representing the relationship
+    # it will be of the form {'othername': <BelongsTo instance>, 'anothername': <HasMany instance>}
+    RELATIONSHIP_CACHE = None
+
     """
     A base class for representing objects stored in a RDBMS.
     """
@@ -27,21 +38,40 @@ class DBObject(object):
                 setattr(self, k, v)
         self.config = Registry.getConfig()
 
+        if self.__class__.RELATIONSHIP_CACHE is None:
+            self.__class__.initRelationshipCache()
+
+
+    # relation is either string or dict with 'name' key
+    # rtype is one of the keys from Relationship.TYPES
+    @classmethod
+    def addRelation(klass, relation, rtype):
+        if type(relation) is dict:
+            if not relation.has_key('name'):
+                msg = "No key 'name' in the relation %s in class %s" % (relation, klass.__name__)
+                raise InvalidRelationshipError, msg
+            name = relation['name']
+            args = relation
+        else:
+            name = relation
+            args = {}
+        relationshipKlass = Relationship.TYPES[rtype]
+        klass.RELATIONSHIP_CACHE[name] = (relationshipKlass, args)
+
+
+    @classmethod
+    def initRelationshipCache(klass):
+        klass.RELATIONSHIP_CACHE = {}        
+        for rtype in Relationship.TYPES.keys():
+            for relation in getattr(klass, rtype):
+                klass.addRelation(relation, rtype)
+        
 
     def __getattribute__(self, name):
         klass = object.__getattribute__(self, "__class__")
-        if hasattr(klass, 'HASMANY') and name in klass.HASMANY:
-            return HasMany(self, name)
-
-        if hasattr(klass, 'BELONGSTO') and name in klass.BELONGSTO:
-            return BelongsTo(self, name)
-
-        if hasattr(klass, 'HASONE') and name in klass.HASONE:
-            return HasOne(self, name)
-
-        if hasattr(klass, 'HABTM') and name in klass.HABTM:
-            return HABTM(self, name)
-
+        if not klass.RELATIONSHIP_CACHE is None and klass.RELATIONSHIP_CACHE.has_key(name):
+            relationshipKlass, args = klass.RELATIONSHIP_CACHE[name]
+            return relationshipKlass(self, name, args)
         return object.__getattribute__(self, name)
 
 
@@ -97,7 +127,8 @@ class DBObject(object):
     @classmethod
     def deleteAll(klass, where=None):
         config = Registry.getConfig()
-        return config.delete(klass, where)
+        tablename = klass.tablename()
+        return config.delete(tablename, where)
 
 
     def delete(self):
@@ -115,3 +146,6 @@ class DBObject(object):
 
 
     __repr__ = __str__
+
+
+Registry.register(DBObject)
