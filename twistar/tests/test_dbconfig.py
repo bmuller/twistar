@@ -51,9 +51,29 @@ class DBConfigTest(unittest.TestCase):
         self.assertTrue(result[0]['id'] == self.user.id)
         
 
+    @inlineCallbacks
     def test_update(self):
-        pass
+        tablename = User.tablename()        
+        user = yield User(first_name="Another First").save()
+
+        args = {'first_name': "test", "last_name": "foo", "age": 91}
+        yield self.dbconfig.update(tablename, args, ['id = ?', user.id])
+        yield user.refresh()
+        for key, value in args.items():
+            self.assertEqual(value, getattr(user, key))
 
 
+    #@inlineCallbacks
     def test_insert(self):
-        pass    
+        tablename = User.tablename()
+        self.assertTrue(False)        
+
+ 
+    #@inlineCallbacks
+    def test_insert_many(self):   
+        self.assertTrue(False)
+
+
+    #@inlineCallbacks
+    def test_insert_obj(self):
+        self.assertTrue(False)        
