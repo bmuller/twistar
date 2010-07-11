@@ -64,8 +64,9 @@ class DBObjectTest(unittest.TestCase):
     @inlineCallbacks
     def test_delete(self):
         u = yield User().save()
+        oldid = u.id
         yield u.delete()
-        result = yield User.find(u.id)
+        result = yield User.find(oldid)
         self.assertEqual(result, None)
 
 

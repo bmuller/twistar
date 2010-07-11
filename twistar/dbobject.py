@@ -7,7 +7,7 @@ from twisted.internet import defer
 
 from dbconfig import DBConfig, Registry
 from relationships import Relationship
-from exceptions import InvalidRelationshipError
+from exceptions import InvalidRelationshipError, DBObjectSaveError
 
 from BermiInflector.Inflector import Inflector
 
@@ -33,6 +33,7 @@ class DBObject(object):
         @type initial_values: C{dict}
         """
         self.id = None
+        self.deleted = False
         if len(kwargs) != 0:
             for k, v in kwargs.items():
                 setattr(self, k, v)
@@ -84,6 +85,8 @@ class DBObject(object):
 
 
     def save(self):
+        if self.deleted:
+            raise DBObjectSaveError, "Cannot save a previously deleted object."
         if self.id is None:
             return self.config.insertObj(self)
         return self.config.updateObj(self)
@@ -132,7 +135,10 @@ class DBObject(object):
 
 
     def delete(self):
-        return self.__class__.deleteAll(where=["id = ?", self.id])
+        oldid = self.id
+        self.id = None
+        self.deleted = True
+        return self.__class__.deleteAll(where=["id = ?", oldid])
 
 
     def __eq__(self, other):

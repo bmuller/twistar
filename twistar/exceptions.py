@@ -10,3 +10,6 @@ class CannotRefreshError(Exception):
 
 class InvalidRelationshipError(Exception):
     pass
+
+class DBObjectSaveError(Exception):
+    pass
