@@ -1,9 +1,10 @@
 from twisted.python import log
 
-from twistar.dbconfig import Registry        
-from twistar.exceptions import EmtpyOrImaginaryTableError
+from twistar.registry import Registry        
+from twistar.exceptions import ImaginaryTableError
 
-class DBConfig:
+
+class InteractionBase:
     LOG = False
     includeBlankInInsert = True
     
@@ -13,7 +14,7 @@ class DBConfig:
 
     def log(self, query, args, kwargs):
         #print query, args
-        if not DBConfig.LOG:
+        if not InteractionBase.LOG:
             return
         log.msg("TWISTAR query: %s" % query)
         if len(args) > 0:
@@ -26,6 +27,7 @@ class DBConfig:
     def executeOperation(self, query, *args, **kwargs):
         self.log(query, args, kwargs)
         return Registry.DBPOOL.runOperation(query, *args, **kwargs)
+
 
     def execute(self, query, *args, **kwargs):
         self.log(query, args, kwargs)
@@ -167,7 +169,7 @@ class DBConfig:
             tablename = klass.tablename()
             cols = self.getSchema(tablename, txn)
             if len(cols) == 0:
-                raise EmtpyOrImaginaryTableError, "Table %s empty or imaginary." % tablename
+                raise ImaginaryTableError, "Table %s does not exist." % tablename
             vals = obj.toHash(cols, includeBlank=self.__class__.includeBlankInInsert, exclude=['id'])
             self.insert(tablename, vals, txn)
             obj.id = self.getLastInsertID(txn)
@@ -210,8 +212,3 @@ class DBConfig:
         return (setstring, args.values())
 
 
-    def joinWheres(self, wone, wtwo, joiner="AND"):
-        statement = ["%s %s %s" % (wone[0], joiner, wtwo[0])]
-        args = wone[1:] + wtwo[1:]
-        return statement + args
-                              

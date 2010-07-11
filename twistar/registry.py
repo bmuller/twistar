@@ -2,6 +2,7 @@ from twisted.python import reflect
 
 from BermiInflector.Inflector import Inflector
 
+
 class Registry:
     SCHEMAS = {}
     REGISTRATION = {}
@@ -41,13 +42,13 @@ class Registry:
             raise RuntimeError, msg
         dbapi = Registry.DBPOOL.dbapi
         if dbapi.__name__ == "MySQLdb":
-            from mysql import MySQLDBConfig            
+            from twistar.dbconfig.mysql import MySQLDBConfig                        
             Registry.IMPL = MySQLDBConfig(dbapi)
         elif dbapi.__name__ == "sqlite3":
-            from sqlite import SQLiteDBConfig            
+            from twistar.dbconfig.sqlite import SQLiteDBConfig                        
             Registry.IMPL = SQLiteDBConfig(dbapi)
         elif dbapi.__name__ == "psycopg2":
-            from postgres import PostgreSQLDBConfig
+            from twistar.dbconfig.postgres import PostgreSQLDBConfig            
             Registry.IMPL = PostgreSQLDBConfig(dbapi)
         else:
             raise NotImplementedError, "twisteddb does not support the %s driver" % dbapi.__name__

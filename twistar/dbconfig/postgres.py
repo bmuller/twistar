@@ -1,7 +1,7 @@
-from dbconfig import DBConfig
+from twistar.dbconfig.base import InteractionBase
 
 
-class PostgreSQLDBConfig(DBConfig):
+class PostgreSQLDBConfig(InteractionBase):
     includeBlankInInsert = False
 
     def getLastInsertID(self, txn):

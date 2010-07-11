@@ -1,15 +1,35 @@
+"""
+All C{Exception} classes.
+"""
 
-class EmtpyOrImaginaryTableError(Exception):
-    pass
+
+class ImaginaryTableError(Exception):
+    """
+    Error resulting from the attempted use of a table that doesn't exist.
+    """
+
 
 class ReferenceNotSavedError(Exception):
-    pass
+    """
+    Error resulting from the attempted use of an object as a reference that hasn't been
+    saved yet.
+    """    
+
 
 class CannotRefreshError(Exception):
-    pass
+    """
+    Error resulting from the attempted refreshing of an object that hasn't been
+    saved yet.
+    """
+    
 
 class InvalidRelationshipError(Exception):
-    pass
+    """
+    Error resulting from the misspecification of a relationship dictionary.
+    """    
+
 
 class DBObjectSaveError(Exception):
-    pass
+    """
+    Error saving a DBObject.
+    """

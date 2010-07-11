@@ -1,7 +1,7 @@
-from dbconfig import DBConfig
+from twistar.dbconfig.base import InteractionBase
 
 
-class MySQLDBConfig(DBConfig):
+class MySQLDBConfig(InteractionBase):
     includeBlankInInsert = False
 
     def insertArgsToString(self, vals):

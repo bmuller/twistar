@@ -13,3 +13,8 @@ def createInstances(props, klass):
     return defer.succeed(result)
 
                             
+def joinWheres(self, wone, wtwo, joiner="AND"):
+    statement = ["%s %s %s" % (wone[0], joiner, wtwo[0])]
+    args = wone[1:] + wtwo[1:]
+    return statement + args
+                

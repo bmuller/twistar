@@ -1,8 +1,7 @@
-from dbconfig import DBConfig
+from twistar.registry import Registry
+from twistar.dbconfig.base import InteractionBase
 
-from registry import Registry
-
-class SQLiteDBConfig(DBConfig):
+class SQLiteDBConfig(InteractionBase):
     def whereToString(self, where):
         assert(type(where) is list)
         query = where[0] #? will be correct

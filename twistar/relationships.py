@@ -2,10 +2,9 @@ from twisted.internet import defer
 
 from BermiInflector.Inflector import Inflector
 
-from twistar.dbconfig import DBConfig, Registry
-from utils import *
-
-from exceptions import *
+from twistar.registry import Registry
+from twistar.utils import createInstances, joinWheres
+from twistar.exceptions import ReferenceNotSavedError
 
 class Relationship:   
     def __init__(self, inst, propname, givenargs):
@@ -113,7 +112,7 @@ class HABTM(Relationship):
         tablename = self.tablename()
         where = ["%s = ?" % self.thisname, self.inst.id]
         if conditions is not None:
-            where = self.dbconfig.joinWheres(where, conditions)
+            where = joinWheres(where, conditions)
         return self.dbconfig.select(tablename, where=where, limit=limit).addCallback(_get)
 
 

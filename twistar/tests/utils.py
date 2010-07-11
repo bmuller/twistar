@@ -2,10 +2,10 @@ from twisted.enterprise import adbapi
 from twisted.internet import defer
 
 from twistar.dbobject import DBObject
-from twistar.dbconfig import Registry
+from twistar.registry import Registry
 
-#from sqlite_config import initDB, tearDownDB
-from mysql_config import initDB, tearDownDB
+from sqlite_config import initDB, tearDownDB
+#from mysql_config import initDB, tearDownDB
 #from postgres_config import initDB, tearDownDB
 
 class User(DBObject):

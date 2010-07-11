@@ -1,7 +1,7 @@
 from twisted.enterprise import adbapi
 from twisted.internet import defer
 
-from twistar.dbconfig import Registry
+from twistar.registry import Registry
 
 CONNECTION = Registry.DBPOOL = adbapi.ConnectionPool('psycopg2', "dbname=twistar")
 

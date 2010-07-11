@@ -2,8 +2,8 @@ from twisted.trial import unittest
 from twisted.enterprise import adbapi
 from twisted.internet.defer import inlineCallbacks
 
-from twistar.exceptions import EmtpyOrImaginaryTableError
-from twistar.dbconfig import Registry
+from twistar.exceptions import ImaginaryTableError
+from twistar.registry import Registry
 
 from utils import *
 
@@ -34,7 +34,7 @@ class DBObjectTest(unittest.TestCase):
 
         # Test table doesn't exist
         f = FakeObject(blah = "something")
-        self.failUnlessFailure(f.save(), EmtpyOrImaginaryTableError)
+        self.failUnlessFailure(f.save(), ImaginaryTableError)
 
         dateklass = Registry.getDBAPIClass("Date")
         args = {'first_name': "a", "last_name": "b", "age": 10, "dob": dateklass(2000, 1, 1)}

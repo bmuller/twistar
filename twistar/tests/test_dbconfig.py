@@ -2,8 +2,7 @@ from twisted.trial import unittest
 from twisted.enterprise import adbapi
 from twisted.internet.defer import inlineCallbacks
 
-from twistar.exceptions import EmtpyOrImaginaryTableError
-from twistar.dbconfig import Registry
+from twistar.registry import Registry
 
 from utils import *
 
@@ -63,17 +62,62 @@ class DBConfigTest(unittest.TestCase):
             self.assertEqual(value, getattr(user, key))
 
 
-    #@inlineCallbacks
+    @inlineCallbacks
     def test_insert(self):
         tablename = User.tablename()
-        self.assertTrue(False)        
+        args = {'first_name': "test", "last_name": "foo", "age": 91}        
+        yield self.dbconfig.insert(tablename, args)
+
+        where = ['first_name = ? AND last_name = ? AND age = ?']
+        where = where + ["test", "foo", 91]
+        users = yield User.find(where=where)
+        
+        self.assertEqual(len(users), 1)
+        for key, value in args.items():
+            self.assertEqual(value, getattr(users[0], key))
 
  
-    #@inlineCallbacks
+    @inlineCallbacks
     def test_insert_many(self):   
-        self.assertTrue(False)
+        tablename = User.tablename()
+
+        args = []
+        for counter in range(10):
+            args.append({'first_name': "test_insert_many", "last_name": "foo", "age": counter})
+        yield self.dbconfig.insertMany(tablename, args)
+
+        users = yield User.find(where=['first_name = ?', "test_insert_many"], orderby="age ASC")
+
+        for counter in range(10):
+            for key, value in args[counter].items():
+                self.assertEqual(value, getattr(users[counter], key))
 
 
-    #@inlineCallbacks
+    @inlineCallbacks
     def test_insert_obj(self):
-        self.assertTrue(False)        
+        tablename = User.tablename()
+        args = {'first_name': "test_insert_obj", "last_name": "foo", "age": 91}
+        user = User(**args)
+
+        yield self.dbconfig.insertObj(user)
+        user = yield User.find(where=['first_name = ?', "test_insert_obj"], limit=1)
+
+        for key, value in args.items():
+            self.assertEqual(value, getattr(user, key))        
+
+
+    @inlineCallbacks
+    def test_update_obj(self):
+        tablename = User.tablename()
+        args = {'first_name': "test_insert_obj", "last_name": "foo", "age": 91}
+        user = yield User(**args).save()
+
+        args = {'first_name': "test_insert_obj_foo", "last_name": "bar", "age": 191}
+        for key, value in args.items():
+            setattr(user, key, value)
+
+        yield self.dbconfig.updateObj(user)
+        user = yield User.find(user.id)
+
+        for key, value in args.items():
+            self.assertEqual(value, getattr(user, key))                
