@@ -2,8 +2,6 @@ from twisted.python import reflect
 
 from BermiInflector.Inflector import Inflector
 
-# might be able to use 'twisted.python.reflect.namedAny' instead of registering classes
-
 class Registry:
     SCHEMAS = {}
     REGISTRATION = {}
@@ -48,6 +46,9 @@ class Registry:
         elif dbapi.__name__ == "sqlite3":
             from sqlite import SQLiteDBConfig            
             Registry.IMPL = SQLiteDBConfig(dbapi)
+        elif dbapi.__name__ == "psycopg2":
+            from postgres import PostgreSQLDBConfig
+            Registry.IMPL = PostgreSQLDBConfig(dbapi)
         else:
             raise NotImplementedError, "twisteddb does not support the %s driver" % dbapi.__name__
         

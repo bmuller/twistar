@@ -7,12 +7,17 @@ from utils import *
 class RelationshipTest(unittest.TestCase):    
     @inlineCallbacks
     def setUp(self):
-        yield initDB(self.mktemp())
+        yield initDB(self)
         self.user = yield User(first_name="First", last_name="Last", age=10).save()
         self.avatar = yield Avatar(name="an avatar name", user_id=self.user.id).save()
         self.picture = yield Picture(name="a pic", size=10, user_id=self.user.id).save()
         self.favcolor = yield FavoriteColor(name="blue").save()
         self.config = Registry.getConfig()
+
+
+    @inlineCallbacks
+    def tearDown(self):
+        yield tearDownDB(self)            
 
 
     @inlineCallbacks
@@ -26,6 +31,14 @@ class RelationshipTest(unittest.TestCase):
         user = yield User(first_name="new one").save()
         yield self.picture.user.set(user)
         self.assertEqual(user.id, self.picture.user_id)
+
+
+    @inlineCallbacks
+    def test_clear_belongs_to(self):
+        picture = yield Picture(name="a pic", size=10, user_id=self.user.id).save()
+        yield picture.user.clear()
+        user = yield picture.user.get()
+        self.assertEqual(user, None)
 
 
     @inlineCallbacks
@@ -48,11 +61,13 @@ class RelationshipTest(unittest.TestCase):
         for _ in range(3):
             pic = yield Picture(name="a pic").save()
             pics.append(pic)
-        picids = [pic.id for pic in pics]
+        picids = [int(pic.id) for pic in pics]
 
         yield self.user.pictures.set(pics)
         results = yield self.user.pictures.get()
-        resultids = [pic.id for pic in results]
+        resultids = [int(pic.id) for pic in results]
+        picids.sort()
+        resultids.sort()
         self.assertEqual(picids, resultids)
 
         # now try resetting
@@ -67,6 +82,23 @@ class RelationshipTest(unittest.TestCase):
         resultids = [pic.id for pic in results]
         self.assertEqual(picids, resultids)        
 
+
+    @inlineCallbacks
+    def test_clear_has_many(self):
+        pics = [self.picture]
+        for _ in range(3):
+            pic = yield Picture(name="a pic").save()
+            pics.append(pic)
+
+        yield self.user.pictures.set(pics)
+        yield self.user.pictures.clear()
+        
+        userpics = yield self.user.pictures.get()
+        self.assertEqual(userpics, [])
+
+        allpics = Picture.all()
+        self.assertEqual(userpics, [])
+        
 
     @inlineCallbacks
     def test_has_one(self):
@@ -109,6 +141,18 @@ class RelationshipTest(unittest.TestCase):
         newcolors = yield user.favorite_colors.get()
         newcolorids = [color.id for color in newcolors]        
         self.assertEqual(newcolorids, colorids)        
+
+
+    @inlineCallbacks
+    def test_clear_habtm(self):
+        user = yield User().save()
+        color = yield FavoriteColor(name="red").save()
+        colors = [self.favcolor, color]
+
+        yield user.favorite_colors.set(colors)
+        yield user.favorite_colors.clear()
+        colors = yield user.favorite_colors.get()        
+        self.assertEqual(colors, [])
 
 
     @inlineCallbacks

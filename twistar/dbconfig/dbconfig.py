@@ -5,12 +5,14 @@ from twistar.exceptions import EmtpyOrImaginaryTableError
 
 class DBConfig:
     LOG = False
+    includeBlankInInsert = True
     
     def __init__(self, dbapi):
         self.dbapi = dbapi
 
 
     def log(self, query, args, kwargs):
+        #print query, args
         if not DBConfig.LOG:
             return
         log.msg("TWISTAR query: %s" % query)
@@ -20,21 +22,24 @@ class DBConfig:
             log.msg("TWISTAR kargs: %s" % str(kwargs))        
 
 
+    # nothing is returned
+    def executeOperation(self, query, *args, **kwargs):
+        self.log(query, args, kwargs)
+        return Registry.DBPOOL.runOperation(query, *args, **kwargs)
+
     def execute(self, query, *args, **kwargs):
-        #print query, args
         self.log(query, args, kwargs)
         return Registry.DBPOOL.runQuery(query, *args, **kwargs)
 
 
     def executeTxn(self, txn, query, *args, **kwargs):
-        #print query, args
         self.log(query, args, kwargs)
         return txn.execute(query, *args, **kwargs)
 
 
-    def select(self, klass, id=None, where=None, group=None, limit=None, tablename=None):
-        tablename = tablename or klass.tablename()
+    def select(self, tablename, id=None, where=None, group=None, limit=None, orderby=None, select=None):
         one = False
+        select = select or "*"
         
         if id is not None:
             where = ["id = ?", id]
@@ -42,19 +47,21 @@ class DBConfig:
         if limit is not None and int(limit) == 1:
             one = True
             
-        q = "SELECT * FROM %s" % tablename
+        q = "SELECT %s FROM %s" % (select, tablename)
         args = []
         if where is not None:
             wherestr, args = self.whereToString(where)
             q += " WHERE " + wherestr
         if group is not None:
             q += " GROUP BY " + group
+        if orderby is not None:
+            q += " ORDER BY " + orderby
         if limit is not None:
             q += " LIMIT " + str(limit)
-        return Registry.DBPOOL.runInteraction(self._doselect, klass, q, args, tablename, one)
+        return Registry.DBPOOL.runInteraction(self._doselect, q, args, tablename, one)
 
 
-    def _doselect(self, txn, klass, q, args, tablename, one=False):
+    def _doselect(self, txn, q, args, tablename, one=False):
         self.executeTxn(txn, q, args)
 
         if one:
@@ -62,12 +69,12 @@ class DBConfig:
             if not result:
                 return None
             vals = self.valuesToHash(txn, result, tablename)
-            return klass(**vals)
+            return vals
 
         results = []
         for result in txn.fetchall():
             vals = self.valuesToHash(txn, result, tablename)
-            results.append(klass(**vals))            
+            results.append(vals)            
         return results
     
 
@@ -82,24 +89,26 @@ class DBConfig:
     ## will be used
     def insert(self, tablename, vals, txn=None):
         params = self.insertArgsToString(vals)
-        colnames = ",".join(vals.keys())
-        q = "INSERT INTO %s (%s) " % (tablename, colnames)
-        q += "VALUES %s" % params
+        colnames = ""
+        if len(vals) > 0:
+            colnames = "(" + ",".join(vals.keys()) + ")"
+            params = "VALUES %s" % params
+        q = "INSERT INTO %s %s %s" % (tablename, colnames, params)
         if not txn is None:
             return self.executeTxn(txn, q, vals.values())
-        return self.execute(q, vals.values())
+        return self.executeOperation(q, vals.values())
 
 
     ## insert many values - vals should be array of {'name': 'value', ...}
     ## (i.e., array of same type of param regular insert takes)
     def insertMany(self, tablename, vals):
         colnames = ",".join(vals[0].keys())
-        params = " ".join([self.insertArgsToString(val) for val in vals])
+        params = ",".join([self.insertArgsToString(val) for val in vals])
         args = []
         for val in vals:
             args = args + val.values()
         q = "INSERT INTO %s (%s) VALUES %s" % (tablename, colnames, params)
-        return self.execute(q, args)
+        return self.executeOperation(q, args)
         
 
     def getLastInsertID(self, txn):
@@ -115,7 +124,7 @@ class DBConfig:
         if where is not None:
             wherestr, args = self.whereToString(where)
             q += " WHERE " + wherestr
-        return self.execute(q, args)
+        return self.executeOperation(q, args)
 
 
     ## Args should be in form of {'name': value, 'othername': value}
@@ -129,7 +138,7 @@ class DBConfig:
             
         if txn is not None:
             return self.executeTxn(txn, q, args)
-        return self.execute(q, args)
+        return self.executeOperation(q, args)
 
 
     # Values is a row from a db, this method will create a hash with
@@ -147,8 +156,8 @@ class DBConfig:
 
     def getSchema(self, tablename, txn=None):
         if not Registry.SCHEMAS.has_key(tablename) and txn is not None:
-            self.executeTxn(txn, "DESCRIBE %s" % tablename)
-            Registry.SCHEMAS[tablename] = [row[0] for row in txn.fetchall()]
+            self.executeTxn(txn, "SELECT * FROM %s LIMIT 1" % tablename)
+            Registry.SCHEMAS[tablename] = [row[0] for row in txn.description]
         return Registry.SCHEMAS.get(tablename, [])
             
 
@@ -159,7 +168,7 @@ class DBConfig:
             cols = self.getSchema(tablename, txn)
             if len(cols) == 0:
                 raise EmtpyOrImaginaryTableError, "Table %s empty or imaginary." % tablename
-            vals = obj.toHash(cols, includeBlank=True, exclude=['id'])
+            vals = obj.toHash(cols, includeBlank=self.__class__.includeBlankInInsert, exclude=['id'])
             self.insert(tablename, vals, txn)
             obj.id = self.getLastInsertID(txn)
             return obj
@@ -181,11 +190,10 @@ class DBConfig:
     def refreshObj(self, obj):
         def _dorefreshObj(newobj):
             if obj is None:
-                raise CannotRefreshError, "Can't refresh if id not longer exists."
-            tablename = obj.tablename()
-            for key in self.getSchema(tablename):
-                setattr(obj, key, getattr(newobj, key))
-        return self.select(obj.__class__, obj.id).addCallback(_dorefreshObj)
+                raise CannotRefreshError, "Can't refresh object if id not longer exists."
+            for key in newobj.keys():
+                setattr(obj, key, newobj[key])
+        return self.select(obj.tablename(), obj.id).addCallback(_dorefreshObj)
 
 
     def whereToString(self, where):
@@ -200,3 +208,10 @@ class DBConfig:
     def updateArgsToString(self, args):
         setstring = ",".join([key + " = %s" for key in args.keys()])
         return (setstring, args.values())
+
+
+    def joinWheres(self, wone, wtwo, joiner="AND"):
+        statement = ["%s %s %s" % (wone[0], joiner, wtwo[0])]
+        args = wone[1:] + wtwo[1:]
+        return statement + args
+                              

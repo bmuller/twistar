@@ -11,21 +11,26 @@ class DBObjectTest(unittest.TestCase):
     
     @inlineCallbacks
     def setUp(self):
-        yield initDB(self.mktemp())
+        yield initDB(self)
         self.user = yield User(first_name="First", last_name="Last", age=10).save()
         self.avatar = yield Avatar(name="an avatar name", user_id=self.user.id).save()
         self.picture = yield Picture(name="a pic", size=10, user_id=self.user.id).save()        
 
 
     @inlineCallbacks
+    def tearDown(self):
+        yield tearDownDB(self)        
+
+
+    @inlineCallbacks
     def test_creation(self):
         # test creating blank object 
         u = yield User().save()
-        self.assertEqual(type(u.id), int)
+        self.assertTrue(type(u.id) == int or type(u.id) == long)
 
         # test creating object with props that don't correspond to columns
         u = yield User(a_fake_column="blech").save()
-        self.assertEqual(type(u.id), int)        
+        self.assertTrue(type(u.id) == int or type(u.id) == long)        
 
         # Test table doesn't exist
         f = FakeObject(blah = "something")

@@ -1,6 +1,9 @@
+from twisted.internet import defer
+
 from BermiInflector.Inflector import Inflector
 
 from twistar.dbconfig import DBConfig, Registry
+from utils import *
 
 from exceptions import *
 
@@ -33,9 +36,16 @@ class BelongsTo(Relationship):
         return self.inst.save()
 
 
+    def clear(self):
+        setattr(self.inst, self.othername, None)
+        return self.inst.save()
+
+
 class HasMany(Relationship):
-    def get(self):
-        return self.otherklass.find(where=["%s = ?" % self.thisname, self.inst.id])
+    def get(self, limit=None):
+        where=["%s = ?" % self.thisname, self.inst.id]        
+        return self.otherklass.find(where=where, limit=limit)
+
 
     def _update(self, _, others):
         tablename = self.otherklass.tablename()
@@ -54,12 +64,20 @@ class HasMany(Relationship):
         tablename = self.otherklass.tablename()
         args = {self.thisname: None}
         where = ["%s = ?" % self.thisname, self.inst.id]        
-        return self.dbconfig.update(tablename, args, where).addCallback(self._update, others)
+        d = self.dbconfig.update(tablename, args, where)
+        if len(others) > 0:
+            d.addCallback(self._update, others)
+        return d
+
+
+    def clear(self):
+        return self.set([])
         
 
 class HasOne(Relationship):
     def get(self):
         return self.otherklass.find(where=["%s = ?" % self.thisname, self.inst.id], limit=1)
+
 
     def set(self, other):
         tablename = self.otherklass.tablename()
@@ -84,15 +102,19 @@ class HABTM(Relationship):
         return self._tablename
     
     
-    def get(self):
+    def get(self, conditions=None, limit=None):
         def _get(rows):
-            ids = [str(getattr(row, self.othername)) for row in rows]
+            if len(rows) == 0:
+                return defer.succeed([])
+            ids = [str(row[self.othername]) for row in rows]
             where = ["id IN (%s)" % ",".join(ids)]
-            return self.dbconfig.select(self.otherklass, where=where)
+            d = self.dbconfig.select(self.otherklass.tablename(), where=where)
+            return d.addCallback(createInstances, self.otherklass)
         tablename = self.tablename()
         where = ["%s = ?" % self.thisname, self.inst.id]
-        klass = Registry.getClass('DBObject')
-        return self.dbconfig.select(klass, where=where, tablename=tablename).addCallback(_get)
+        if conditions is not None:
+            where = self.dbconfig.joinWheres(where, conditions)
+        return self.dbconfig.select(tablename, where=where, limit=limit).addCallback(_get)
 
 
     def _set(self, _, others):
@@ -106,7 +128,15 @@ class HABTM(Relationship):
         
 
     def set(self, others):
-        where = ["%s = ?" % self.thisname, self.inst.id]        
-        return self.dbconfig.delete(self.tablename(), where=where).addCallback(self._set, others)
+        where = ["%s = ?" % self.thisname, self.inst.id]
+        d = self.dbconfig.delete(self.tablename(), where=where)
+        if len(others) > 0:
+            d.addCallback(self._set, others)
+        return d
+
+
+    def clear(self):
+        return self.set([])
+
 
 Relationship.TYPES = {'HASMANY': HasMany, 'HASONE': HasOne, 'BELONGSTO': BelongsTo, 'HABTM': HABTM}

@@ -25,13 +25,6 @@ class SQLiteDBConfig(DBConfig):
         return (setstring, args.values())
 
 
-    def getSchema(self, tablename, txn=None):
-        if not Registry.SCHEMAS.has_key(tablename) and txn is not None:
-            self.executeTxn(txn, "PRAGMA table_info(%s)" % tablename)
-            Registry.SCHEMAS[tablename] = [row[1] for row in txn.fetchall()]
-        return Registry.SCHEMAS.get(tablename, [])
-
-    
     ## Convert {'name': value} to "?,?,?"
     def insertArgsToString(self, vals):
         return "(" + ",".join(["?" for _ in vals.items()]) + ")"

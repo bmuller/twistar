@@ -8,6 +8,7 @@ from twisted.internet import defer
 from dbconfig import DBConfig, Registry
 from relationships import Relationship
 from exceptions import InvalidRelationshipError, DBObjectSaveError
+from utils import *
 
 from BermiInflector.Inflector import Inflector
 
@@ -118,9 +119,10 @@ class DBObject(object):
 
 
     @classmethod
-    def find(klass, id=None, where=None, group=None, limit=None):
+    def find(klass, id=None, where=None, group=None, limit=None, orderby=None):
         config = Registry.getConfig()
-        return config.select(klass, id, where, group, limit)
+        d = config.select(klass.tablename(), id, where, group, limit, orderby)
+        return d.addCallback(createInstances, klass)
 
 
     @classmethod
@@ -133,6 +135,13 @@ class DBObject(object):
         tablename = klass.tablename()
         return config.delete(tablename, where)
 
+
+    @classmethod
+    def exists(klass, where=None):
+        def _exists(result):
+            return result is not None
+        return klass.find(where=where, limit=1).addCallback(_exists)
+        
 
     def delete(self):
         oldid = self.id
