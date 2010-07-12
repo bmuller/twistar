@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Low Level Examples</title>
+  </head>
+
+  <body>
+    <h1>Low Level Examples</h1>
+
+    <h2>SQL Execution</h2>
+    <p>After database initialization and assignment to the <code class="python">Registry.DBPOOL</code>
+variable, you can always utilize the <code class="python">twisted.enterprise.adapi.ConnectionPool</code>'s 
+API directly:
+</p>
+<pre class="python">
+from twisted.enterprise import adbapi
+from twistar.registry import Registry
+
+def done(result):
+     print "I just made a table"
+
+Registry.DBPOOL = adbapi.ConnectionPool('MySQLdb', user="twistar", passwd="apass", db="twistar")
+Registry.DBPOOL.runQuery("CREATE DATABASE users (id INT ...").addCallback(done)
+</pre>
+
+<h2>CRUD Interface</h2>
+<p>
+TODO: describe config interface's select/insert/update/delete methods.
+</p>
+
+  </body>
+</html>
+

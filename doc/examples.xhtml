@@ -8,13 +8,103 @@
 
   <body>
     <h1>Simple Examples</h1>
+<p>
+  Since Twistar uses Twisted, most methodand function calls willreturn a <code class="python">twisted.internet.defer.Deferred</code>
+  object. You must understand the propper use of these objects before most of this documentationwill make sense.
+</p>
 
     <h2>Initialization</h2>
-    <pre class="python">
-from twistar.dbobject import DBObject
-from twistar.dbconfig import Registry
-RRRegistry.DBPOOL = adbapi.ConnectionPool('sqlite3', location, check_same_thread=False)
+    <p>Before using Twistar a connection to the DB must first be made.  The method of connecting to the database
+is to use Twisted's <code class="python">twisted.enterprise.adapi</code> module and the <code class="python">ConnectionPool</code>
+object.  The <code class="python">twistar.Registry</code> class is used to keep track of that pool.  For instance, this is the 
+method to specify a connection to a MySQL database:
+</p>
+<pre class="python">
+from twisted.enterprise import adbapi
+from twistar.registry import Registry
+
+Registry.DBPOOL = adbapi.ConnectionPool('MySQLdb', user="twistar", passwd="apass", db="twistar")
 </pre>
+<p>
+The modules implementing <a href="http://www.python.org/dev/peps/pep-0249/">DBAPI</a> that are supported by Twistar are:
+<ul>
+  <li>MySQLdb (MySQL interface)</li>
+  <li>psycopg2 (PostgreSQL interface)</li>
+  <li>sqlite3 (SQLite interface</li>
+</ul>
+</p>
+
+<h2>Database Creation</h2>
+<p>Twistar does not provide DB creation / migration functionality beyond asynchronously making SQL queries.
+There are plenty of utilities in existance to provide these capabilities.  If you need to create tables 
+in an asynchronous manner, you can always <a href="lowlevel.xhtml">execute the creation SQL directly</a>.
+</p>
+<p>
+Objects will assume that the plural version of the object's class name will be the table name.  For instance,
+if the class name is Person, then the tablename should be People.  If it is Chicken, the tablename should be
+Chickens.  If you want to manually specify a tablename, you can do that with the 
+<code class="python">TABLENAME</code> class variable.
+</p>
+<p>
+Column names should have no spaces (with words separated by a <q>_</q>) and should generally be lower case.
+All object tables (that don't describe <a href="relationship_examples.xhtml">relationships</a>) should have
+an auto-incrementing integer column named <q>id</q>.
+</p>
+
+<h2>Defining and Interacting With Objects</h2>
+<p>
+Object's representing rows in a database need only extend the <code class="python">DBObject</code> class.
+</p>
+<pre class="python">
+from twistar.dbobject import DBObject
+
+class User(DBObject):
+     pass
+</pre>
+<p>
+Assuming that the <q>users</q> table has some VARCHAR fields like first_name and last_name and, say,
+and integer field named age (along with the required auto-incrementing integer column named
+<q>id</q>), then object properties can be assigned:
+</p>
+
+<pre class="python">
+def done(user):
+     print "A user has just been saved with id: %i" % user.id
+
+u = User()
+u.first_name = "John"
+u.last_name = "Smith"
+u.age = 25
+u.save().addCallback(done)
+
+# The following is equivalent
+u = User(first_name="John", last_name="Smith", age=25)
+u.save().addCallback(done)
+</pre>
+
+<p>
+Any additional properties that are set that don't correspond to column names are ignored on the save.  For instance,
+had a <q>middle_name</q> property been set for the user it would have simply been ignored when the object was saved.
+</p>
+
+<p>
+Methods you would traditionally find in an active record style RDBMS are also available, for instance to 
+test for existance and delete an object instance.
+</p>
+
+<h2>Finding Objects</h2>
+<p>To find an object, use the class's <code class="python">find</code> method.  It accepts a number of
+arguments to group, sort, and limit results.  The simplest way to use the method is to get an object 
+instance by id.  For instance, if we wanted to find the user with an id of 1:
+<p>
+<pre class="python">
+User.find(1)
+</pre>
+
+<h2>Class Methods</h2>
+
+<h2>DBAPI Column Objects</h2>
+
   </body>
 </html>
 
