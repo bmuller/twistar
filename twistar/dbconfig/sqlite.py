@@ -2,6 +2,7 @@ from twistar.registry import Registry
 from twistar.dbconfig.base import InteractionBase
 
 class SQLiteDBConfig(InteractionBase):
+    
     def whereToString(self, where):
         assert(type(where) is list)
         query = where[0] #? will be correct
@@ -17,14 +18,11 @@ class SQLiteDBConfig(InteractionBase):
         return result[0][0]
                             
 
-    ## Args should be in form of {'name': value, 'othername': value}
-    ## Convert to form 'name = ?, othername = ?, ...'
     def updateArgsToString(self, args):
         setstring = ",".join([key + " = ?" for key in args.keys()])
         return (setstring, args.values())
 
 
-    ## Convert {'name': value} to "?,?,?"
     def insertArgsToString(self, vals):
         return "(" + ",".join(["?" for _ in vals.items()]) + ")"
 

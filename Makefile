@@ -6,3 +6,6 @@ docs:
 
 test:
 	trial twistar
+
+install:
+	python setup.py install

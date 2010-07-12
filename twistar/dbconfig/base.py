@@ -1,3 +1,7 @@
+"""
+Base module for interfacing with databases.
+"""
+
 from twisted.python import log
 
 from twistar.registry import Registry        
@@ -5,15 +9,24 @@ from twistar.exceptions import ImaginaryTableError
 
 
 class InteractionBase:
+    """
+    Class that specific database implementations extend.
+
+    @cvar LOG: If True, then all queries are logged using C{twisted.python.log.msg}.
+
+    @cvar includeBlankInInsert: If True, then insert/update queries will include
+    setting object properties that have not be set to null in their respective columns.
+    """
+    
     LOG = False
     includeBlankInInsert = True
+
     
-    def __init__(self, dbapi):
-        self.dbapi = dbapi
-
-
     def log(self, query, args, kwargs):
-        #print query, args
+        """
+        Log the query and any args or kwargs using C{twisted.python.log.msg} if
+        C{InteractionBase.LOG} is True.
+        """
         if not InteractionBase.LOG:
             return
         log.msg("TWISTAR query: %s" % query)
@@ -23,23 +36,56 @@ class InteractionBase:
             log.msg("TWISTAR kargs: %s" % str(kwargs))        
 
 
-    # nothing is returned
+
     def executeOperation(self, query, *args, **kwargs):
+        """
+        Simply makes same C{twisted.enterprise.dbapi.ConnectionPool.runOperation} call, but
+        with call to L{log} function.
+        """
         self.log(query, args, kwargs)
         return Registry.DBPOOL.runOperation(query, *args, **kwargs)
 
 
     def execute(self, query, *args, **kwargs):
+        """
+        Simply makes same C{twisted.enterprise.dbapi.ConnectionPool.runQuery} call, but
+        with call to L{log} function.
+        """        
         self.log(query, args, kwargs)
         return Registry.DBPOOL.runQuery(query, *args, **kwargs)
 
 
     def executeTxn(self, txn, query, *args, **kwargs):
+        """
+        Execute given query within the given transaction.  Also, makes call
+        to L{log} function.
+        """        
         self.log(query, args, kwargs)
         return txn.execute(query, *args, **kwargs)
 
 
     def select(self, tablename, id=None, where=None, group=None, limit=None, orderby=None, select=None):
+        """
+        Select rows from a table.
+
+        @param tablename: The tablename to select rows from.
+
+        @param id: If given, only the row with the given id will be returned (or C{None} if not found).
+
+        @param where: Conditional of the same form as the C{where} parameter in L{DBObject.find}.
+
+        @param group: String describing how to group results.
+
+        @param limit: Integer limit on the number of results.  If this value is 1, then the result
+        will be a single dictionary.  Otherwise, if C{id} is not specified, an array will be returned.
+
+        @param orderby: String describing how to order the results.
+
+        @param select: Columns to select.  Default is C{*}.
+
+        @return: If C{limit} is 1 or id is set, then the result is one dictionary or None if not found.
+        Otherwise, an array of dictionaries are returned.
+        """
         one = False
         select = select or "*"
         
@@ -64,6 +110,9 @@ class InteractionBase:
 
 
     def _doselect(self, txn, q, args, tablename, one=False):
+        """
+        Private callback for actual select query call.
+        """
         self.executeTxn(txn, q, args)
 
         if one:
@@ -80,16 +129,27 @@ class InteractionBase:
         return results
     
 
-    ## Convert {'name': value} to ("%s,%s,%s)"
     def insertArgsToString(self, vals):
+        """
+        Convert C{{'name': value}} to an insert "values" string like C{"(%s,%s,%s)"}.
+        """
         return "(" + ",".join(["%s" for _ in vals.items()]) + ")"
 
 
-    ## Vals should be in form of {'name': value, 'othername': value}
-    ## This func should return id of new row.  If txn is given
-    ## it will use that specific txn, otherwise a typical runQuery
-    ## will be used
     def insert(self, tablename, vals, txn=None):
+        """
+        Insert a row into the given table.
+
+        @param tablename: Table to insert a row into.
+        
+        @param vals: Values to insert.  Should be a dictionary in the form of
+        C{{'name': value, 'othername': value}}.
+
+        @param txn: If txn is given it will be used for the query,
+        otherwise a typical runQuery will be used
+
+        @return: A C{Deferred} that calls a callback with the id of new row.
+        """
         params = self.insertArgsToString(vals)
         colnames = ""
         if len(vals) > 0:
@@ -101,9 +161,17 @@ class InteractionBase:
         return self.executeOperation(q, vals.values())
 
 
-    ## insert many values - vals should be array of {'name': 'value', ...}
-    ## (i.e., array of same type of param regular insert takes)
     def insertMany(self, tablename, vals):
+        """
+        Insert many values into a table.
+
+        @param tablename: Table to insert a row into.
+        
+        @param vals: Values to insert.  Should be a list of dictionaries in the form of
+        C{{'name': value, 'othername': value}}.
+
+        @return: A C{Deferred}.
+        """
         colnames = ",".join(vals[0].keys())
         params = ",".join([self.insertArgsToString(val) for val in vals])
         args = []
@@ -114,6 +182,11 @@ class InteractionBase:
         
 
     def getLastInsertID(self, txn):
+        """
+        Using the given txn, get the id of the last inserted row.
+
+        @return: The integer id of the last inserted row.
+        """
         q = "SELECT LAST_INSERT_ID()"
         self.executeTxn(txn, q)            
         result = txn.fetchall()
@@ -121,6 +194,14 @@ class InteractionBase:
     
 
     def delete(self, tablename, where=None):
+        """
+        Delete from the given tablename.
+
+        @param where: Conditional of the same form as the C{where} parameter in L{DBObject.find}.
+        If given, the rows deleted will be restricted to ones matching this conditional.
+
+        @return: A C{Deferred}.        
+        """
         q = "DELETE FROM %s" % tablename
         args = []
         if where is not None:
@@ -129,8 +210,23 @@ class InteractionBase:
         return self.executeOperation(q, args)
 
 
-    ## Args should be in form of {'name': value, 'othername': value}
     def update(self, tablename, args, where=None, txn=None):
+        """
+        Update a row into the given table.
+
+        @param tablename: Table to insert a row into.
+        
+        @param args: Values to insert.  Should be a dictionary in the form of
+        C{{'name': value, 'othername': value}}.
+
+        @param where: Conditional of the same form as the C{where} parameter in L{DBObject.find}.
+        If given, the rows updated will be restricted to ones matching this conditional.        
+
+        @param txn: If txn is given it will be used for the query,
+        otherwise a typical runQuery will be used
+
+        @return: A C{Deferred}
+        """        
         setstring, args = self.updateArgsToString(args)
         q = "UPDATE %s " % tablename + " SET " + setstring
         if where is not None:
@@ -143,9 +239,18 @@ class InteractionBase:
         return self.executeOperation(q, args)
 
 
-    # Values is a row from a db, this method will create a hash with
-    # key => value of colname => value based on the table description
     def valuesToHash(self, txn, values, tablename):
+        """
+        Given a row from a database query (values), create
+        a hash using keys from the table schema and values from
+        the given values;
+
+        @param txn: The transaction to use for the schema update query.
+
+        @param values: A row from a db (as a C{list}).
+
+        @param tablename: Name of the table to fetch the schema for.
+        """
         cols = [row[0] for row in txn.description]
         if not Registry.SCHEMAS.has_key(tablename):
             Registry.SCHEMAS[tablename] = cols
@@ -157,6 +262,10 @@ class InteractionBase:
 
 
     def getSchema(self, tablename, txn=None):
+        """
+        Get the schema (in the form of a list of column names) for
+        a given tablename.  Use the given transaction if specified.
+        """
         if not Registry.SCHEMAS.has_key(tablename) and txn is not None:
             self.executeTxn(txn, "SELECT * FROM %s LIMIT 1" % tablename)
             Registry.SCHEMAS[tablename] = [row[0] for row in txn.description]
@@ -164,6 +273,11 @@ class InteractionBase:
             
 
     def insertObj(self, obj):
+        """
+        Insert the given object into its table.
+
+        @return: A C{Deferred} that sends a callback the inserted object.
+        """
         def _doinsert(txn):
             klass = obj.__class__
             tablename = klass.tablename()
@@ -178,6 +292,11 @@ class InteractionBase:
 
 
     def updateObj(self, obj):
+        """
+        Update the given object's row in the object's table.
+
+        @return: A C{Deferred} that sends a callback the updated object.
+        """        
         def _doupdate(txn):
             klass = obj.__class__
             tablename = klass.tablename()
@@ -190,6 +309,11 @@ class InteractionBase:
 
 
     def refreshObj(self, obj):
+        """
+        Update the given object based on the information in the object's table.
+
+        @return: A C{Deferred} that sends a callback the updated object.
+        """                
         def _dorefreshObj(newobj):
             if obj is None:
                 raise CannotRefreshError, "Can't refresh object if id not longer exists."
@@ -199,15 +323,31 @@ class InteractionBase:
 
 
     def whereToString(self, where):
+        """
+        Convert a conditional to the form needed for a query using the DBAPI.  For instance,
+        for most DB's question marks in the query string have to be converted to C{%s}.  This
+        will vary by database.
+
+        @param where: Conditional of the same form as the C{where} parameter in L{DBObject.find}.
+
+        @return: A conditional in the same form as the C{where} parameter in L{DBObject.find}.
+        """
         assert(type(where) is list)
         query = where[0].replace("?", "%s")
         args = where[1:]
         return (query, args)
 
 
-    ## Args should be in form of {'name': value, 'othername': value}
-    ## Convert to form 'name = %s, othername = %s, ...'
     def updateArgsToString(self, args):
+        """
+        Convert dictionary of arguments to form needed for DB update query.  This method will
+        vary by database driver.
+        
+        @param args: Values to insert.  Should be a dictionary in the form of
+        C{{'name': value, 'othername': value}}.
+
+        @return: A tuple of the form C{('name = %s, othername = %s, ...', argvalues)}.
+        """
         setstring = ",".join([key + " = %s" for key in args.keys()])
         return (setstring, args.values())
 

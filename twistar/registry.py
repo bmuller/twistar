@@ -59,7 +59,7 @@ class Registry:
     def getConfig(klass):
         """
         Get the current DB config object being used for DB interaction.  This is one of the classes
-        that extends L{InteractionBase}.
+        that extends L{base.InteractionBase}.
         """
         if Registry.IMPL is not None:
             return Registry.IMPL
@@ -70,13 +70,13 @@ class Registry:
         dbapi = Registry.DBPOOL.dbapi
         if dbapi.__name__ == "MySQLdb":
             from twistar.dbconfig.mysql import MySQLDBConfig                        
-            Registry.IMPL = MySQLDBConfig(dbapi)
+            Registry.IMPL = MySQLDBConfig()
         elif dbapi.__name__ == "sqlite3":
             from twistar.dbconfig.sqlite import SQLiteDBConfig                        
-            Registry.IMPL = SQLiteDBConfig(dbapi)
+            Registry.IMPL = SQLiteDBConfig()
         elif dbapi.__name__ == "psycopg2":
             from twistar.dbconfig.postgres import PostgreSQLDBConfig            
-            Registry.IMPL = PostgreSQLDBConfig(dbapi)
+            Registry.IMPL = PostgreSQLDBConfig()
         else:
             raise NotImplementedError, "twisteddb does not support the %s driver" % dbapi.__name__
         
