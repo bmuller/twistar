@@ -39,6 +39,10 @@ class DBObject(object):
     it represents what the class belongs to, for instance C{'user'}.  If an element is a C{dict}, then
     it should minimally have a C{name} attribute (with a value the same as if the element were a string)
     and then any additional options.  See L{Relationship} and L{BelongsTo} for more information.
+
+    @cvar TABLENAME: If specified, use the given tablename as the one for this object.  Otherwise,
+    use the lowercase, plural version of this class's name.  See the L{DBObject.tablename}
+    method.
     
     @see: L{Relationship}, L{HasMany}, L{HasOne}, L{HABTM}, L{BelongsTo}
     """

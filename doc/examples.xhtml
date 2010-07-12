@@ -16,7 +16,7 @@
     <h2>Initialization</h2>
     <p>Before using Twistar a connection to the DB must first be made.  The method of connecting to the database
 is to use Twisted's <code class="python">twisted.enterprise.adapi</code> module and the <code class="python">ConnectionPool</code>
-object.  The <code class="python">twistar.Registry</code> class is used to keep track of that pool.  For instance, this is the 
+object.  The <code class="API" base="twistar.registry">Registry</code> class is used to keep track of that pool.  For instance, this is the 
 method to specify a connection to a MySQL database:
 </p>
 <pre class="python">
@@ -43,7 +43,8 @@ in an asynchronous manner, you can always <a href="lowlevel.xhtml">execute the c
 Objects will assume that the plural version of the object's class name will be the table name.  For instance,
 if the class name is Person, then the tablename should be People.  If it is Chicken, the tablename should be
 Chickens.  If you want to manually specify a tablename, you can do that with the 
-<code class="python">TABLENAME</code> class variable.
+<code class="python">TABLENAME</code> class variable (see the 
+<code class="API" base="twistar.dbobject">DBObject</code> definition).
 </p>
 <p>
 Column names should have no spaces (with words separated by a <q>_</q>) and should generally be lower case.
@@ -53,7 +54,8 @@ an auto-incrementing integer column named <q>id</q>.
 
 <h2>Defining and Interacting With Objects</h2>
 <p>
-Object's representing rows in a database need only extend the <code class="python">DBObject</code> class.
+Object's representing rows in a database need only extend the 
+<code class="API" base="twistar.dbobject">DBObject</code> class.
 </p>
 <pre class="python">
 from twistar.dbobject import DBObject
@@ -96,10 +98,26 @@ test for existance and delete an object instance.
 <p>To find an object, use the class's <code class="python">find</code> method.  It accepts a number of
 arguments to group, sort, and limit results.  The simplest way to use the method is to get an object 
 instance by id.  For instance, if we wanted to find the user with an id of 1:
-<p>
+</p>
 <pre class="python">
-User.find(1)
+User.find(1).addCallback(...)
 </pre>
+<p>
+Additional constriants can be specified using the <code class="py-src-parameter">where</code>
+paramter and others:
+</p>
+<pre class="python">
+User.find(where=['first_name = ? AND last_name = ?', "John", "Smith"], limit=1).addCallback(...)
+</pre>
+<p>There are many more options, all of which are described on the
+<code class="API" base="twistar.dbobject">DBObject</code> API reference page.
+</p>
+<p>
+One thing to note: if either <code class="py-src-parameter">limit</code> is set to 1 or the query
+is by <code class="py-src-parameter">id</code>, then the resulting deferred will return either the 
+found object or <code class="python">None</code> if not found.  Otherwise, an array is returned
+containing the found objects.
+</p>
 
 <h2>Class Methods</h2>
 
