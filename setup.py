@@ -5,12 +5,12 @@ except ImportError:
     from distutils.core import setup, Extension
 
 setup(
-    name="twistdb",
+    name="twistar",
     version="0.1",
-    description="",
-    author="",
-    author_email="",
+    description="An implementation of the Active Record pattern for Twisted",
+    author="Brian Muller",
+    author_email="bamuller@gmail.com",
     license="GPL",
-    url="",
-    packages=["twistdb", "twistdb.dbconfig", "twistdb.tests", 'BermiInflector', 'BermiInflector.Rules']
+    url="http://trac.butterfat.net/public/twistar",
+    packages=["twistar", "twistar.dbconfig", "twistar.tests", 'BermiInflector', 'BermiInflector.Rules']
 )
