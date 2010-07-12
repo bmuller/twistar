@@ -1,3 +1,7 @@
+"""
+Module descripting different types of object relationships.
+"""
+
 from twisted.internet import defer
 
 from BermiInflector.Inflector import Inflector
@@ -6,8 +10,29 @@ from twistar.registry import Registry
 from twistar.utils import createInstances, joinWheres
 from twistar.exceptions import ReferenceNotSavedError
 
-class Relationship:   
+
+class Relationship:
+    """
+    Base class that all specific relationship type classes extend.
+
+    @see: L{HABTM}, L{HasOne}, L{HasMany}, L{BelongsTo}
+    """
+    
     def __init__(self, inst, propname, givenargs):
+        """
+        Constructor.
+
+        @param inst: The L{DBObject} instance.
+        
+        @param propname: The property name in the L{DBObject} instance that
+        results in this class being created.
+
+        @param givenargs: Any arguments given (through the use of a C{dict}
+        in the class variable in L{DBObject} rather than a string to describe
+        the relationship).  The given args can include, for all relationships,
+        a C{class_name}.  Depending on the relationship, C{association_foreign_key}
+        and C{foreign_key} might also be used.
+        """
         self.infl = Inflector()
         self.inst = inst
         self.dbconfig = Registry.getConfig()
@@ -25,23 +50,55 @@ class Relationship:
         self.thisname = self.args['foreign_key']
 
 
-class BelongsTo(Relationship):       
+class BelongsTo(Relationship):
+    """
+    Class representing a belongs-to relationship.
+    """
+    
     def get(self):
+        """
+        Get the object that belong to the caller.
+
+        @return: A C{Deferred} with a callback value of either the matching class or
+        None (if not set).
+        """
         return self.otherklass.find(where=["id = ?", getattr(self.inst, self.othername)], limit=1)
 
 
     def set(self, other):
+        """
+        Set the object that belongs to the caller.
+
+        @return: A C{Deferred} with a callback value of the caller.
+        """        
         setattr(self.inst, self.othername, other.id)
         return self.inst.save()
 
 
     def clear(self):
+        """
+        Remove the relationship linking the object that belongs to the caller.
+
+        @return: A C{Deferred} with a callback value of the caller.
+        """                
         setattr(self.inst, self.othername, None)
         return self.inst.save()
 
 
+
 class HasMany(Relationship):
+    """
+    A class representing the has many relationship.
+    """
+    
     def get(self, limit=None):
+        """
+        Get the objects that caller has.
+
+        @param limit: Limit the number of results to the given integer value.
+
+        @return: A C{Deferred} with a callback value of a list of objects.
+        """        
         where=["%s = ?" % self.thisname, self.inst.id]        
         return self.otherklass.find(where=where, limit=limit)
 
@@ -60,6 +117,11 @@ class HasMany(Relationship):
 
 
     def set(self, others):
+        """
+        Set the objects that caller has.
+
+        @return: A C{Deferred}.
+        """                
         tablename = self.otherklass.tablename()
         args = {self.thisname: None}
         where = ["%s = ?" % self.thisname, self.inst.id]        
@@ -70,15 +132,32 @@ class HasMany(Relationship):
 
 
     def clear(self):
+        """
+        Clear the list of all of the objects that this one has.
+        """
         return self.set([])
         
 
 class HasOne(Relationship):
+    """
+    A class representing the has one relationship.
+    """
+    
     def get(self):
+        """
+        Get the object that caller has.
+
+        @return: A C{Deferred} with a callback value of the object this one has (or c{None}).
+        """                
         return self.otherklass.find(where=["%s = ?" % self.thisname, self.inst.id], limit=1)
 
 
     def set(self, other):
+        """
+        Set the object that caller has.
+
+        @return: A C{Deferred}.
+        """                        
         tablename = self.otherklass.tablename()
         args = {self.thisname: self.inst.id}
         where = ["id = ?", other.id]        
@@ -86,7 +165,19 @@ class HasOne(Relationship):
 
 
 class HABTM(Relationship):
+    """
+    A class representing the "has and bleongs to many" relationship.  One additional argument
+    this class uses in the L{Relationship.__init__} argument list is C{join_table}.
+    """
+    
     def tablename(self):
+        """
+        Get the tablename (specified either in the C{join_table} relationship property
+        or by calculating the tablename).  If not specified, the table name is calculated
+        by sorting the table name versions of the two class names and joining them with a '_').
+        For instance, given the classes C{Teacher} and C{Student}, the resulting table name would
+        be C{student_teacher}.
+        """
         # if specified by user
         if self.args.has_key('join_table'):
             return self.args['join_table']
@@ -102,6 +193,16 @@ class HABTM(Relationship):
     
     
     def get(self, conditions=None, limit=None):
+        """
+        Get the objects that caller has.
+
+        @param conditions: Additional conditions, in the same form as the C{where} parameter
+        in the method L{DBObject.find}.
+
+        @param limit: Limit the number of results to the given integer value.
+
+        @return: A C{Deferred} with a callback value of a list of objects.
+        """        
         def _get(rows):
             if len(rows) == 0:
                 return defer.succeed([])
@@ -127,6 +228,11 @@ class HABTM(Relationship):
         
 
     def set(self, others):
+        """
+        Set the objects that caller has.
+
+        @return: A C{Deferred}.
+        """                        
         where = ["%s = ?" % self.thisname, self.inst.id]
         d = self.dbconfig.delete(self.tablename(), where=where)
         if len(others) > 0:
@@ -135,6 +241,9 @@ class HABTM(Relationship):
 
 
     def clear(self):
+        """
+        Clear the list of all of the objects that this one has.
+        """        
         return self.set([])
 
 

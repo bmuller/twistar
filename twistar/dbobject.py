@@ -16,6 +16,31 @@ from BermiInflector.Inflector import Inflector
 class DBObject(object):
     """
     A base class for representing objects stored in a RDBMS.
+
+    @cvar HASMANY: A C{list} made up of some number of strings and C{dict}s.  If an element is a string,
+    it represents what the class has many of, for instance C{'users'}.  If an element is a C{dict}, then
+    it should minimally have a C{name} attribute (with a value the same as if the element were a string)
+    and then any additional options.  See L{Relationship} and L{HasMany} for more information.
+
+    @cvar HASONE: A C{list} made up of some number of strings and C{dict}s.  If an element is a string,
+    it represents what the class has one of, for instance C{'location'}.  If an element is a C{dict}, then
+    it should minimally have a C{name} attribute (with a value the same as if the element were a string)
+    and then any additional options.  See L{Relationship} and L{HasOne} for more information.
+
+    @cvar HABTM: A C{list} made up of some number of strings and C{dict}s.  If an element is a string,
+    it represents what the class has many of (and which in turn has many of this current object type),
+    for instance a teacher has and belongs to many students.  Both the C{Student} and C{Teacher} classes
+    should have a class variable that is C{HABTM = ['teachers']} and C{HABTM = ['students']}, respectively.
+    If an element is a C{dict}, then
+    it should minimally have a C{name} attribute (with a value the same as if the element were a string)
+    and then any additional options.  See L{Relationship} and L{HABTM} for more information.    
+
+    @cvar BELONGSTO: A C{list} made up of some number of strings and C{dict}s.  If an element is a string,
+    it represents what the class belongs to, for instance C{'user'}.  If an element is a C{dict}, then
+    it should minimally have a C{name} attribute (with a value the same as if the element were a string)
+    and then any additional options.  See L{Relationship} and L{BelongsTo} for more information.
+    
+    @see: L{Relationship}, L{HasMany}, L{HasOne}, L{HABTM}, L{BelongsTo}
     """
     
     HASMANY = []

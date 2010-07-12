@@ -3,6 +3,13 @@ All C{Exception} classes.
 """
 
 
+class ClassNotRegisteredError(Exception):
+    """
+    Error resulting from the attempted fetching of a class from the L{Registry} that was
+    never registered.
+    """
+
+
 class ImaginaryTableError(Exception):
     """
     Error resulting from the attempted use of a table that doesn't exist.
