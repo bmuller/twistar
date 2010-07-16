@@ -1,0 +1,27 @@
+= Prerequisites =
+You must first install Twisted core.  If you intent on generating API documentation,
+you will need pydoctor.  If you want to generate the user documentation, you will
+need to install Twisted Lore.  You will need to install the sqlite3 python package
+if you want to run tests.
+
+Your database must be one of: MySQL, PostgreSQL, or SQLite.  The only DBAPI modules
+supported by Twistar are: MySQLdb, psycopg2, and sqlite3 - at least one of these
+must be installed.
+
+
+= Installation =
+You should be able to simply run:
+$> sudo make install
+
+
+= Generating Documentation =
+You should be able to simply run:
+$> sudo make docs
+
+
+= Testing =
+You should be able to simply run:
+$> sudo make test
+
+See the README in the twistar/tests folder for more information on testing with
+different database types.

@@ -1,0 +1,7 @@
+By default, the tests are run with the database driver sqlite3.  To change this,
+simply edit the utils.py file and uncomment the right "from <db type>_config"
+line (commenting out all others).  You will then need to edit the 
+corresponding "<db type>_config" file to make sure that the connection string 
+matches your test database.
+
+Then, just rerun the test suite.

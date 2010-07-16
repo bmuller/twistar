@@ -120,8 +120,35 @@ containing the found objects.
 </p>
 
 <h2>Class Methods</h2>
+<p>
+Additional class methods (other than find) includes ones for getting an array of all objects
+(using the <code class="python">all()</code> method), deleting all instances 
+(using the <code class="python">deleteAll()</code> method), and determining whether or not
+any particular objects exist (using the <code class="python">exists()</code> method).  For instance:
+</p>
+<pre class="python">
+def printAll(users):
+     for user in users:
+          print "First: %s Last: %s" % (user.first_name, user.last_name)
+
+User.all().addCallback(printAll)
+
+
+def printExists(doesExist):
+     if doesExist:
+          print "User exists!"
+     else:
+          print "User does not exist."
+
+User.exists(['first_name = ?', "John"]).addCallback(printExists)
+</pre>
 
 <h2>DBAPI Column Objects</h2>
+<p>
+The <a href="http://www.python.org/dev/peps/pep-0249/">DBAPI</a> specification requires that 
+implementing modules define classes corresponding to certain column types (like 
+the class <code class="python">Date</code>).  
+</p>
 
   </body>
 </html>
