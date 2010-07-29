@@ -28,9 +28,9 @@ Registry.DBPOOL = adbapi.ConnectionPool('MySQLdb', user="twistar", passwd="apass
 <p>
 The modules implementing <a href="http://www.python.org/dev/peps/pep-0249/">DBAPI</a> that are supported by Twistar are:
 <ul>
-  <li>MySQLdb (MySQL interface)</li>
-  <li>psycopg2 (PostgreSQL interface)</li>
-  <li>sqlite3 (SQLite interface</li>
+  <li><a href="http://sourceforge.net/projects/mysql-python/">MySQLdb</a> (MySQL interface)</li>
+  <li><a href="http://initd.org/psycopg/">psycopg2</a> (PostgreSQL interface)</li>
+  <li><a href="http://docs.python.org/library/sqlite3.html">sqlite3</a> (SQLite interface)</li>
 </ul>
 </p>
 
@@ -147,9 +147,17 @@ User.exists(['first_name = ?', "John"]).addCallback(printExists)
 <p>
 The <a href="http://www.python.org/dev/peps/pep-0249/">DBAPI</a> specification requires that 
 implementing modules define classes corresponding to certain column types (like 
-the class <code class="python">Date</code>).  
+the class <code class="python">Date</code>).  Twistar provides a driver agnostic method for 
+using those classes using the <code class="API" base="twistar.registry">Registry</code> class:
 </p>
-
+<pre class="python">
+Date = Registry.getDBAPIClass("Date")
+bob = User(first_name="Bob", dob=Date(1970, 1, 1))
+</pre>
+<p>
+Then, regardless of which DBAPI module you are using, your code will always be using the correct
+<code class="python">Date</code> class.
+</p>
   </body>
 </html>
 

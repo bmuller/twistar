@@ -7,7 +7,7 @@ from twisted.internet import defer
 
 from twistar.registry import Registry
 from twistar.relationships import Relationship
-from twistar.exceptions import InvalidRelationshipError, DBObjectSaveError
+from twistar.exceptions import InvalidRelationshipError, DBObjectSaveError, ReferenceNotSavedError
 from twistar.utils import createInstances
 
 from BermiInflector.Inflector import Inflector
@@ -291,6 +291,8 @@ class DBObject(object):
         """
         klass = object.__getattribute__(self, "__class__")
         if not klass.RELATIONSHIP_CACHE is None and klass.RELATIONSHIP_CACHE.has_key(name):
+            if object.__getattribute__(self, 'id') is None:
+                raise ReferenceNotSavedError, "Cannot get/set relationship on unsaved object"
             relationshipKlass, args = klass.RELATIONSHIP_CACHE[name]
             return relationshipKlass(self, name, args)
         return object.__getattribute__(self, name)        

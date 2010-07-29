@@ -1,39 +1,157 @@
 <?xml version="1.0"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <title>The Vision For Twisted</title>
+    <title>Relationship Examples</title>
   </head>
 
   <body>
-    <h1>The Vision For Twisted</h1>
+    <h1>Relationship Examples</h1>
+<p>Twistar is an <a href="http://en.wikipedia.org/wiki/Object-relational_mapping">Object Relational Mapper (ORM)</a>.  
+It therefore defines ways of interacting with objects and other objects that have relationships with them.  The code
+here is not necessarily great Twisted code; where typically you would expect to see <code>DeferredList</code>s and 
+<code>inlineCallbacks</code> there are none to provide clarity to those new to Twisted.
+</p>
+<p>
+More information on relationships can be found in the <code class="API" base="twistar.relationships">Relationships</code> class.
+</p>
+  <h2>Has One</h2>
+  <p>Perhaps the simplest relationship is the <code>Has One</code> relationship.  In this example, we will
+be using a <code class="python">User</code> object that <code>Has One</code> <code class="python">Avatar</code>
+object.
+  </p>
+<pre class="python">
+from twistar.dbobject import DBObject
+from twistar.registry import Registry
 
-    <p>Many other documents in this repository are dedicated to
-    defining what Twisted is. Here, I will attempt to explain not
-    what Twisted is, but what it should be, once I've met my goals
-    with it.</p>
+class User(DBObject):
+     HASONE = ['avatar']
 
-    <p>First, Twisted should be fun. It began as a game, it is
-    being used commercially in games, and it will be, I hope, an
-    interactive and entertaining experience for the end-user.</p>
+class Avatar(DBObject):
+     pass
 
-    <p>Twisted is a platform for developing internet applications.
-    While python, by itself, is a very powerful language, there are
-    many facilities it lacks which other languages have spent great
-    attention to adding. It can do this now; Twisted is a good (if
-    somewhat idiosyncratic) pure-python framework or library,
-    depending on how you treat it, and it continues to improve.</p>
+Registry.register(User, Avatar)
+</pre>
+<p>
+In this example, we specify that each user can have one avatar.  The database at this point should have two tables:
+<ol>
+  <li>A <code>users</code> table with at least a column <code>id</code>.</li>
+  <li>A <code>avatars</code> table with at least two columns: <code>id</code> and <code>user_id</code>.</li>
+</ol>
+It is also necessary to register our classes with the registry before we can start utilizing relationships (this is
+so the module can find and instantiate them when necessary).
+</p>
+<p>
+For the <code>HASONE</code> class variable we can optionally give a dictionary that provides additional information:
+</p>
+<pre class="python">
+from twistar.dbobject import DBObject
+from twistar.registry import Registry
 
-    <p>As a platform, Twisted should be focused on integration.
-    Ideally, all functionality will be accessible through all
-    protocols. Failing that, all functionality should be
-    configurable through at least one protocol, with a seamless and
-    consistent user-interface. The next phase of development will
-    be focusing strongly on a configuration system which will unify
-    many disparate pieces of the current infrastructure, and allow
-    them to be tacked together by a non-programmer.</p>
+class User(DBObject):
+     HASONE = [{'name': 'avatar', 'class_name': 'Avatar', foreign_key: 'user_id'}]
+
+class Avatar(DBObject):
+     pass
+
+Registry.register(User, Avatar)
+</pre>
+<p>
+There are additional options as well: see the <code class="API" base="twistar.relationships">Relationships</code> class
+for more information.
+</p>
+<p>
+At this point we can use the relationship and assign user's avatar:
+</p>
+<pre class="python">
+def onPicSave(picture, user):
+     user.picture.set(picture)
+
+def onUserSave(user):
+     Avatar(file="somewhere").save().addCallback(onPicSave, user)
+
+User(first_name="Bob").save().addCallback(onUserSave)
+</pre>
+<p>We can then get it:</p>
+<pre class="python">
+def foundPicture(picture):
+     print picture.file
+
+def foundUser(user):
+     user.picture.get().addCallback(foundPicture)
+
+User.find(where=['first_name = ?', "Bob"], limit=1).addCallback(foundUser)
+</pre>
+  <h2>Has Many</h2>
+<p>Another relationship is used when one object "has many" of another.  For instance, a <code>User</code>
+may have many <code>Pictures</code>.
+</p>
+<pre class="python">
+from twistar.dbobject import DBObject
+from twistar.registry import Registry
+
+class User(DBObject):
+     HASMANY = ['pictures']
+
+class Picture(DBObject):
+     pass
+
+Registry.register(User, Picture)
+</pre>
+<p>Again, the list assigned to <code>HASMANY</code> can have dictionaries in it just like <code>HASONE</code> that
+contain additional configuration options.  For this relationship, the database should at this point should have two tables:
+<ol>
+  <li>A <code>users</code> table with at least a column <code>id</code>.</li>
+  <li>A <code>pictures</code> table with at least two columns: <code>id</code> and <code>user_id</code>.</li>
+</ol>
+As in the previous example, we can get and set a user's pictures using a special property of user: 
+<code>pictures</code>. 
+</p>
+<pre class="python">
+from twisted.internet.defer import inlineCallbacks
+
+@inlineCallbacks
+def addPictures():
+     # set some pics
+     user = yield User(first_name="Bob").save()
+     picone = yield Picture(file="somewhere").save()
+     pictwo = yield Picture(file="elsewhere").save()
+     pictures = [picone, pictwo]
+     yield user.pictures.set(pictures)
+     
+     # now get them
+     pictures = yield user.pictures.get()
+     print pictures[0].file
+     print pictures[1].file
+
+addPictures()
+</pre>
+
+  <h2>Belongs To</h2>
+<p>
+A good example of the "belongs to" property is the reverse of the "has many":
+</p>
+<pre class="python">
+from twistar.dbobject import DBObject
+from twistar.registry import Registry
+
+class User(DBObject):
+     HASMANY = ['pictures']
+
+class Picture(DBObject):
+     BELONGSTO = ['user']
+
+Registry.register(User, Picture)
+</pre>
+<p>
+Assuming the DB structure is the same as in the "has many" example, you can now get and set the user that 
+a particular picture belongs to (using <code class="python">get()</code> and <code class="python">set()</code>
+methods on <code class="python">picture.user</code>).
+</p>
+  <h2>Has and Belongs To Many</h2>
+
+
 
   </body>
 </html>

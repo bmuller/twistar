@@ -2,6 +2,8 @@ from twisted.trial import unittest
 from twisted.enterprise import adbapi
 from twisted.internet.defer import inlineCallbacks
 
+from twistar.exceptions import ReferenceNotSavedError
+
 from utils import *
 
 class RelationshipTest(unittest.TestCase):    
@@ -31,6 +33,13 @@ class RelationshipTest(unittest.TestCase):
         user = yield User(first_name="new one").save()
         yield self.picture.user.set(user)
         self.assertEqual(user.id, self.picture.user_id)
+
+
+    @inlineCallbacks
+    def test_set_on_unsaved(self):
+        user = yield User(first_name="new one").save()
+        picture = Picture(name="a pic")
+        self.assertRaises(ReferenceNotSavedError, getattr, picture, 'user')
 
 
     @inlineCallbacks
