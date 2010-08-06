@@ -9,8 +9,9 @@ setup(
     version="0.1",
     description="An implementation of the Active Record pattern for Twisted",
     author="Brian Muller",
-    author_email="bamuller@gmail.com",
-    license="GPL",
+    author_email="bmuller@butterfat.net",
+    license="GPLv3",
     url="http://trac.butterfat.net/public/twistar",
-    packages=["twistar", "twistar.dbconfig", "twistar.tests", 'BermiInflector', 'BermiInflector.Rules']
+    packages=["twistar", "twistar.dbconfig", "twistar.tests", 'BermiInflector', 'BermiInflector.Rules'],
+    requires=["twisted.enterprise.adbapi"]
 )
