@@ -24,12 +24,34 @@ def done(result):
 Registry.DBPOOL = adbapi.ConnectionPool('MySQLdb', user="twistar", passwd="apass", db="twistar")
 Registry.DBPOOL.runQuery("CREATE DATABASE users (id INT ...").addCallback(done)
 </pre>
+<p>The alternative, described below, might be much more useful for basic CRUD operations.</p>
 
 <h2>CRUD Interface</h2>
 <p>
-TODO: describe config interface's select/insert/update/delete methods.
+In the <code class="API" base="twistar.dbconfig.base">InteractionBase</code> you'll find all of the create/read/update/delete (CRUD)
+methods supported by the internal configuration class.  To use these methods, use the Registry to get the current configuration
+object:
 </p>
+<pre class="python">
+from twisted.enterprise import adbapi
+from twistar.registry import Registry
+Registry.DBPOOL = adbapi.ConnectionPool('MySQLdb', user="twistar", passwd="apass", db="twistar")
 
+dbconfig = Registry.getConfig()
+d = dbconfig.select("users", where=['first_name = ?', 'Bob'], orderby='last_name DESC', limit=100)
+d.addCallback(someResultHandlerFunction)
+</pre>
+<p>
+Each of the CRUD methods gives you more control on the query that is generated.  For more information, see the following
+methods in <code class="API" base="twistar.dbconfig.base">InteractionBase</code>:
+<ul>
+  <li>select</li>
+  <li>update</li>
+  <li>delete</li>
+  <li>insert</li>
+  <li>insertMany (a more efficient manner of inserting many rows)</li>
+</ul>
+</p>
   </body>
 </html>
 

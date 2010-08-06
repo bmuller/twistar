@@ -14,7 +14,7 @@ here is not necessarily great Twisted code; where typically you would expect to 
 <code>inlineCallbacks</code> there are none to provide clarity to those new to Twisted.
 </p>
 <p>
-More information on relationships can be found in the <code class="API" base="twistar.relationships">Relationships</code> class.
+More information on relationships can be found in the <code class="API" base="twistar.relationships">Relationship</code> class.
 </p>
   <h2>Has One</h2>
   <p>Perhaps the simplest relationship is the <code>Has One</code> relationship.  In this example, we will
@@ -127,6 +127,8 @@ def addPictures():
 
 addPictures()
 </pre>
+<p>Additionally, there is a <code>clear()</code> method that will clear all
+objects in a given has many relationship.</p>
 
   <h2>Belongs To</h2>
 <p>
@@ -147,12 +149,36 @@ Registry.register(User, Picture)
 <p>
 Assuming the DB structure is the same as in the "has many" example, you can now get and set the user that 
 a particular picture belongs to (using <code class="python">get()</code> and <code class="python">set()</code>
-methods on <code class="python">picture.user</code>).
+methods on <code class="python">picture.user</code>).  Additionally, there is a <code>clear()</code> method that will clear all
+objects in a given belongs to relationship.
 </p>
   <h2>Has and Belongs To Many</h2>
+<p>
+In a has and belongs to many relationship two objects have a many to many relationship.  For instance, users and favorite colors.  
+A user can have many favorite colors and a favorite color could belong to many users.  In this example, there should be three tables -
+a <code>users</code> table, a <code>favorite_colors</code> table, and a <code>favorite_colors_users</code> table.  The last on the list 
+is a special table that stores the relationships between the colors and users.  It has no primary key, and two columns: one for 
+<code>user_id</code>s and one for <code>favorite_color_id</code>s.  The table's name by convention should be the combination of the other
+two table names, joined with an underscore, and arranged alphabetically.  The classes would look like:
+</p>
+<pre class="python">
+from twistar.dbobject import DBObject
+from twistar.registry import Registry
 
+class User(DBObject):
+     HABTM = ['favorite_colors']
 
+class FavoriteColor(DBObject):
+     HABTM = ['users']
 
+Registry.register(User, FavoriteColor)
+</pre>
+<p>
+You can now get and set the users of favorite colors and the favorite colors of users
+ (using <code class="python">get()</code> and <code class="python">set()</code>
+methods).  Additionally, there is a <code>clear()</code> method that will clear all
+objects in a given relationship.
+</p>
   </body>
 </html>
 

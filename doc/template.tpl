@@ -8,12 +8,13 @@
 
   <body bgcolor="white">
     <h1 class="title"></h1>
+    <p><a href="index.html">Documentation Index</a></p>
     <div class="toc"></div>
     <div class="body">
 	
     </div>
 
-    <p><a href="index.html">Index</a></p>
+    <p><a href="index.html">Documentation Index</a></p>
   </body>
 </html>
 
