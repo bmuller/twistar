@@ -91,16 +91,22 @@ class HasMany(Relationship):
     A class representing the has many relationship.
     """
     
-    def get(self, limit=None):
+    def get(self, **kwargs):
         """
         Get the objects that caller has.
 
-        @param limit: Limit the number of results to the given integer value.
+        @param kwargs: These could include C{limit}, C{orderby}, or any others included in
+        C{DBObject.find}.  If a C{where} parameter is included, the conditions will
+        be added to the ones already imposed by default in this method.
 
         @return: A C{Deferred} with a callback value of a list of objects.
-        """        
-        where=["%s = ?" % self.thisname, self.inst.id]        
-        return self.otherklass.find(where=where, limit=limit)
+        """
+        where = ["%s = ?" % self.thisname, self.inst.id]
+        if kwargs.has_key('where'):
+            kwargs['where'] = joinWheres(where, kwargs['where'])
+        else:
+            kwargs['where'] = where
+        return self.otherklass.find(**kwargs)
 
 
     def _update(self, _, others):
@@ -192,14 +198,13 @@ class HABTM(Relationship):
         return self._tablename
     
     
-    def get(self, conditions=None, limit=None):
+    def get(self, **kwargs):
         """
         Get the objects that caller has.
 
-        @param conditions: Additional conditions, in the same form as the C{where} parameter
-        in the method L{DBObject.find}.
-
-        @param limit: Limit the number of results to the given integer value.
+        @param kwargs: These could include C{limit}, C{orderby}, or any others included in
+        C{InteractionBase.select}.  If a C{where} parameter is included, the conditions will
+        be added to the ones already imposed by default in this method.
 
         @return: A C{Deferred} with a callback value of a list of objects.
         """        
@@ -212,9 +217,11 @@ class HABTM(Relationship):
             return d.addCallback(createInstances, self.otherklass)
         tablename = self.tablename()
         where = ["%s = ?" % self.thisname, self.inst.id]
-        if conditions is not None:
-            where = joinWheres(where, conditions)
-        return self.dbconfig.select(tablename, where=where, limit=limit).addCallback(_get)
+        if kwargs.has_key('where'):
+            kwargs['where'] = joinWheres(where, kwargs['where'])
+        else:
+            kwargs['where'] = where
+        return self.dbconfig.select(tablename, **kwargs).addCallback(_get)
 
 
     def _set(self, _, others):
