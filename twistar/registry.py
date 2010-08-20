@@ -6,6 +6,7 @@ from twisted.python import reflect
 
 from BermiInflector.Inflector import Inflector
 
+from twistar.exceptions import ClassNotRegisteredError
 
 class Registry:
     """
