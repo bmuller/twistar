@@ -85,8 +85,58 @@ class DBObject(object):
         if self.deleted:
             raise DBObjectSaveError, "Cannot save a previously deleted object."
         if self.id is None:
-            return self.config.insertObj(self)
-        return self.config.updateObj(self)
+            return self._create()
+        return self._update()
+
+
+    def beforeCreate(self):
+        """
+        Method called before a new object is created.  Classes can overwrite this method.
+        If False is returned, then the object is not saved in the database.  This method
+        may return a C{Deferred}.
+        """
+        return True
+
+
+    def _create(self):
+        """
+        Method to actually create an object in the DB.  Handles calling this class's
+        L{beforeCreate} method.
+
+        @return: A C{Deferred} object.  If a callback is added to that deferred
+        the value of the saved object will be returned (unless the L{beforeCreate}
+        method returns false, in which case the unsaved object will be returned).
+        """
+        def createOnSuccess(result):
+            if result != False:
+                return self.config.insertObj(self)
+            return defer.succeed(self)
+        return defer.maybeDeferred(self.beforeCreate).addCallback(createOnSuccess)
+
+
+    def beforeSave(self):
+        """
+        Method called before a new object is saved.  Classes can overwrite this method.
+        If False is returned, then the object is not saved in the database.  This method
+        may return a C{Deferred}.
+        """
+        return True
+
+
+    def _update(self):
+        """
+        Method to actually save an existing object in the DB.  Handles calling this class's
+        L{beforeSave} method.
+
+        @return: A C{Deferred} object.  If a callback is added to that deferred
+        the value of the saved object will be returned (unless the L{beforeSave}
+        method returns false, in which case the unsaved object will be returned).
+        """        
+        def saveOnSuccess(result):
+            if result != False:
+                return self.config.updateObj(self)
+            return defer.succeed(self)
+        return defer.maybeDeferred(self.beforeSave).addCallback(saveOnSuccess)
 
 
     def refresh(self):

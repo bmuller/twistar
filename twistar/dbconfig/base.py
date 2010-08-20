@@ -7,6 +7,7 @@ from twisted.python import log
 from twistar.registry import Registry        
 from twistar.exceptions import ImaginaryTableError
 
+from sqlite3 import OperationalError
 
 class InteractionBase:
     """
@@ -267,7 +268,10 @@ class InteractionBase:
         a given tablename.  Use the given transaction if specified.
         """
         if not Registry.SCHEMAS.has_key(tablename) and txn is not None:
-            self.executeTxn(txn, "SELECT * FROM %s LIMIT 1" % tablename)
+            try:
+                self.executeTxn(txn, "SELECT * FROM %s LIMIT 1" % tablename)
+            except OperationalError, e:
+                raise ImaginaryTableError, "Table %s does not exist." % tablename
             Registry.SCHEMAS[tablename] = [row[0] for row in txn.description]
         return Registry.SCHEMAS.get(tablename, [])
             
