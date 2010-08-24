@@ -1,3 +1,7 @@
+"""
+Package providing validation support for L{DBObject}s.
+"""
+
 from twisted.internet import defer
 from BermiInflector.Inflector import Inflector
 
@@ -222,6 +226,8 @@ class Errors(dict):
 
     def errorsFor(self, prop):
         """
+        Get the errors for a specific property.
+        
         @param prop: The property to fetch errors for.
         
         @return: A C{list} of errors for the given property.  If there are none,
