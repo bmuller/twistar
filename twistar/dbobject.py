@@ -9,11 +9,12 @@ from twistar.registry import Registry
 from twistar.relationships import Relationship
 from twistar.exceptions import InvalidRelationshipError, DBObjectSaveError, ReferenceNotSavedError
 from twistar.utils import createInstances
+from twistar.validation import Validator, Errors
 
 from BermiInflector.Inflector import Inflector
 
 
-class DBObject(object):
+class DBObject(Validator):
     """
     A base class for representing objects stored in a RDBMS.
 
@@ -43,7 +44,7 @@ class DBObject(object):
     @cvar TABLENAME: If specified, use the given tablename as the one for this object.  Otherwise,
     use the lowercase, plural version of this class's name.  See the L{DBObject.tablename}
     method.
-    
+
     @see: L{Relationship}, L{HasMany}, L{HasOne}, L{HABTM}, L{BelongsTo}
     """
     
@@ -51,12 +52,12 @@ class DBObject(object):
     HASONE = []
     HABTM = []
     BELONGSTO = []
+    
     # this will just be a hash of relationships for faster property resolution
     # the keys are the name and the values are classes representing the relationship
     # it will be of the form {'othername': <BelongsTo instance>, 'anothername': <HasMany instance>}
     RELATIONSHIP_CACHE = None
-    
-   
+
     def __init__(self, **kwargs):
         """
         Constructor.
@@ -66,6 +67,7 @@ class DBObject(object):
         """
         self.id = None
         self.deleted = False
+        self.errors = Errors()
         if len(kwargs) != 0:
             for k, v in kwargs.items():
                 setattr(self, k, v)
@@ -77,16 +79,45 @@ class DBObject(object):
 
     def save(self):
         """
-        Save this object to the database.
+        Save this object to the database.  Validation is performed first; if the
+        validation fails (that is, if C{obj.errors.isEmpty()} is False) then the
+        object will not be saved.  To test for errors, use C{obj.errors.isEmpty()}.
 
         @return: A C{Deferred} object.  If a callback is added to that deferred
-        the value of the saved object will be returned.
+        the value of the saved (or unsaved if there are errors) object will be returned.
+
+        @see: L{Validator}, L{Errors}
         """
         if self.deleted:
             raise DBObjectSaveError, "Cannot save a previously deleted object."
-        if self.id is None:
-            return self._create()
-        return self._update()
+
+        def _save(isValid):
+            if self.id is None and isValid:
+                return self._create()
+            elif isValid:
+                return self._update()
+            return self
+        return self.isValid().addCallback(_save)
+
+
+    def validate(self):
+        """
+        Run all validations associated with this object's class.  This will return a deferred
+        (actually a C{DeferredList}).  When this deferred is finished, this object's errors
+        dictionary property will either be empty or will contain the errors from this object
+        (keys are property names, values are the error messages describing the error).
+        """
+        return self.__class__._validate(self)
+
+
+    def isValid(self):
+        """
+        This method first calls L{validate} and then returns a deferred that returns True if
+        there were no errors and False otherwise.
+        """
+        def _isValid(obj):
+            return obj.errors.isEmpty()
+        return self.validate().addCallback(_isValid)
 
 
     def beforeCreate(self):

@@ -115,3 +115,43 @@ class DBObjectTest(unittest.TestCase):
         
         for key, value in args.items():
             self.assertEqual(getattr(u, key), value)
+
+
+    @inlineCallbacks
+    def test_validation(self):
+        User.validatesPresenceOf('first_name', message='cannot be blank, fool.')
+        User.validatesLengthOf('last_name', range=xrange(1,101))
+        User.validatesUniquenessOf('first_name')
+
+        u = User()
+        yield u.validate()
+        self.assertEqual(len(u.errors), 2)
+
+        yield User(first_name="not unique", last_name="not unique").save()
+        u = yield User(first_name="not unique", last_name="not unique").save()
+        self.assertEqual(len(u.errors), 1)
+        self.assertEqual(u.id, None)
+        User.clearValidations()
+        
+
+    @inlineCallbacks
+    def test_validation_function(self):
+        def adult(user):
+            if user.age < 18:
+                user.errors.add('age', "must be over 18.")
+        User.addValidator(adult)
+
+        u = User(age=10)
+        valid = yield u.isValid()
+        self.assertEqual(valid, False)
+
+        yield u.save()
+        self.assertEqual(len(u.errors), 1)
+        self.assertEqual(len(u.errors.errorsFor('age')), 1)
+        self.assertEqual(len(u.errors.errorsFor('first_name')), 0)
+        User.clearValidations()
+
+        u = User(age=10)
+        valid = yield u.isValid()
+        self.assertEqual(valid, True)
+        User.clearValidations()        

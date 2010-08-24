@@ -143,6 +143,68 @@ def printExists(doesExist):
 User.exists(['first_name = ?', "John"]).addCallback(printExists)
 </pre>
 
+
+<h2>Validations</h2>
+<p>
+Twistar also supports validations.  Validations describe constraints on an objects
+parameters.  If those constraints are violated, then an object will not be saved (this
+includes both creating and updating).  In such a case a special parameter in the object
+keeps track of the errors and the messages.
+</p>
+<p>
+As an example, let's say that we want all users to always have a first name set and a last
+name that has a length between 1 and 256 characters.  First, we describe the class 
+<code class="python">User</code> as above and then add restrictions on it.
+</p>
+<pre class="python">
+class User(DBObject):
+     pass
+User.validatesPresenceOf('first_name')
+User.validatesLengthOf('last_name', range=xrange(1,257))
+</pre>
+<p>
+If we look at an object without those parameters, it will be invalid:
+</p>
+<pre class="python">
+def vcheck(isValid, object):
+     if not isValid:
+          print "Object not valid: %s" % str(u.errors)
+u = User()
+u.isValid().addCallback(vcheck, u)
+</pre>
+<p>
+If we try to save an invalid object, nothing happens:
+</p>
+<pre class="python">
+def checkUser(user):
+     print user.id # this will be None
+     print user.errors.errorsFor('first_name')
+     print user.errors.errorsFor('last_name')
+     print "There were %d errors" % len(user.errors)
+User().save().addCallback(checkUser)
+</pre>
+<p>
+You can also create your own validity function.  It should accept an object as 
+a parameter and then add errors as necessary.  It can return a <code class="python">Deferred</code>
+if necessary; the return value from the function will be ignored.
+</p>
+<pre class="python">
+def myValidator(user):
+     if user.first_name != "fred":
+          user.errors.add('first_name', "must be Fred!")
+User.addValidator(myValidator)
+
+def test(user):
+     # This will print "First Name must be Fred!"
+     print user.errors 
+     print user.id # None
+User(first_name='not fred').save().addCallback(test)
+</pre>
+<p>
+For more information see the <code class="API" base="twistar.validation">Validator</code> and
+<code class="API" base="twistar.validation">Errors</code> classes.
+</p>
+
 <h2>DBAPI Column Objects</h2>
 <p>
 The <a href="http://www.python.org/dev/peps/pep-0249/">DBAPI</a> specification requires that 
