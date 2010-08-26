@@ -127,10 +127,14 @@ class DBObjectTest(unittest.TestCase):
         yield u.validate()
         self.assertEqual(len(u.errors), 2)
 
-        yield User(first_name="not unique", last_name="not unique").save()
+        first = yield User(first_name="not unique", last_name="not unique").save()
         u = yield User(first_name="not unique", last_name="not unique").save()
         self.assertEqual(len(u.errors), 1)
         self.assertEqual(u.id, None)
+
+        # make sure first can be updated
+        yield first.save()
+        self.assertEqual(len(first.errors), 0)
         User.clearValidations()
         
 

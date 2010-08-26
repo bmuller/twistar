@@ -4,7 +4,7 @@ Package providing validation support for L{DBObject}s.
 
 from twisted.internet import defer
 from BermiInflector.Inflector import Inflector
-
+from twistar.utils import joinWheres
 
 def presenceOf(obj, names, kwargs):
     """
@@ -73,7 +73,10 @@ def uniquenessOf(obj, names, kwargs):
                 obj.errors.add(names[index], message)
     ds = []
     for name in names:
-        d = obj.__class__.find(where=["%s = ?" % name, getattr(obj, name, "")], limit=1)
+        where = ["%s = ?" % name, getattr(obj, name, "")]            
+        if obj.id is not None:
+            where = joinWheres(where, ["id != ?", obj.id])
+        d = obj.__class__.find(where=where, limit=1)
         ds.append(d)
     return defer.DeferredList(ds).addCallback(handle)
 

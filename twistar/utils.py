@@ -24,7 +24,7 @@ def createInstances(props, klass):
     return defer.succeed(result)
 
                             
-def joinWheres(self, wone, wtwo, joiner="AND"):
+def joinWheres(wone, wtwo, joiner="AND"):
     """
     Take two wheres (of the same format as the C{where} parameter in the function
     L{DBObject.find}) and join them.
