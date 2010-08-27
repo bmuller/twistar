@@ -66,12 +66,12 @@ class DBObject(Validator):
         should be initially set for this object.  
         """
         self.id = None
-        self.deleted = False
+        self._deleted = False
         self.errors = Errors()
         if len(kwargs) != 0:
             for k, v in kwargs.items():
                 setattr(self, k, v)
-        self.config = Registry.getConfig()
+        self._config = Registry.getConfig()
 
         if self.__class__.RELATIONSHIP_CACHE is None:
             self.__class__.initRelationshipCache()
@@ -88,7 +88,7 @@ class DBObject(Validator):
 
         @see: L{Validator}, L{Errors}
         """
-        if self.deleted:
+        if self._deleted:
             raise DBObjectSaveError, "Cannot save a previously deleted object."
 
         def _save(isValid):
@@ -140,7 +140,7 @@ class DBObject(Validator):
         """
         def createOnSuccess(result):
             if result != False:
-                return self.config.insertObj(self)
+                return self._config.insertObj(self)
             return defer.succeed(self)
         return defer.maybeDeferred(self.beforeCreate).addCallback(createOnSuccess)
 
@@ -165,7 +165,7 @@ class DBObject(Validator):
         """        
         def saveOnSuccess(result):
             if result != False:
-                return self.config.updateObj(self)
+                return self._config.updateObj(self)
             return defer.succeed(self)
         return defer.maybeDeferred(self.beforeSave).addCallback(saveOnSuccess)
 
@@ -176,7 +176,7 @@ class DBObject(Validator):
 
         @return: A C{Deferred} object.
         """        
-        return self.config.refreshObj(self)
+        return self._config.refreshObj(self)
 
                
     def toHash(self, cols, includeBlank=False, exclude=None, base=None):
@@ -213,7 +213,7 @@ class DBObject(Validator):
         """        
         oldid = self.id
         self.id = None
-        self.deleted = True
+        self._deleted = True
         return self.__class__.deleteAll(where=["id = ?", oldid])
 
 
