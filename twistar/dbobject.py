@@ -70,13 +70,22 @@ class DBObject(Validator):
         self.id = None
         self._deleted = False
         self.errors = Errors()
-        if len(kwargs) != 0:
-            for k, v in kwargs.items():
-                setattr(self, k, v)
+        self.updateAttrs(kwargs)
         self._config = Registry.getConfig()
 
         if self.__class__.RELATIONSHIP_CACHE is None:
             self.__class__.initRelationshipCache()
+
+
+    def updateAttrs(self, kwargs):
+        """
+        Set the attributes of this object based on the given C{dict}.
+
+        @param kwargs: A C{dict} whose keys will be turned into properties and whose values
+        will then be assigned to those properties.
+        """
+        for k, v in kwargs.iteritems():
+            setattr(self, k, v)
 
 
     def save(self):
@@ -128,16 +137,13 @@ class DBObject(Validator):
         If False is returned, then the object is not saved in the database.  This method
         may return a C{Deferred}.
         """
-        return True
 
 
     def afterInit(self):
         """
         Method called when a new L{DBObject} is instantiated.  Classes can overwrite this method.
-        This method may return a C{Deferred} (which MUST return C{self}) or it can simply return C{self}
-        when finished.
+        This method may return a C{Deferred}.
         """
-        return self
 
 
     def _create(self):
@@ -162,7 +168,6 @@ class DBObject(Validator):
         If False is returned, then the object is not saved in the database.  This method
         may return a C{Deferred}.
         """
-        return True
 
 
     def _update(self):

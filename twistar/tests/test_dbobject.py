@@ -159,3 +159,16 @@ class DBObjectTest(unittest.TestCase):
         valid = yield u.isValid()
         self.assertEqual(valid, True)
         User.clearValidations()        
+
+
+    @inlineCallbacks
+    def test_afterInit(self):
+        def afterInit(user):
+            user.blah = "foobar"
+        User.afterInit = afterInit
+        u = yield User.find(limit=1)
+        self.assertTrue(hasattr(u, 'blah'))
+        self.assertEqual(u.blah, 'foobar')
+
+        # restore user's afterInit
+        User.afterInit = DBObject.afterInit

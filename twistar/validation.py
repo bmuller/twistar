@@ -182,7 +182,6 @@ class Validator(object):
 
         @see: L{Errors}
         """
-        obj.errors.clear()
         ds = [defer.maybeDeferred(func, obj) for func in klass.VALIDATIONS]
         # Return the object when finished
         return defer.DeferredList(ds).addCallback(lambda results: obj)

@@ -19,11 +19,11 @@ def createInstances(props, klass):
     if type(props) is list:
         ks = [klass(**prop) for prop in props]
         ds = [defer.maybeDeferred(k.afterInit) for k in ks]
-        getResult = lambda results: [r[1] for r in results] # ignore failures for now
-        return defer.DeferredList(ds).addCallback(getResult)
+        return defer.DeferredList(ds).addCallback(lambda _: ks)
     
     if props is not None:
-        return defer.maybeDeferred(klass(**props).afterInit)
+        k = klass(**props)
+        return defer.maybeDeferred(k.afterInit).addCallback(lambda _: k)
 
     return defer.succeed(None)
 
