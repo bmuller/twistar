@@ -60,10 +60,12 @@ class DBObject(Validator):
 
     def __init__(self, **kwargs):
         """
-        Constructor.
+        Constructor.  DO NOT OVERWRITE.  Use the L{DBObject.afterInit} method.
         
         @param kwargs: An optional dictionary containing the properties that
-        should be initially set for this object.  
+        should be initially set for this object.
+
+        @see: L{DBObject.afterInit}
         """
         self.id = None
         self._deleted = False
@@ -127,6 +129,15 @@ class DBObject(Validator):
         may return a C{Deferred}.
         """
         return True
+
+
+    def afterInit(self):
+        """
+        Method called when a new L{DBObject} is instantiated.  Classes can overwrite this method.
+        This method may return a C{Deferred} (which MUST return self) or it can simply return self
+        when finished.
+        """
+        return self
 
 
     def _create(self):

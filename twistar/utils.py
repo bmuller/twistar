@@ -16,12 +16,16 @@ def createInstances(props, klass):
 
     @return: A C{Deferred} that will pass the result to a callback
     """
-    result = None
     if type(props) is list:
-        result = [klass(**prop) for prop in props]
-    elif props is not None:
-        result = klass(**props)
-    return defer.succeed(result)
+        ks = [klass(**prop) for prop in props]
+        ds = [defer.maybeDeferred(k.afterInit) for k in ks]
+        getResult = lambda results: [r[1] for r in results] # ignore failures for now
+        return defer.DeferredList(ds).addCallback(getResult)
+    
+    if props is not None:
+        return defer.maybeDeferred(klass(**props).afterInit)
+
+    return defer.succeed(None)
 
                             
 def joinWheres(wone, wtwo, joiner="AND"):
