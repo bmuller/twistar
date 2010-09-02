@@ -139,6 +139,25 @@ class DBObject(Validator):
         """
 
 
+    def beforeUpdate(self):
+        """
+        Method called before an existing object is updated.  Classes can overwrite this method.
+        If False is returned, then the object is not saved in the database.  This method
+        may return a C{Deferred}.
+        """
+
+
+    def beforeSave(self):
+        """
+        Method called before an object is saved.  Classes can overwrite this method.
+        If False is returned, then the object is not saved in the database.  This method
+        may return a C{Deferred}.
+
+        This method is called after L{beforeCreate} when an object is being created, and after
+        L{beforeUpdate} when an existing object (whose C{id} is not C{None}) is being saved.
+        """
+        
+
     def afterInit(self):
         """
         Method called when a new L{DBObject} is instantiated.  Classes can overwrite this method.
@@ -149,41 +168,47 @@ class DBObject(Validator):
     def _create(self):
         """
         Method to actually create an object in the DB.  Handles calling this class's
-        L{beforeCreate} method.
+        L{beforeCreate} followed by it's L{beforeSave} method.
 
         @return: A C{Deferred} object.  If a callback is added to that deferred
         the value of the saved object will be returned (unless the L{beforeCreate}
-        method returns false, in which case the unsaved object will be returned).
+        or L{beforeSave} methods returns C{False}, in which case the unsaved object
+        will be returned).
         """
-        def createOnSuccess(result):
-            if result != False:
-                return self._config.insertObj(self)
-            return defer.succeed(self)
-        return defer.maybeDeferred(self.beforeCreate).addCallback(createOnSuccess)
+        def _createOnSuccess(result):
+            if result == False:
+                return defer.succeed(self)
+            return self._config.insertObj(self)
 
+        def _beforeSave(result):
+            if result == False:
+                return defer.succeed(self)
+            return defer.maybeDeferred(self.beforeSave).addCallback(_createOnSuccess)
 
-    def beforeUpdate(self):
-        """
-        Method called before an existing object is updated.  Classes can overwrite this method.
-        If False is returned, then the object is not saved in the database.  This method
-        may return a C{Deferred}.
-        """
+        return defer.maybeDeferred(self.beforeCreate).addCallback(_beforeSave)
 
 
     def _update(self):
         """
         Method to actually save an existing object in the DB.  Handles calling this class's
-        L{beforeUpdate} method.
+        L{beforeUpdate} and L{beforeSave} methods.
 
         @return: A C{Deferred} object.  If a callback is added to that deferred
         the value of the saved object will be returned (unless the L{beforeUpdate}
-        method returns false, in which case the unsaved object will be returned).
+        or L{beforeSave} methods returns C{False}, in which case the unsaved
+        object will be returned).
         """        
-        def saveOnSuccess(result):
-            if result != False:
-                return self._config.updateObj(self)
-            return defer.succeed(self)
-        return defer.maybeDeferred(self.beforeUpdate).addCallback(saveOnSuccess)
+        def _saveOnSuccess(result):
+            if result == False:
+                return defer.succeed(self)
+            return self._config.updateObj(self)
+        
+        def _beforeSave(result):
+            if result == False:
+                return defer.succeed(self)
+            return defer.maybeDeferred(self.beforeSave).addCallback(_saveOnSuccess)
+        
+        return defer.maybeDeferred(self.beforeUpdate).addCallback(_beforeSave)
 
 
     def refresh(self):
