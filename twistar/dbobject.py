@@ -8,7 +8,7 @@ from twisted.internet import defer
 from twistar.registry import Registry
 from twistar.relationships import Relationship
 from twistar.exceptions import InvalidRelationshipError, DBObjectSaveError, ReferenceNotSavedError
-from twistar.utils import createInstances
+from twistar.utils import createInstances, deferredDict
 from twistar.validation import Validator, Errors
 
 from BermiInflector.Inflector import Inflector
@@ -231,6 +231,34 @@ class DBObject(Validator):
         self.id = None
         self._deleted = True
         return self.__class__.deleteAll(where=["id = ?", oldid])
+
+
+    def loadRelations(self, *relations):
+        """
+        Preload a a list of relationships.  For instance, if you have an instance of an
+        object C{User} (named C{user}) that has many C{Address}es and has one C{Avatar},
+        you could call C{user.loadRelations('addresses', 'avatar').addCallback('handleUser')}
+        instead of having to call C{user.addresses.get()} and C{user.avatar.get()} and assign
+        callbacks to the results of those calls.  In the first case, the function C{handleUser}
+        would accept one argument, which will be a dictionary whose keys are the property names
+        and whose values are the results of the C{get()} calls.  This just makes it easier to
+        load multiple properties at once, without having to create a long list of callbacks.
+
+        If the method is called without any arguments, then all relations will loaded.
+
+        @return: A C{Deferred}.
+        """
+        if len(relations) == 0:
+            klass = object.__getattribute__(self, "__class__")
+            allrelations = klass.RELATIONSHIP_CACHE.keys()
+            if len(allrelations) == 0:
+                return defer.succeed({})
+            return self.loadRelations(*allrelations)
+
+        ds = {}
+        for relation in relations:
+            ds[relation] = getattr(self, relation).get()
+        return deferredDict(ds)
 
 
     @classmethod

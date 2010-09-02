@@ -148,7 +148,6 @@ class DBObjectTest(unittest.TestCase):
         u = User(age=10)
         valid = yield u.isValid()
         self.assertEqual(valid, False)
-
         yield u.save()
         self.assertEqual(len(u.errors), 1)
         self.assertEqual(len(u.errors.errorsFor('age')), 1)
@@ -172,3 +171,19 @@ class DBObjectTest(unittest.TestCase):
 
         # restore user's afterInit
         User.afterInit = DBObject.afterInit
+
+
+    @inlineCallbacks
+    def test_loadRelations(self):
+        user = yield User.find(limit=1)
+        all = yield user.loadRelations()
+
+        pictures = yield user.pictures.get()
+        self.assertEqual(pictures, all['pictures'])
+
+        avatar = yield user.avatar.get()
+        self.assertEqual(avatar, all['avatar'])
+
+        suball = yield user.loadRelations('pictures')
+        self.assertTrue(not suball.has_key('avatar'))
+        self.assertEqual(pictures, suball['pictures'])

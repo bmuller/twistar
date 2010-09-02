@@ -4,7 +4,7 @@ Package providing validation support for L{DBObject}s.
 
 from twisted.internet import defer
 from BermiInflector.Inflector import Inflector
-from twistar.utils import joinWheres
+from twistar.utils import joinWheres, deferredDict
 
 def presenceOf(obj, names, kwargs):
     """
@@ -64,21 +64,20 @@ def uniquenessOf(obj, names, kwargs):
     @param names: The names of the properties to test.
     @param kwargs: Keyword arguments.  Right now, all but a
     C{message} value are ignored.
-    """    
+    """
     message = kwargs.get('message', "is not unique.")    
     def handle(results):
-        for index in range(len(results)):
-            (success, value) = results[index]
+        for propname, value in results.items():
             if value is not None:
-                obj.errors.add(names[index], message)
-    ds = []
+                obj.errors.add(propname, message)
+    ds = {}
     for name in names:
         where = ["%s = ?" % name, getattr(obj, name, "")]            
         if obj.id is not None:
             where = joinWheres(where, ["id != ?", obj.id])
         d = obj.__class__.find(where=where, limit=1)
-        ds.append(d)
-    return defer.DeferredList(ds).addCallback(handle)
+        ds[name] = d
+    return deferredDict(ds).addCallback(handle)
 
 
 
@@ -212,7 +211,8 @@ class Errors(dict):
         """
         self[prop] = self.get(prop, [])
         msg = "%s %s" % (self.infl.humanize(prop), str(error))
-        self[prop].append(msg)
+        if not msg in self[prop]:
+            self[prop].append(msg)
 
 
     def isEmpty(self):
