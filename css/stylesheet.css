@@ -1,0 +1,158 @@
+/* shamlessly stolen from http://twistedmatrix.com/trac/browser/trunk/doc/core/howto/stylesheet.css?format=txt and then modified */
+
+body
+{
+  margin-left: 2em;
+  margin-right: 2em;
+  border: 0px;
+  padding: 0px;
+  font-family: Arial,Helvetica,sans-serif
+  text-align: center;
+}
+
+div#header {
+  margin-left: auto;
+  margin-right: auto;
+  width: 30em;
+  text-align: left;
+  font-size: 1.8em; 
+  font-family: ariel; 
+  color: #454545;
+}
+
+div#footer {
+  margin: 60px;
+}
+
+
+.flickr_badge_image img {
+border: 1px solid #000;
+margin-right: 90px;
+}
+
+div#subheader {
+  font-size: 0.6em;
+  color: #BBB;
+  border-bottom: 1px solid #ccc;
+padding-bottom: 3px;
+padding-top: 3px;
+}
+
+div#menu {
+text-align: right;
+font-size: 0.55em;
+margin-top: 5px;
+float: right;
+}
+
+div#menu ul {
+list-style: none outside none;
+}
+
+div#menu ul li {
+display: inline;
+padding: 0px;
+padding-right: 15px;
+}
+
+div#content
+{
+	margin-top: 20px;
+	margin-left: auto;
+	margin-right: auto;
+	width: 50em;
+	text-align: left;
+	color: #333;
+}
+
+div#content span#date {
+font-size: 0.8em;
+margin-left: 5px;
+color: #aaa;
+}
+
+h1 {
+margin-bottom: 0px;
+}
+
+.done { color: #005500; background-color: #99ff99 }
+.notdone { color: #550000; background-color: #ff9999;}
+
+a { text-decoration: none; color: #1c84bf; }
+a:hover { text-decoration: underline; }
+div#menu a {
+color: #c03;
+}
+
+div#menu a:hover {
+text-decoration: none;
+}
+
+h1 { font-size: 1.3em; }
+h1, h2 { font-family: sans-serif; color: #0785C9; }
+h2 {
+font-size: 0.8em;
+color: #333;
+text-decoration: underline;
+margin-top: 25px;
+}
+
+pre
+{
+  background: #F8F8FF;
+  padding: 1em;
+  border: 1px solid #DEDEDE;
+  line-height: 1.2em;
+}
+
+.boxed
+{
+  padding: 1em;
+  border: thin black solid;
+}
+
+hr
+{
+  display: inline;
+  }
+
+ul
+{
+  padding: 0px;
+  margin: 0px;
+  margin-left: 1em;
+  padding-left: 1em;
+  border-left: 1em;
+  }
+
+li
+{
+  padding: 2px;
+  }
+
+dt
+{
+  font-weight: bold;
+  margin-left: 1ex;
+  }
+
+dd
+{
+  margin-bottom: 1em;
+  }
+
+div.note
+{
+  background-color: #FFFFCC;
+  margin-top: 1ex;
+  margin-left: 5%;
+  margin-right: 5%;
+  padding-top: 1ex;
+  padding-left: 5%;
+  padding-right: 5%;
+  border: thin black solid;
+}
+
+.gist {
+font-size: 0.7em;
+}
