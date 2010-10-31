@@ -62,8 +62,9 @@ trial twistar
 
 # Docs 
  * [Examples and User Documentation][examples]
- * [API Docs](http://butterfat.net/twistar/apidoc)
+ * [API Docs][apidocs]
 
 Questions and complaints Send questions to [bmuller@butterfat.net](bmuller@butterfat.net).
 
-[examples]: http://coop.butterfat.net/twistar/doc
+[examples]: doc
+[apidocs]: apidoc

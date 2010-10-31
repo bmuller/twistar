@@ -1,0 +1,225 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Simple Examples</title>
+  </head>
+
+  <body>
+    <h1>Simple Examples</h1>
+<p>
+  Since Twistar uses Twisted, most methodand function calls willreturn a <code class="python">twisted.internet.defer.Deferred</code>
+  object. You must understand the propper use of these objects before most of this documentationwill make sense.
+</p>
+
+    <h2>Initialization</h2>
+    <p>Before using Twistar a connection to the DB must first be made.  The method of connecting to the database
+is to use Twisted's <code class="python">twisted.enterprise.adapi</code> module and the <code class="python">ConnectionPool</code>
+object.  The <code class="python">Registry</code> class is used to keep track of that pool.  For instance, this is the 
+method to specify a connection to a MySQL database:
+</p>
+<pre class="python">
+from twisted.enterprise import adbapi
+from twistar.registry import Registry
+
+Registry.DBPOOL = adbapi.ConnectionPool('MySQLdb', user="twistar", passwd="apass", db="twistar")
+</pre>
+<p>
+The modules implementing <a href="http://www.python.org/dev/peps/pep-0249/">DBAPI</a> that are supported by Twistar are:
+<ul>
+  <li><a href="http://sourceforge.net/projects/mysql-python/">MySQLdb</a> (MySQL interface)</li>
+  <li><a href="http://initd.org/psycopg/">psycopg2</a> (PostgreSQL interface)</li>
+  <li><a href="http://docs.python.org/library/sqlite3.html">sqlite3</a> (SQLite interface)</li>
+</ul>
+</p>
+
+<h2>Database Creation</h2>
+<p>Twistar does not provide DB creation / migration functionality beyond asynchronously making SQL queries.
+There are plenty of utilities in existance to provide these capabilities.  If you need to create tables 
+in an asynchronous manner, you can always <a href="lowlevel.xhtml">execute the creation SQL directly</a>.
+</p>
+<p>
+Objects will assume that the plural version of the object's class name will be the table name.  For instance,
+if the class name is Person, then the tablename should be People.  If it is Chicken, the tablename should be
+Chickens.  If you want to manually specify a tablename, you can do that with the 
+<code class="python">TABLENAME</code> class variable (see the 
+<code class="python">DBObject</code> definition).
+</p>
+<p>
+Column names should have no spaces (with words separated by a <q>_</q>) and should generally be lower case.
+All object tables (that don't describe <a href="relationship_examples.xhtml">relationships</a>) should have
+an auto-incrementing integer column named <q>id</q>.
+</p>
+
+<h2>Defining and Interacting With Objects</h2>
+<p>
+Object's representing rows in a database need only extend the 
+<code class="python">DBObject</code> class.
+</p>
+<pre class="python">
+from twistar.dbobject import DBObject
+
+class User(DBObject):
+     pass
+</pre>
+<p>
+Assuming that the <q>users</q> table has some VARCHAR fields like first_name and last_name and, say,
+and integer field named age (along with the required auto-incrementing integer column named
+<q>id</q>), then object properties can be assigned:
+</p>
+
+<pre class="python">
+def done(user):
+     print "A user has just been saved with id: %i" % user.id
+
+u = User()
+u.first_name = "John"
+u.last_name = "Smith"
+u.age = 25
+u.save().addCallback(done)
+
+# The following is equivalent
+u = User(first_name="John", last_name="Smith", age=25)
+u.save().addCallback(done)
+</pre>
+
+<p>
+Any additional properties that are set that don't correspond to column names are ignored on the save.  For instance,
+had a <q>middle_name</q> property been set for the user it would have simply been ignored when the object was saved.
+</p>
+
+<p>
+Methods you would traditionally find in an active record style RDBMS are also available, for instance to 
+test for existance and delete an object instance.
+</p>
+
+<h2>Finding Objects</h2>
+<p>To find an object, use the class's <code class="python">find</code> method.  It accepts a number of
+arguments to group, sort, and limit results.  The simplest way to use the method is to get an object 
+instance by id.  For instance, if we wanted to find the user with an id of 1:
+</p>
+<pre class="python">
+User.find(1).addCallback(...)
+</pre>
+<p>
+Additional constriants can be specified using the <code class="py-src-parameter">where</code>
+paramter and others:
+</p>
+<pre class="python">
+User.find(where=['first_name = ? AND last_name = ?', "John", "Smith"], limit=1).addCallback(...)
+</pre>
+<p>There are many more options, all of which are described on the
+<code class="python">DBObject</code> API reference page.
+</p>
+<p>
+One thing to note: if either <code class="py-src-parameter">limit</code> is set to 1 or the query
+is by <code class="py-src-parameter">id</code>, then the resulting deferred will return either the 
+found object or <code class="python">None</code> if not found.  Otherwise, an array is returned
+containing the found objects.
+</p>
+
+<h2>Class Methods</h2>
+<p>
+Additional class methods (other than find) includes ones for getting an array of all objects
+(using the <code class="python">all()</code> method), deleting all instances 
+(using the <code class="python">deleteAll()</code> method), and determining whether or not
+any particular objects exist (using the <code class="python">exists()</code> method).  For instance:
+</p>
+<pre class="python">
+def printAll(users):
+     for user in users:
+          print "First: %s Last: %s" % (user.first_name, user.last_name)
+
+User.all().addCallback(printAll)
+
+
+def printExists(doesExist):
+     if doesExist:
+          print "User exists!"
+     else:
+          print "User does not exist."
+
+User.exists(['first_name = ?', "John"]).addCallback(printExists)
+</pre>
+
+
+<h2>Validations</h2>
+<p>
+Twistar also supports validations.  Validations describe constraints on an objects
+parameters.  If those constraints are violated, then an object will not be saved (this
+includes both creating and updating).  In such a case a special parameter in the object
+keeps track of the errors and the messages.
+</p>
+<p>
+As an example, let's say that we want all users to always have a first name set and a last
+name that has a length between 1 and 256 characters.  First, we describe the class 
+<code class="python">User</code> as above and then add restrictions on it.
+</p>
+<pre class="python">
+class User(DBObject):
+     pass
+User.validatesPresenceOf('first_name')
+User.validatesLengthOf('last_name', range=xrange(1,257))
+</pre>
+<p>
+If we look at an object without those parameters, it will be invalid:
+</p>
+<pre class="python">
+def vcheck(isValid, object):
+     if not isValid:
+          print "Object not valid: %s" % str(u.errors)
+u = User()
+u.isValid().addCallback(vcheck, u)
+</pre>
+<p>
+If we try to save an invalid object, nothing happens:
+</p>
+<pre class="python">
+def checkUser(user):
+     print user.id # this will be None
+     print user.errors.errorsFor('first_name')
+     print user.errors.errorsFor('last_name')
+     print "There were %d errors" % len(user.errors)
+User().save().addCallback(checkUser)
+</pre>
+<p>
+You can also create your own validity function.  It should accept an object as 
+a parameter and then add errors as necessary.  It can return a <code class="python">Deferred</code>
+if necessary; the return value from the function will be ignored.
+</p>
+<pre class="python">
+def myValidator(user):
+     if user.first_name != "fred":
+          user.errors.add('first_name', "must be Fred!")
+User.addValidator(myValidator)
+
+def test(user):
+     # This will print "First Name must be Fred!"
+     print user.errors 
+     print user.id # None
+User(first_name='not fred').save().addCallback(test)
+</pre>
+<p>
+For more information see the <code class="python">Validator</code> and
+<code class="python">Errors</code> classes.
+</p>
+
+<h2>DBAPI Column Objects</h2>
+<p>
+The <a href="http://www.python.org/dev/peps/pep-0249/">DBAPI</a> specification requires that 
+implementing modules define classes corresponding to certain column types (like 
+the class <code class="python">Date</code>).  Twistar provides a driver agnostic method for 
+using those classes using the <code class="python">Registry</code> class:
+</p>
+<pre class="python">
+Date = Registry.getDBAPIClass("Date")
+bob = User(first_name="Bob", dob=Date(1970, 1, 1))
+</pre>
+<p>
+Then, regardless of which DBAPI module you are using, your code will always be using the correct
+<code class="python">Date</code> class.
+</p>
+  </body>
+</html>
+

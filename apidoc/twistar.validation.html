@@ -1,0 +1,155 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <title>twistar.validation : API documentation</title>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+    <link href="apidocs.css" type="text/css" rel="stylesheet" />
+    <script src="sorttable.js" type="text/javascript"></script>
+    <script src="pydoctor.js" type="text/javascript"></script>
+  </head>
+  <body>
+    <h1 class="module">t.validation : module documentation</h1>
+    <p>
+      <span id="part">Part of <a href="twistar.html">twistar</a></span>
+      
+      
+    </p>
+    <div>
+      
+    </div>
+    <div>Package providing validation support for <a 
+href="twistar.dbobject.DBObject.html"><code>DBObject</code></a>s.<table class="fieldTable"></table></div>
+
+    
+    
+    <div id="splitTables">
+      <table class="children sortable" id="id71">
+  
+  <tr>
+    <th>Line #</th>
+    <th>Kind</th>
+    <th>Name</th>
+    <th>Docs</th>
+  </tr>
+<tr class="function">
+    
+    <td class="lineno">9</td>
+    <td>Function</td>
+    <td><a href="twistar.validation.html#presenceOf">presenceOf</a></td>
+    <td><span>A validator to test whether or not some named properties are set.</span></td>
+  </tr><tr class="function">
+    
+    <td class="lineno">26</td>
+    <td>Function</td>
+    <td><a href="twistar.validation.html#lengthOf">lengthOf</a></td>
+    <td><span>A validator to test whether or not some named properties have a</span></td>
+  </tr><tr class="function">
+    
+    <td class="lineno">57</td>
+    <td>Function</td>
+    <td><a href="twistar.validation.html#uniquenessOf">uniquenessOf</a></td>
+    <td><span>A validator to test whether or not some named properties are unique.</span></td>
+  </tr><tr class="class">
+    
+    <td class="lineno">84</td>
+    <td>Class</td>
+    <td><a href="twistar.validation.Validator.html">Validator</a></td>
+    <td><span>A mixin class to handle validating objects before they are saved.</span></td>
+  </tr><tr class="class">
+    
+    <td class="lineno">190</td>
+    <td>Class</td>
+    <td><a href="twistar.validation.Errors.html">Errors</a></td>
+    <td><span>A class to hold errors found during validation of a <a 
+href="twistar.dbobject.DBObject.html"><code>DBObject</code></a>.</span></td>
+  </tr>
+  
+</table>
+      
+      
+    </div>
+    
+    
+    
+
+    <div class="function">
+  <a name="twistar.validation.presenceOf">
+    
+  </a>
+  <a name="presenceOf">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    presenceOf(obj, names, kwargs):
+    
+  </div>
+  <div class="functionBody">
+    
+    <div>A validator to test whether or not some named properties are set. For 
+those named properties that are not set, an error will be recorded in 
+<code>obj.errors</code>.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">obj</td><td>The object whose properties need to be tested.
+</td></tr><tr><td></td><td class="fieldArg">names</td><td>The names of the properties to test.
+</td></tr><tr><td></td><td class="fieldArg">kwargs</td><td>Keyword arguments.  Right now, all but a <code>message</code> value are 
+ignored.
+</td></tr></table></div>
+  </div>
+</div><div class="function">
+  <a name="twistar.validation.lengthOf">
+    
+  </a>
+  <a name="lengthOf">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    lengthOf(obj, names, kwargs):
+    
+  </div>
+  <div class="functionBody">
+    
+    <div>A validator to test whether or not some named properties have a specific
+length.  The length is specified in one of two ways: either a 
+<code>range</code> keyword set with a <code>range</code> / 
+<code>xrange</code> / <code>list</code> object containing valid values, or 
+a <code>length</code> keyword with the exact length allowed.</p>
+<p>For those named properties that do not have the specified length, an 
+error will be recorded in <code>obj.errors</code>.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">obj</td><td>The object whose properties need to be tested.
+</td></tr><tr><td></td><td class="fieldArg">names</td><td>The names of the properties to test.
+</td></tr><tr><td></td><td class="fieldArg">kwargs</td><td>Keyword arguments.  Right now, all but <code>message</code>, 
+<code>range</code>, and <code>length</code> values are ignored.
+</td></tr></table></div>
+  </div>
+</div><div class="function">
+  <a name="twistar.validation.uniquenessOf">
+    
+  </a>
+  <a name="uniquenessOf">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    uniquenessOf(obj, names, kwargs):
+    
+  </div>
+  <div class="functionBody">
+    
+    <div>A validator to test whether or not some named properties are unique. For
+those named properties that are not unique, an error will be recorded in 
+<code>obj.errors</code>.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">obj</td><td>The object whose properties need to be tested.
+</td></tr><tr><td></td><td class="fieldArg">names</td><td>The names of the properties to test.
+</td></tr><tr><td></td><td class="fieldArg">kwargs</td><td>Keyword arguments.  Right now, all but a <code>message</code> value are 
+ignored.
+</td></tr></table></div>
+  </div>
+</div>
+    <address>
+      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2010-10-31 11:39:39.
+    </address>
+  </body>
+</html>

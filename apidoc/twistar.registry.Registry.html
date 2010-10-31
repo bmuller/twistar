@@ -1,0 +1,159 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <title>twistar.registry.Registry : API documentation</title>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+    <link href="apidocs.css" type="text/css" rel="stylesheet" />
+    <script src="sorttable.js" type="text/javascript"></script>
+    <script src="pydoctor.js" type="text/javascript"></script>
+  </head>
+  <body>
+    <h1 class="class">t.r.Registry : class documentation</h1>
+    <p>
+      <span id="part">Part of <a href="twistar.html">twistar</a>.<a href="twistar.registry.html">registry</a></span>
+      
+      <a href="classIndex.html#twistar.registry.Registry">View In Hierarchy</a>
+    </p>
+    <div>
+      
+    </div>
+    <div>A data store containing mostly class variables that act as 
+constants.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Class Variables</td><td class="fieldArg">DBPOOL</td><td>This should be set to the 
+<code>twisted.enterprise.dbapi.ConnectionPool</code> to use for all 
+database interaction.
+</td></tr></table></div>
+
+    
+    
+    <div id="splitTables">
+      <table class="children sortable" id="id29">
+  
+  <tr>
+    <th>Line #</th>
+    <th>Kind</th>
+    <th>Name</th>
+    <th>Docs</th>
+  </tr>
+<tr class="classmethod">
+    
+    <td class="lineno">25</td>
+    <td>Class Method</td>
+    <td><a href="twistar.registry.Registry.html#register">register</a></td>
+    <td><span>Register some number of classes in the registy.  This is necessary so 
+that when objects</span></td>
+  </tr><tr class="classmethod">
+    
+    <td class="lineno">38</td>
+    <td>Class Method</td>
+    <td><a href="twistar.registry.Registry.html#getClass">getClass</a></td>
+    <td><span>Get a registered class by the given name.</span></td>
+  </tr><tr class="classmethod">
+    
+    <td class="lineno">48</td>
+    <td>Class Method</td>
+    <td><a href="twistar.registry.Registry.html#getDBAPIClass">getDBAPIClass</a></td>
+    <td><span>Per <a href="http://www.python.org/dev/peps/pep-0249/" 
+target="_top">http://www.python.org/dev/peps/pep-0249/</a> each DBAPI 
+driver must implement it's</span></td>
+  </tr><tr class="classmethod">
+    
+    <td class="lineno">60</td>
+    <td>Class Method</td>
+    <td><a href="twistar.registry.Registry.html#getConfig">getConfig</a></td>
+    <td><span>Get the current DB config object being used for DB interaction.  This is
+one of the classes</span></td>
+  </tr>
+  
+</table>
+      
+      
+    </div>
+    
+    
+    
+
+    <div class="function">
+  <a name="twistar.registry.Registry.register">
+    
+  </a>
+  <a name="register">
+    
+  </a>
+  <div class="functionHeader">
+    @classmethod<br />
+    def
+    register(_, *klasses):
+    
+  </div>
+  <div class="functionBody">
+    
+    <div>Register some number of classes in the registy.  This is necessary so 
+that when objects are created on the fly (specifically, as a result of 
+relationship <code>get</code>s) the package knows how to find them.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">klasses</td><td>Any number of parameters, each of which is a class.
+</td></tr></table></div>
+  </div>
+</div><div class="function">
+  <a name="twistar.registry.Registry.getClass">
+    
+  </a>
+  <a name="getClass">
+    
+  </a>
+  <div class="functionHeader">
+    @classmethod<br />
+    def
+    getClass(klass, name):
+    
+  </div>
+  <div class="functionBody">
+    
+    <div>Get a registered class by the given name.<table class="fieldTable"></table></div>
+  </div>
+</div><div class="function">
+  <a name="twistar.registry.Registry.getDBAPIClass">
+    
+  </a>
+  <a name="getDBAPIClass">
+    
+  </a>
+  <div class="functionHeader">
+    @classmethod<br />
+    def
+    getDBAPIClass(klass, name):
+    
+  </div>
+  <div class="functionBody">
+    
+    <div>Per <a href="http://www.python.org/dev/peps/pep-0249/" 
+target="_top">http://www.python.org/dev/peps/pep-0249/</a> each DBAPI 
+driver must implement it's own Date/Time/Timestamp/etc classes.  This 
+method provides a generalized way to get them from whatever DB driver is 
+being used.<table class="fieldTable"></table></div>
+  </div>
+</div><div class="function">
+  <a name="twistar.registry.Registry.getConfig">
+    
+  </a>
+  <a name="getConfig">
+    
+  </a>
+  <div class="functionHeader">
+    @classmethod<br />
+    def
+    getConfig(klass):
+    
+  </div>
+  <div class="functionBody">
+    
+    <div>Get the current DB config object being used for DB interaction.  This is
+one of the classes that extends <a 
+href="twistar.dbconfig.base.InteractionBase.html"><code>base.InteractionBase</code></a>.<table class="fieldTable"></table></div>
+  </div>
+</div>
+    <address>
+      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2010-10-31 11:39:39.
+    </address>
+  </body>
+</html>

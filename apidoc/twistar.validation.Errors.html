@@ -1,0 +1,201 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <title>twistar.validation.Errors : API documentation</title>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+    <link href="apidocs.css" type="text/css" rel="stylesheet" />
+    <script src="sorttable.js" type="text/javascript"></script>
+    <script src="pydoctor.js" type="text/javascript"></script>
+  </head>
+  <body>
+    <h1 class="class">t.v.Errors(<span title="dict">dict</span>) : class documentation</h1>
+    <p>
+      <span id="part">Part of <a href="twistar.html">twistar</a>.<a href="twistar.validation.html">validation</a></span>
+      
+      <a href="classIndex.html#twistar.validation.Errors">View In Hierarchy</a>
+    </p>
+    <div>
+      
+    </div>
+    <div>A class to hold errors found during validation of a <a 
+href="twistar.dbobject.DBObject.html"><code>DBObject</code></a>.<table class="fieldTable"></table></div>
+
+    
+    
+    <div id="splitTables">
+      <table class="children sortable" id="id73">
+  
+  <tr>
+    <th>Line #</th>
+    <th>Kind</th>
+    <th>Name</th>
+    <th>Docs</th>
+  </tr>
+<tr class="method">
+    
+    <td class="lineno">195</td>
+    <td>Method</td>
+    <td><a href="twistar.validation.Errors.html#__init__">__init__</a></td>
+    <td><span>Constructor.</span></td>
+  </tr><tr class="method">
+    
+    <td class="lineno">202</td>
+    <td>Method</td>
+    <td><a href="twistar.validation.Errors.html#add">add</a></td>
+    <td><span>Add an error to a property.  The error message stored for this property 
+will be formed</span></td>
+  </tr><tr class="method">
+    
+    <td class="lineno">218</td>
+    <td>Method</td>
+    <td><a href="twistar.validation.Errors.html#isEmpty">isEmpty</a></td>
+    <td><span>Returns <code>True</code> if there are any errors associated with any 
+properties,</span></td>
+  </tr><tr class="method">
+    
+    <td class="lineno">229</td>
+    <td>Method</td>
+    <td><a href="twistar.validation.Errors.html#errorsFor">errorsFor</a></td>
+    <td><span>Get the errors for a specific property.</span></td>
+  </tr><tr class="method">
+    
+    <td class="lineno">241</td>
+    <td>Method</td>
+    <td><a href="twistar.validation.Errors.html#__str__">__str__</a></td>
+    <td><span>Return all errors as a single string.</span></td>
+  </tr><tr class="method">
+    
+    <td class="lineno">254</td>
+    <td>Method</td>
+    <td><a href="twistar.validation.Errors.html#__len__">__len__</a></td>
+    <td><span>Get the sum of all errors for all properties.</span></td>
+  </tr>
+  
+</table>
+      
+      
+    </div>
+    
+    
+    
+
+    <div class="function">
+  <a name="twistar.validation.Errors.__init__">
+    
+  </a>
+  <a name="__init__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    __init__(self):
+    
+  </div>
+  <div class="functionBody">
+    
+    <div>Constructor.<table class="fieldTable"></table></div>
+  </div>
+</div><div class="function">
+  <a name="twistar.validation.Errors.add">
+    
+  </a>
+  <a name="add">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    add(self, prop, error):
+    
+  </div>
+  <div class="functionBody">
+    
+    <div>Add an error to a property.  The error message stored for this property 
+will be formed from the humanized name of the property followed by the 
+error message given.  For instance, <code>errors.add('first_name', 'cannot 
+be empty')</code> will result in an error message of &quot;First Name 
+cannot be empty&quot; being stored for this property.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">prop</td><td>The name of a property to add an error to.
+</td></tr><tr><td></td><td class="fieldArg">error</td><td>A string error to associate with the given property.
+</td></tr></table></div>
+  </div>
+</div><div class="function">
+  <a name="twistar.validation.Errors.isEmpty">
+    
+  </a>
+  <a name="isEmpty">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    isEmpty(self):
+    
+  </div>
+  <div class="functionBody">
+    
+    <div>Returns <code>True</code> if there are any errors associated with any 
+properties, <code>False</code> otherwise.<table class="fieldTable"></table></div>
+  </div>
+</div><div class="function">
+  <a name="twistar.validation.Errors.errorsFor">
+    
+  </a>
+  <a name="errorsFor">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    errorsFor(self, prop):
+    
+  </div>
+  <div class="functionBody">
+    
+    <div>Get the errors for a specific property.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">prop</td><td>The property to fetch errors for.
+</td></tr><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2">A <code>list</code> of errors for the given property.  If there are none, 
+then the returned <code>list</code> will have a length of 0.
+</td></tr></table></div>
+  </div>
+</div><div class="function">
+  <a name="twistar.validation.Errors.__str__">
+    
+  </a>
+  <a name="__str__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    __str__(self):
+    
+  </div>
+  <div class="functionBody">
+    
+    <div>Return all errors as a single string.<table class="fieldTable"></table></div>
+  </div>
+</div><div class="function">
+  <a name="twistar.validation.Errors.__len__">
+    
+  </a>
+  <a name="__len__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    __len__(self):
+    
+  </div>
+  <div class="functionBody">
+    
+    <div>Get the sum of all errors for all properties.<table class="fieldTable"></table></div>
+  </div>
+</div>
+    <address>
+      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2010-10-31 11:39:39.
+    </address>
+  </body>
+</html>

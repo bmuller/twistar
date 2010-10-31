@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+<title>Twistar Documentation: Relationship Examples</title>
+<link href="stylesheet.css" rel="stylesheet" type="text/css"/>
+  </head>
+
+  <body bgcolor="white">
+    <h1 class="title">Relationship Examples</h1>
+    <p><a href="index.html">Documentation Index</a></p>
+    <div class="toc"><ol><li><a href="#auto0">Has One</a></li><li><a href="#auto1">Has Many</a></li><li><a href="#auto2">Belongs To</a></li><li><a href="#auto3">Has and Belongs To Many</a></li></ol></div>
+    <div class="content">
+    <span/>
+<p>Twistar is an <a href="http://en.wikipedia.org/wiki/Object-relational_mapping" shape="rect">Object Relational Mapper (ORM)</a>.  
+It therefore defines ways of interacting with objects and other objects that have relationships with them.  The code
+here is not necessarily great Twisted code; where typically you would expect to see <code>DeferredList</code>s and 
+<code>inlineCallbacks</code> there are none to provide clarity to those new to Twisted.
+</p>
+<p>
+More information on relationships can be found in the <code class="python">Relationship</code> class.
+</p>
+  <h2>Has One<a name="auto0"/></h2>
+  <p>Perhaps the simplest relationship is the <code>Has One</code> relationship.  In this example, we will
+be using a <code class="python">User</code> object that <code>Has One</code> <code class="python">Avatar</code>
+object.
+  </p>
+<pre class="python"><p class="py-linenumber"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+</p><span class="py-src-keyword">from</span> <span class="py-src-variable">twistar</span>.<span class="py-src-variable">dbobject</span> <span class="py-src-keyword">import</span> <span class="py-src-variable">DBObject</span>
+<span class="py-src-keyword">from</span> <span class="py-src-variable">twistar</span>.<span class="py-src-variable">registry</span> <span class="py-src-keyword">import</span> <span class="py-src-variable">Registry</span>
+
+<span class="py-src-keyword">class</span> <span class="py-src-identifier">User</span>(<span class="py-src-parameter">DBObject</span>):
+     <span class="py-src-variable">HASONE</span> = [<span class="py-src-string">'avatar'</span>]
+
+<span class="py-src-keyword">class</span> <span class="py-src-identifier">Avatar</span>(<span class="py-src-parameter">DBObject</span>):
+     <span class="py-src-keyword">pass</span>
+
+<span class="py-src-variable">Registry</span>.<span class="py-src-variable">register</span>(<span class="py-src-variable">User</span>, <span class="py-src-variable">Avatar</span>)
+</pre>
+<p>
+In this example, we specify that each user can have one avatar.  The database at this point should have two tables:
+<ol>
+  <li>A <code>users</code> table with at least a column <code>id</code>.</li>
+  <li>A <code>avatars</code> table with at least two columns: <code>id</code> and <code>user_id</code>.</li>
+</ol>
+It is also necessary to register our classes with the registry before we can start utilizing relationships (this is
+so the module can find and instantiate them when necessary).
+</p>
+<p>
+For the <code>HASONE</code> class variable we can optionally give a dictionary that provides additional information:
+</p>
+<pre class="python"><p class="py-linenumber"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+</p><span class="py-src-keyword">from</span> <span class="py-src-variable">twistar</span>.<span class="py-src-variable">dbobject</span> <span class="py-src-keyword">import</span> <span class="py-src-variable">DBObject</span>
+<span class="py-src-keyword">from</span> <span class="py-src-variable">twistar</span>.<span class="py-src-variable">registry</span> <span class="py-src-keyword">import</span> <span class="py-src-variable">Registry</span>
+
+<span class="py-src-keyword">class</span> <span class="py-src-identifier">User</span>(<span class="py-src-parameter">DBObject</span>):
+     <span class="py-src-variable">HASONE</span> = [{<span class="py-src-string">'name'</span>: <span class="py-src-string">'avatar'</span>, <span class="py-src-string">'class_name'</span>: <span class="py-src-string">'Avatar'</span>, <span class="py-src-variable">foreign_key</span>: <span class="py-src-string">'user_id'</span>}]
+
+<span class="py-src-keyword">class</span> <span class="py-src-identifier">Avatar</span>(<span class="py-src-parameter">DBObject</span>):
+     <span class="py-src-keyword">pass</span>
+
+<span class="py-src-variable">Registry</span>.<span class="py-src-variable">register</span>(<span class="py-src-variable">User</span>, <span class="py-src-variable">Avatar</span>)
+</pre>
+<p>
+There are additional options as well: see the <code class="python">Relationships</code> class
+for more information.
+</p>
+<p>
+At this point we can use the relationship and assign user's avatar:
+</p>
+<pre class="python"><p class="py-linenumber">1
+2
+3
+4
+5
+6
+7
+</p><span class="py-src-keyword">def</span> <span class="py-src-identifier">onPicSave</span>(<span class="py-src-parameter">picture</span>, <span class="py-src-parameter">user</span>):
+     <span class="py-src-variable">user</span>.<span class="py-src-variable">picture</span>.<span class="py-src-variable">set</span>(<span class="py-src-variable">picture</span>)
+
+<span class="py-src-keyword">def</span> <span class="py-src-identifier">onUserSave</span>(<span class="py-src-parameter">user</span>):
+     <span class="py-src-variable">Avatar</span>(<span class="py-src-variable">file</span>=<span class="py-src-string">&quot;somewhere&quot;</span>).<span class="py-src-variable">save</span>().<span class="py-src-variable">addCallback</span>(<span class="py-src-variable">onPicSave</span>, <span class="py-src-variable">user</span>)
+
+<span class="py-src-variable">User</span>(<span class="py-src-variable">first_name</span>=<span class="py-src-string">&quot;Bob&quot;</span>).<span class="py-src-variable">save</span>().<span class="py-src-variable">addCallback</span>(<span class="py-src-variable">onUserSave</span>)
+</pre>
+<p>We can then get it:</p>
+<pre class="python"><p class="py-linenumber">1
+2
+3
+4
+5
+6
+7
+</p><span class="py-src-keyword">def</span> <span class="py-src-identifier">foundPicture</span>(<span class="py-src-parameter">picture</span>):
+     <span class="py-src-keyword">print</span> <span class="py-src-variable">picture</span>.<span class="py-src-variable">file</span>
+
+<span class="py-src-keyword">def</span> <span class="py-src-identifier">foundUser</span>(<span class="py-src-parameter">user</span>):
+     <span class="py-src-variable">user</span>.<span class="py-src-variable">picture</span>.<span class="py-src-variable">get</span>().<span class="py-src-variable">addCallback</span>(<span class="py-src-variable">foundPicture</span>)
+
+<span class="py-src-variable">User</span>.<span class="py-src-variable">find</span>(<span class="py-src-variable">where</span>=[<span class="py-src-string">'first_name = ?'</span>, <span class="py-src-string">&quot;Bob&quot;</span>], <span class="py-src-variable">limit</span>=<span class="py-src-number">1</span>).<span class="py-src-variable">addCallback</span>(<span class="py-src-variable">foundUser</span>)
+</pre>
+  <h2>Has Many<a name="auto1"/></h2>
+<p>Another relationship is used when one object &quot;has many&quot; of another.  For instance, a <code>User</code>
+may have many <code>Pictures</code>.
+</p>
+<pre class="python"><p class="py-linenumber"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+</p><span class="py-src-keyword">from</span> <span class="py-src-variable">twistar</span>.<span class="py-src-variable">dbobject</span> <span class="py-src-keyword">import</span> <span class="py-src-variable">DBObject</span>
+<span class="py-src-keyword">from</span> <span class="py-src-variable">twistar</span>.<span class="py-src-variable">registry</span> <span class="py-src-keyword">import</span> <span class="py-src-variable">Registry</span>
+
+<span class="py-src-keyword">class</span> <span class="py-src-identifier">User</span>(<span class="py-src-parameter">DBObject</span>):
+     <span class="py-src-variable">HASMANY</span> = [<span class="py-src-string">'pictures'</span>]
+
+<span class="py-src-keyword">class</span> <span class="py-src-identifier">Picture</span>(<span class="py-src-parameter">DBObject</span>):
+     <span class="py-src-keyword">pass</span>
+
+<span class="py-src-variable">Registry</span>.<span class="py-src-variable">register</span>(<span class="py-src-variable">User</span>, <span class="py-src-variable">Picture</span>)
+</pre>
+<p>Again, the list assigned to <code>HASMANY</code> can have dictionaries in it just like <code>HASONE</code> that
+contain additional configuration options.  For this relationship, the database should at this point should have two tables:
+<ol>
+  <li>A <code>users</code> table with at least a column <code>id</code>.</li>
+  <li>A <code>pictures</code> table with at least two columns: <code>id</code> and <code>user_id</code>.</li>
+</ol>
+As in the previous example, we can get and set a user's pictures using a special property of user: 
+<code>pictures</code>. 
+</p>
+<pre class="python"><p class="py-linenumber"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+</p><span class="py-src-keyword">from</span> <span class="py-src-variable">twisted</span>.<span class="py-src-variable">internet</span>.<span class="py-src-variable">defer</span> <span class="py-src-keyword">import</span> <span class="py-src-variable">inlineCallbacks</span>
+
+@<span class="py-src-variable">inlineCallbacks</span>
+<span class="py-src-keyword">def</span> <span class="py-src-identifier">addPictures</span>():
+     <span class="py-src-comment"># set some pics</span>
+     <span class="py-src-variable">user</span> = <span class="py-src-keyword">yield</span> <span class="py-src-variable">User</span>(<span class="py-src-variable">first_name</span>=<span class="py-src-string">&quot;Bob&quot;</span>).<span class="py-src-variable">save</span>()
+     <span class="py-src-variable">picone</span> = <span class="py-src-keyword">yield</span> <span class="py-src-variable">Picture</span>(<span class="py-src-variable">file</span>=<span class="py-src-string">&quot;somewhere&quot;</span>).<span class="py-src-variable">save</span>()
+     <span class="py-src-variable">pictwo</span> = <span class="py-src-keyword">yield</span> <span class="py-src-variable">Picture</span>(<span class="py-src-variable">file</span>=<span class="py-src-string">&quot;elsewhere&quot;</span>).<span class="py-src-variable">save</span>()
+     <span class="py-src-variable">pictures</span> = [<span class="py-src-variable">picone</span>, <span class="py-src-variable">pictwo</span>]
+     <span class="py-src-keyword">yield</span> <span class="py-src-variable">user</span>.<span class="py-src-variable">pictures</span>.<span class="py-src-variable">set</span>(<span class="py-src-variable">pictures</span>)
+     
+     <span class="py-src-comment"># now get them</span>
+     <span class="py-src-variable">pictures</span> = <span class="py-src-keyword">yield</span> <span class="py-src-variable">user</span>.<span class="py-src-variable">pictures</span>.<span class="py-src-variable">get</span>()
+     <span class="py-src-keyword">print</span> <span class="py-src-variable">pictures</span>[<span class="py-src-number">0</span>].<span class="py-src-variable">file</span>
+     <span class="py-src-keyword">print</span> <span class="py-src-variable">pictures</span>[<span class="py-src-number">1</span>].<span class="py-src-variable">file</span>
+
+<span class="py-src-variable">addPictures</span>()
+</pre>
+<p>Additionally, there is a <code>clear()</code> method that will clear all
+objects in a given has many relationship.</p>
+
+  <h2>Belongs To<a name="auto2"/></h2>
+<p>
+A good example of the &quot;belongs to&quot; property is the reverse of the &quot;has many&quot;:
+</p>
+<pre class="python"><p class="py-linenumber"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+</p><span class="py-src-keyword">from</span> <span class="py-src-variable">twistar</span>.<span class="py-src-variable">dbobject</span> <span class="py-src-keyword">import</span> <span class="py-src-variable">DBObject</span>
+<span class="py-src-keyword">from</span> <span class="py-src-variable">twistar</span>.<span class="py-src-variable">registry</span> <span class="py-src-keyword">import</span> <span class="py-src-variable">Registry</span>
+
+<span class="py-src-keyword">class</span> <span class="py-src-identifier">User</span>(<span class="py-src-parameter">DBObject</span>):
+     <span class="py-src-variable">HASMANY</span> = [<span class="py-src-string">'pictures'</span>]
+
+<span class="py-src-keyword">class</span> <span class="py-src-identifier">Picture</span>(<span class="py-src-parameter">DBObject</span>):
+     <span class="py-src-variable">BELONGSTO</span> = [<span class="py-src-string">'user'</span>]
+
+<span class="py-src-variable">Registry</span>.<span class="py-src-variable">register</span>(<span class="py-src-variable">User</span>, <span class="py-src-variable">Picture</span>)
+</pre>
+<p>
+Assuming the DB structure is the same as in the &quot;has many&quot; example, you can now get and set the user that 
+a particular picture belongs to (using <code class="python">get()</code> and <code class="python">set()</code>
+methods on <code class="python">picture.user</code>).  Additionally, there is a <code>clear()</code> method that will clear all
+objects in a given belongs to relationship.
+</p>
+  <h2>Has and Belongs To Many<a name="auto3"/></h2>
+<p>
+In a has and belongs to many relationship two objects have a many to many relationship.  For instance, users and favorite colors.  
+A user can have many favorite colors and a favorite color could belong to many users.  In this example, there should be three tables -
+a <code>users</code> table, a <code>favorite_colors</code> table, and a <code>favorite_colors_users</code> table.  The last on the list 
+is a special table that stores the relationships between the colors and users.  It has no primary key, and two columns: one for 
+<code>user_id</code>s and one for <code>favorite_color_id</code>s.  The table's name by convention should be the combination of the other
+two table names, joined with an underscore, and arranged alphabetically.  The classes would look like:
+</p>
+<pre class="python"><p class="py-linenumber"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+</p><span class="py-src-keyword">from</span> <span class="py-src-variable">twistar</span>.<span class="py-src-variable">dbobject</span> <span class="py-src-keyword">import</span> <span class="py-src-variable">DBObject</span>
+<span class="py-src-keyword">from</span> <span class="py-src-variable">twistar</span>.<span class="py-src-variable">registry</span> <span class="py-src-keyword">import</span> <span class="py-src-variable">Registry</span>
+
+<span class="py-src-keyword">class</span> <span class="py-src-identifier">User</span>(<span class="py-src-parameter">DBObject</span>):
+     <span class="py-src-variable">HABTM</span> = [<span class="py-src-string">'favorite_colors'</span>]
+
+<span class="py-src-keyword">class</span> <span class="py-src-identifier">FavoriteColor</span>(<span class="py-src-parameter">DBObject</span>):
+     <span class="py-src-variable">HABTM</span> = [<span class="py-src-string">'users'</span>]
+
+<span class="py-src-variable">Registry</span>.<span class="py-src-variable">register</span>(<span class="py-src-variable">User</span>, <span class="py-src-variable">FavoriteColor</span>)
+</pre>
+<p>
+You can now get and set the users of favorite colors and the favorite colors of users
+ (using <code class="python">get()</code> and <code class="python">set()</code>
+methods).  Additionally, there is a <code>clear()</code> method that will clear all
+objects in a given relationship.
+</p>
+  </div>
+
+    <p><a href="index.html">Documentation Index</a></p>
+  </body>
+</html>

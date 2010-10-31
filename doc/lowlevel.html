@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html  PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN'  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+<title>Twistar Documentation: Low Level Examples</title>
+<link href="stylesheet.css" rel="stylesheet" type="text/css"/>
+  </head>
+
+  <body bgcolor="white">
+    <h1 class="title">Low Level Examples</h1>
+    <p><a href="index.html">Documentation Index</a></p>
+    <div class="toc"><ol><li><a href="#auto0">SQL Execution</a></li><li><a href="#auto1">CRUD Interface</a></li></ol></div>
+    <div class="content">
+    <span/>
+
+    <h2>SQL Execution<a name="auto0"/></h2>
+    <p>After database initialization and assignment to the <code class="python">Registry.DBPOOL</code>
+variable, you can always utilize the <code class="python">twisted.enterprise.adapi.ConnectionPool</code>'s 
+API directly:
+</p>
+<pre class="python"><p class="py-linenumber">1
+2
+3
+4
+5
+6
+7
+8
+</p><span class="py-src-keyword">from</span> <span class="py-src-variable">twisted</span>.<span class="py-src-variable">enterprise</span> <span class="py-src-keyword">import</span> <span class="py-src-variable">adbapi</span>
+<span class="py-src-keyword">from</span> <span class="py-src-variable">twistar</span>.<span class="py-src-variable">registry</span> <span class="py-src-keyword">import</span> <span class="py-src-variable">Registry</span>
+
+<span class="py-src-keyword">def</span> <span class="py-src-identifier">done</span>(<span class="py-src-parameter">result</span>):
+     <span class="py-src-keyword">print</span> <span class="py-src-string">&quot;I just made a table&quot;</span>
+
+<span class="py-src-variable">Registry</span>.<span class="py-src-variable">DBPOOL</span> = <span class="py-src-variable">adbapi</span>.<span class="py-src-variable">ConnectionPool</span>(<span class="py-src-string">'MySQLdb'</span>, <span class="py-src-variable">user</span>=<span class="py-src-string">&quot;twistar&quot;</span>, <span class="py-src-variable">passwd</span>=<span class="py-src-string">&quot;apass&quot;</span>, <span class="py-src-variable">db</span>=<span class="py-src-string">&quot;twistar&quot;</span>)
+<span class="py-src-variable">Registry</span>.<span class="py-src-variable">DBPOOL</span>.<span class="py-src-variable">runQuery</span>(<span class="py-src-string">&quot;CREATE DATABASE users (id INT ...&quot;</span>).<span class="py-src-variable">addCallback</span>(<span class="py-src-variable">done</span>)
+</pre>
+<p>The alternative, described below, might be much more useful for basic CRUD operations.</p>
+
+<h2>CRUD Interface<a name="auto1"/></h2>
+<p>
+In the <code class="python">InteractionBase</code> you'll find all of the create/read/update/delete (CRUD)
+methods supported by the internal configuration class.  To use these methods, use the Registry to get the current configuration
+object:
+</p>
+<pre class="python"><p class="py-linenumber">1
+2
+3
+4
+5
+6
+7
+</p><span class="py-src-keyword">from</span> <span class="py-src-variable">twisted</span>.<span class="py-src-variable">enterprise</span> <span class="py-src-keyword">import</span> <span class="py-src-variable">adbapi</span>
+<span class="py-src-keyword">from</span> <span class="py-src-variable">twistar</span>.<span class="py-src-variable">registry</span> <span class="py-src-keyword">import</span> <span class="py-src-variable">Registry</span>
+<span class="py-src-variable">Registry</span>.<span class="py-src-variable">DBPOOL</span> = <span class="py-src-variable">adbapi</span>.<span class="py-src-variable">ConnectionPool</span>(<span class="py-src-string">'MySQLdb'</span>, <span class="py-src-variable">user</span>=<span class="py-src-string">&quot;twistar&quot;</span>, <span class="py-src-variable">passwd</span>=<span class="py-src-string">&quot;apass&quot;</span>, <span class="py-src-variable">db</span>=<span class="py-src-string">&quot;twistar&quot;</span>)
+
+<span class="py-src-variable">dbconfig</span> = <span class="py-src-variable">Registry</span>.<span class="py-src-variable">getConfig</span>()
+<span class="py-src-variable">d</span> = <span class="py-src-variable">dbconfig</span>.<span class="py-src-variable">select</span>(<span class="py-src-string">&quot;users&quot;</span>, <span class="py-src-variable">where</span>=[<span class="py-src-string">'first_name = ?'</span>, <span class="py-src-string">'Bob'</span>], <span class="py-src-variable">orderby</span>=<span class="py-src-string">'last_name DESC'</span>, <span class="py-src-variable">limit</span>=<span class="py-src-number">100</span>)
+<span class="py-src-variable">d</span>.<span class="py-src-variable">addCallback</span>(<span class="py-src-variable">someResultHandlerFunction</span>)
+</pre>
+<p>
+Each of the CRUD methods gives you more control on the query that is generated.  For more information, see the following
+methods in <code class="python">InteractionBase</code>:
+<ul>
+  <li>select</li>
+  <li>update</li>
+  <li>delete</li>
+  <li>insert</li>
+  <li>insertMany (a more efficient manner of inserting many rows)</li>
+</ul>
+</p>
+  </div>
+
+    <p><a href="index.html">Documentation Index</a></p>
+  </body>
+</html>
