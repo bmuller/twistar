@@ -16,7 +16,7 @@
     <h2>Initialization</h2>
     <p>Before using Twistar a connection to the DB must first be made.  The method of connecting to the database
 is to use Twisted's <code class="python">twisted.enterprise.adapi</code> module and the <code class="python">ConnectionPool</code>
-object.  The <code class="API" base="twistar.registry">Registry</code> class is used to keep track of that pool.  For instance, this is the 
+object.  The <code class="python">Registry</code> class is used to keep track of that pool.  For instance, this is the 
 method to specify a connection to a MySQL database:
 </p>
 <pre class="python">
@@ -44,7 +44,7 @@ Objects will assume that the plural version of the object's class name will be t
 if the class name is Person, then the tablename should be People.  If it is Chicken, the tablename should be
 Chickens.  If you want to manually specify a tablename, you can do that with the 
 <code class="python">TABLENAME</code> class variable (see the 
-<code class="API" base="twistar.dbobject">DBObject</code> definition).
+<code class="python">DBObject</code> definition).
 </p>
 <p>
 Column names should have no spaces (with words separated by a <q>_</q>) and should generally be lower case.
@@ -55,7 +55,7 @@ an auto-incrementing integer column named <q>id</q>.
 <h2>Defining and Interacting With Objects</h2>
 <p>
 Object's representing rows in a database need only extend the 
-<code class="API" base="twistar.dbobject">DBObject</code> class.
+<code class="python">DBObject</code> class.
 </p>
 <pre class="python">
 from twistar.dbobject import DBObject
@@ -110,7 +110,7 @@ paramter and others:
 User.find(where=['first_name = ? AND last_name = ?', "John", "Smith"], limit=1).addCallback(...)
 </pre>
 <p>There are many more options, all of which are described on the
-<code class="API" base="twistar.dbobject">DBObject</code> API reference page.
+<code class="python">DBObject</code> API reference page.
 </p>
 <p>
 One thing to note: if either <code class="py-src-parameter">limit</code> is set to 1 or the query
@@ -201,8 +201,8 @@ def test(user):
 User(first_name='not fred').save().addCallback(test)
 </pre>
 <p>
-For more information see the <code class="API" base="twistar.validation">Validator</code> and
-<code class="API" base="twistar.validation">Errors</code> classes.
+For more information see the <code class="python">Validator</code> and
+<code class="python">Errors</code> classes.
 </p>
 
 <h2>DBAPI Column Objects</h2>
@@ -210,7 +210,7 @@ For more information see the <code class="API" base="twistar.validation">Validat
 The <a href="http://www.python.org/dev/peps/pep-0249/">DBAPI</a> specification requires that 
 implementing modules define classes corresponding to certain column types (like 
 the class <code class="python">Date</code>).  Twistar provides a driver agnostic method for 
-using those classes using the <code class="API" base="twistar.registry">Registry</code> class:
+using those classes using the <code class="python">Registry</code> class:
 </p>
 <pre class="python">
 Date = Registry.getDBAPIClass("Date")

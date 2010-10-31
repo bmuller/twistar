@@ -28,7 +28,7 @@ Registry.DBPOOL.runQuery("CREATE DATABASE users (id INT ...").addCallback(done)
 
 <h2>CRUD Interface</h2>
 <p>
-In the <code class="API" base="twistar.dbconfig.base">InteractionBase</code> you'll find all of the create/read/update/delete (CRUD)
+In the <code class="python">InteractionBase</code> you'll find all of the create/read/update/delete (CRUD)
 methods supported by the internal configuration class.  To use these methods, use the Registry to get the current configuration
 object:
 </p>
@@ -43,7 +43,7 @@ d.addCallback(someResultHandlerFunction)
 </pre>
 <p>
 Each of the CRUD methods gives you more control on the query that is generated.  For more information, see the following
-methods in <code class="API" base="twistar.dbconfig.base">InteractionBase</code>:
+methods in <code class="python">InteractionBase</code>:
 <ul>
   <li>select</li>
   <li>update</li>
