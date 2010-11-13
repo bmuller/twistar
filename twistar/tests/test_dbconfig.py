@@ -95,7 +95,6 @@ class DBConfigTest(unittest.TestCase):
 
     @inlineCallbacks
     def test_insert_obj(self):
-        tablename = User.tablename()
         args = {'first_name': "test_insert_obj", "last_name": "foo", "age": 91}
         user = User(**args)
 
@@ -108,7 +107,6 @@ class DBConfigTest(unittest.TestCase):
 
     @inlineCallbacks
     def test_update_obj(self):
-        tablename = User.tablename()
         args = {'first_name': "test_insert_obj", "last_name": "foo", "age": 91}
         user = yield User(**args).save()
 
@@ -121,3 +119,21 @@ class DBConfigTest(unittest.TestCase):
 
         for key, value in args.items():
             self.assertEqual(value, getattr(user, key))                
+
+
+    @inlineCallbacks
+    def test_colname_escaping(self):
+        args = {'select': "some text", 'where': "other text"}
+        coltest = Coltest(**args)
+        yield self.dbconfig.insertObj(coltest)
+
+        args = {'select': "other text", 'where': "some text"}
+        for key, value in args.items():
+            setattr(coltest, key, value)
+        yield self.dbconfig.updateObj(coltest)
+
+        tablename = Coltest.tablename()
+        ctest = yield self.dbconfig.select(tablename, where=['`select` = ?', args['select']], limit=1)
+
+        for key, value in args.items():
+            self.assertEqual(value, ctest[key])

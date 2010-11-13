@@ -10,7 +10,6 @@ class SQLiteDBConfig(InteractionBase):
         return (query, args)
 
 
-
     def getLastInsertID(self, txn):
         q = "SELECT last_insert_rowid()"
         self.executeTxn(txn, q)
@@ -19,7 +18,8 @@ class SQLiteDBConfig(InteractionBase):
                             
 
     def updateArgsToString(self, args):
-        setstring = ",".join([key + " = ?" for key in args.keys()])
+        colnames = self.escapeColNames(args.keys())
+        setstring = ",".join([key + " = ?" for key in colnames])
         return (setstring, args.values())
 
 

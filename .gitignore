@@ -1,2 +1,4 @@
 apidoc/*
 doc/*.html
+*.pyc
+_trial_temp

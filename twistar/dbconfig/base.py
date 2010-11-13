@@ -35,7 +35,6 @@ class InteractionBase:
             log.msg("TWISTAR kargs: %s" % str(kwargs))        
 
 
-
     def executeOperation(self, query, *args, **kwargs):
         """
         Simply makes same C{twisted.enterprise.dbapi.ConnectionPool.runOperation} call, but
@@ -152,12 +151,24 @@ class InteractionBase:
         params = self.insertArgsToString(vals)
         colnames = ""
         if len(vals) > 0:
-            colnames = "(" + ",".join(vals.keys()) + ")"
+            ecolnames = self.escapeColNames(vals.keys())
+            colnames = "(" + ",".join(ecolnames) + ")"
             params = "VALUES %s" % params
         q = "INSERT INTO %s %s %s" % (tablename, colnames, params)
         if not txn is None:
             return self.executeTxn(txn, q, vals.values())
         return self.executeOperation(q, vals.values())
+
+
+    def escapeColNames(self, colnames):
+        """
+        Escape column names for insertion into SQL statement.
+
+        @param colnames: A C{List} of string column names.
+
+        @return: A C{List} of string escaped column names.
+        """
+        return map(lambda x: "`%s`" % x, colnames)
 
 
     def insertMany(self, tablename, vals):
@@ -171,7 +182,7 @@ class InteractionBase:
 
         @return: A C{Deferred}.
         """
-        colnames = ",".join(vals[0].keys())
+        colnames = ",".join(self.escapeColNames(vals[0].keys()))
         params = ",".join([self.insertArgsToString(val) for val in vals])
         args = []
         for val in vals:
@@ -225,7 +236,7 @@ class InteractionBase:
         otherwise a typical runQuery will be used
 
         @return: A C{Deferred}
-        """        
+        """
         setstring, args = self.updateArgsToString(args)
         q = "UPDATE %s " % tablename + " SET " + setstring
         if where is not None:
@@ -350,7 +361,8 @@ class InteractionBase:
 
         @return: A tuple of the form C{('name = %s, othername = %s, ...', argvalues)}.
         """
-        setstring = ",".join([key + " = %s" for key in args.keys()])
+        colnames = self.escapeColNames(args.keys())
+        setstring = ",".join([key + " = %s" for key in colnames])
         return (setstring, args.values())
 
 

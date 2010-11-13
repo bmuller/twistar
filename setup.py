@@ -11,7 +11,7 @@ setup(
     author="Brian Muller",
     author_email="bmuller@butterfat.net",
     license="GPLv3",
-    url="http://trac.butterfat.net/public/twistar",
+    url="http://findingscience.com/twistar",
     packages=["twistar", "twistar.dbconfig", "twistar.tests", 'BermiInflector', 'BermiInflector.Rules'],
     requires=["twisted.enterprise.adbapi"]
 )

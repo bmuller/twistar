@@ -25,5 +25,8 @@ class FavoriteColor(DBObject):
 class FakeObject(DBObject):
     pass
 
+class Coltest(DBObject):
+    pass
+
 Registry.register(Picture, User, Avatar, FakeObject, FavoriteColor)
 
