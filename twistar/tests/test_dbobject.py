@@ -174,6 +174,20 @@ class DBObjectTest(unittest.TestCase):
 
 
     @inlineCallbacks
+    def test_beforeDelete(self):
+        def beforeDelete(user):
+            return False
+        User.beforeDelete = beforeDelete
+        u = yield User().save()
+        oldid = u.id
+        yield u.delete()
+        result = yield User.find(oldid)
+        self.assertEqual(result, u)
+
+        # restore user's beforeDelete
+        User.beforeDelete = DBObject.beforeDelete
+
+    @inlineCallbacks
     def test_loadRelations(self):
         user = yield User.find(limit=1)
         all = yield user.loadRelations()
