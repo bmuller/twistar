@@ -140,6 +140,21 @@ class RelationshipTest(unittest.TestCase):
 
 
     @inlineCallbacks
+    def test_habtm_get_with_args(self):
+        color = yield FavoriteColor(name="red").save()
+        colors = [self.favcolor, color]
+        colorids = [color.id for color in colors]
+
+        args = {'user_id': self.user.id, 'favorite_color_id': colors[0].id}
+        yield self.config.insert('favorite_colors_users', args)
+        args = {'user_id': self.user.id, 'favorite_color_id': colors[1].id}
+        yield self.config.insert('favorite_colors_users', args)
+        
+        newcolor = yield self.user.favorite_colors.get(where=['name = ?','red'], limit=1)
+        self.assertEqual(newcolor.id, color.id)
+
+
+    @inlineCallbacks
     def test_set_habtm(self):
         user = yield User().save()
         color = yield FavoriteColor(name="red").save()
