@@ -165,6 +165,14 @@ class DBObject(Validator):
         """
 
 
+    def beforeDelete(self):
+        """
+        Method called before a L{DBObject} is deleted.  Classes can overwrite this method.
+        If False is returned, then the L{DBObject} is not deleted from database.
+        This method may return a C{Deferred}.
+        """
+
+
     def _create(self):
         """
         Method to actually create an object in the DB.  Handles calling this class's
@@ -252,10 +260,15 @@ class DBObject(Validator):
 
         @return: A C{Deferred}.        
         """        
-        oldid = self.id
-        self.id = None
-        self._deleted = True
-        return self.__class__.deleteAll(where=["id = ?", oldid])
+        def _deleteOnSuccess(result):
+            if result == False:
+                return defer.succeed(self)
+            else:
+                oldid = self.id
+                self.id = None
+                self._deleted = True
+                return self.__class__.deleteAll(where=["id = ?", oldid])
+        return defer.maybeDeferred(self.beforeDelete).addCallback(_deleteOnSuccess)
 
 
     def loadRelations(self, *relations):
