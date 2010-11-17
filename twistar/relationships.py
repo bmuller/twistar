@@ -207,21 +207,20 @@ class HABTM(Relationship):
         be added to the ones already imposed by default in this method.
 
         @return: A C{Deferred} with a callback value of a list of objects.
-        """        
+        """
         def _get(rows):
             if len(rows) == 0:
                 return defer.succeed([])
             ids = [str(row[self.othername]) for row in rows]
             where = ["id IN (%s)" % ",".join(ids)]
-            d = self.dbconfig.select(self.otherklass.tablename(), where=where)
+            if kwargs.has_key('where'):
+                kwargs['where'] = joinWheres(where, kwargs['where'])
+            d = self.dbconfig.select(self.otherklass.tablename(), **kwargs)
             return d.addCallback(createInstances, self.otherklass)
+
         tablename = self.tablename()
         where = ["%s = ?" % self.thisname, self.inst.id]
-        if kwargs.has_key('where'):
-            kwargs['where'] = joinWheres(where, kwargs['where'])
-        else:
-            kwargs['where'] = where
-        return self.dbconfig.select(tablename, **kwargs).addCallback(_get)
+        return self.dbconfig.select(tablename, where=where).addCallback(_get)
 
 
     def _set(self, _, others):
