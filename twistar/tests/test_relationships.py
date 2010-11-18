@@ -180,6 +180,20 @@ class RelationshipTest(unittest.TestCase):
 
 
     @inlineCallbacks
+    def test_jointable_on_clear_habtm(self):
+        user = yield User().save()
+        color = yield FavoriteColor(name="red").save()
+        colors = [self.favcolor, color]
+
+        yield user.favorite_colors.set(colors)
+        old_id = color.id
+        yield color.delete()
+        result = yield self.config.select('favorite_colors_users', where=['favorite_color_id = ?', old_id], limit=1)
+        res = yield self.config.select('favorite_colors_users')
+        self.assertTrue(result is None)
+
+
+    @inlineCallbacks
     def test_set_habtm_blank(self):
         user = yield User().save()
         color = yield FavoriteColor(name="red").save()
