@@ -180,7 +180,7 @@ class RelationshipTest(unittest.TestCase):
 
 
     @inlineCallbacks
-    def test_jointable_on_clear_habtm(self):
+    def test_clear_jointable_on_delete_habtm(self):
         user = yield User().save()
         color = yield FavoriteColor(name="red").save()
         colors = [self.favcolor, color]
