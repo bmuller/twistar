@@ -260,14 +260,23 @@ class DBObject(Validator):
 
         @return: A C{Deferred}.        
         """        
+
+        def _delete(result):
+            print result
+            oldid = self.id
+            self.id = None
+            self._deleted = True
+            return self.__class__.deleteAll(where=["id = ?", oldid])
+
         def _deleteOnSuccess(result):
             if result == False:
                 return defer.succeed(self)
             else:
-                oldid = self.id
-                self.id = None
-                self._deleted = True
-                return self.__class__.deleteAll(where=["id = ?", oldid])
+                ds = {}
+                for relation in self.HABTM:
+                    ds[relation] = getattr(self, relation).clear()
+                return deferredDict(ds).addCallback(_delete)
+
         return defer.maybeDeferred(self.beforeDelete).addCallback(_deleteOnSuccess)
 
 
