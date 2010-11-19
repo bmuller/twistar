@@ -62,6 +62,17 @@ class RelationshipTest(unittest.TestCase):
         picids = [pic.id for pic in pics]
         self.assertEqual(ids, picids)
 
+    @inlineCallbacks
+    def test_has_many_get_with_args(self):
+        # First, make a few pics
+        ids = [self.picture.id]
+        for _ in range(3):
+            pic = yield Picture(user_id=self.user.id).save()
+            ids.append(pic.id)
+            
+        pics = yield self.user.pictures.get(where=['name = ?','a pic'])
+        self.assertEqual(len(pics),1)
+        self.assertEqual(pics[0].name,'a pic')
 
     @inlineCallbacks
     def test_set_has_many(self):
