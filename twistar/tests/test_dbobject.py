@@ -175,14 +175,17 @@ class DBObjectTest(unittest.TestCase):
 
     @inlineCallbacks
     def test_beforeDelete(self):
-        def beforeDelete(user):
-            return False
-        User.beforeDelete = beforeDelete
+        User.beforeDelete = lambda user: False
         u = yield User().save()
         oldid = u.id
         yield u.delete()
         result = yield User.find(oldid)
         self.assertEqual(result, u)
+
+        User.beforeDelete = lambda user: True
+        yield u.delete()
+        result = yield User.find(oldid)
+        self.assertEqual(result, None)
 
         # restore user's beforeDelete
         User.beforeDelete = DBObject.beforeDelete

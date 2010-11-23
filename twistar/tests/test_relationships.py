@@ -62,6 +62,7 @@ class RelationshipTest(unittest.TestCase):
         picids = [pic.id for pic in pics]
         self.assertEqual(ids, picids)
 
+
     @inlineCallbacks
     def test_has_many_get_with_args(self):
         # First, make a few pics
@@ -73,6 +74,7 @@ class RelationshipTest(unittest.TestCase):
         pics = yield self.user.pictures.get(where=['name = ?','a pic'])
         self.assertEqual(len(pics),1)
         self.assertEqual(pics[0].name,'a pic')
+
 
     @inlineCallbacks
     def test_set_has_many(self):
@@ -200,7 +202,6 @@ class RelationshipTest(unittest.TestCase):
         old_id = color.id
         yield color.delete()
         result = yield self.config.select('favorite_colors_users', where=['favorite_color_id = ?', old_id], limit=1)
-        res = yield self.config.select('favorite_colors_users')
         self.assertTrue(result is None)
 
 

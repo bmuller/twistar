@@ -256,13 +256,13 @@ class DBObject(Validator):
 
     def delete(self):
         """
-        Delete this instance from the database.
+        Delete this instance from the database.  Calls L{beforeDelete} before deleting from
+        the database.
 
         @return: A C{Deferred}.        
         """        
 
         def _delete(result):
-            print result
             oldid = self.id
             self.id = None
             self._deleted = True
@@ -272,10 +272,8 @@ class DBObject(Validator):
             if result == False:
                 return defer.succeed(self)
             else:
-                ds = {}
-                for relation in self.HABTM:
-                    ds[relation] = getattr(self, relation).clear()
-                return deferredDict(ds).addCallback(_delete)
+                ds = [getattr(self, relation).clear() for relation in self.HABTM]
+                return defer.DeferredList(ds).addCallback(_delete)
 
         return defer.maybeDeferred(self.beforeDelete).addCallback(_deleteOnSuccess)
 
