@@ -141,6 +141,7 @@ class RelationshipTest(unittest.TestCase):
         color = yield FavoriteColor(name="red").save()
         colors = [self.favcolor, color]
         colorids = [color.id for color in colors]
+        yield FavoriteColor(name="green").save()
 
         args = {'user_id': self.user.id, 'favorite_color_id': colors[0].id}
         yield self.config.insert('favorite_colors_users', args)

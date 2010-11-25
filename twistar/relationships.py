@@ -215,6 +215,8 @@ class HABTM(Relationship):
             where = ["id IN (%s)" % ",".join(ids)]
             if kwargs.has_key('where'):
                 kwargs['where'] = joinWheres(where, kwargs['where'])
+            else:
+                kwargs['where'] = where
             d = self.dbconfig.select(self.otherklass.tablename(), **kwargs)
             return d.addCallback(createInstances, self.otherklass)
 
