@@ -60,6 +60,13 @@ In the twistar directory, simply run:
 trial twistar
 {% endhighlight %}
 
+# Debugging
+To get debugging information (all queries executed) using *twisted.python.log*, just use:
+{% highlight python %}
+from twistar.dbconfig.base import InteractionBase
+InteractionBase.LOG = True
+{% endhighlight %}
+
 # Docs 
  * [Examples and User Documentation][examples]
  * [API Docs][apidocs]
