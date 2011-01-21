@@ -204,3 +204,16 @@ class DBObjectTest(unittest.TestCase):
         suball = yield user.loadRelations('pictures')
         self.assertTrue(not suball.has_key('avatar'))
         self.assertEqual(pictures, suball['pictures'])
+
+    @inlineCallbacks
+    def test_loadRelations_polymorphic(self):
+        # create two parents
+        father = Father(name='Robert')
+        father = yield father.save
+        self.assertEqual(father.name, 'Robert')
+
+        mother = Father(name='Maria')
+        mother = yield mother.save
+        self.assertEqual(mother.name, 'Maria')
+
+
