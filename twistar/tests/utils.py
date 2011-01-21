@@ -29,19 +29,13 @@ class Coltest(DBObject):
     pass
 
 class Child(DBObject):
-    a = 'parent'
-    a.polymorphic = True
-    BELONGSTO = [a]
+    BELONGSTO = ['parent:polymorphic=True']
 
 class Mother(DBObject):
-    a = 'childs'
-    a.polymorphic_as = 'parent'
-    HAS_MANY = [a]
+    HAS_MANY = ['childs:polymorphic_as=parent']
 
 class Father(DBObject):
-    a = 'childs'
-    a.polymorphic_as = 'parent'
-    HAS_MANY = [a]
+    HAS_MANY = ['childs:polymorphic_as=parent']
 
 Registry.register(Picture, User, Avatar, FakeObject, FavoriteColor)
 Registry.register(Child, Mother, Father)
