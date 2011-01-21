@@ -28,5 +28,15 @@ class FakeObject(DBObject):
 class Coltest(DBObject):
     pass
 
+class Child(DBObject):
+    BELONGSTO = ['parent']
+
+class Mother(DBObject):
+    HAS_MANY = ['childs']
+
+class Father(DBObject):
+    HAS_MANY = ['childs']
+
 Registry.register(Picture, User, Avatar, FakeObject, FavoriteColor)
+Registry.register(Pen, Mother, Father)
 

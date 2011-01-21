@@ -16,6 +16,10 @@ def initDB(testKlass):
         txn.execute("""CREATE TABLE favorite_colors (id INT AUTO_INCREMENT, name VARCHAR(255), PRIMARY KEY (id))""")
         txn.execute("""CREATE TABLE favorite_colors_users (favorite_color_id INT, user_id INT)""")
         txn.execute("""CREATE TABLE coltests (id INT AUTO_INCREMENT, `select` VARCHAR(255), `where` VARCHAR(255), PRIMARY KEY (id))""")
+        # poly tables
+        txn.execute("""CREATE TABLE child (id INT AUTO_INCREMENT, `name` VARCHAR(255), parent_id INT, parent_type VARCHAR(32))""")
+        txn.execute("""CREATE TABLE mother (id INT AUTO_INCREMENT, name VARCHAR(255))""")
+        txn.execute("""CREATE TABLE father (id INT AUTO_INCREMENT, name VARCHAR(255))""")
     return CONNECTION.runInteraction(runInitTxn)
 
 
@@ -27,5 +31,9 @@ def tearDownDB(self):
         txn.execute("DROP TABLE favorite_colors")
         txn.execute("DROP TABLE favorite_colors_users")
         txn.execute("DROP TABLE coltests")
+        # poly tables
+        txn.execute("DROP TABLE child")
+        txn.execute("DROP TABLE mother")
+        txn.execute("DROP TABLE father")
     return CONNECTION.runInteraction(runTearDownDB)
                 
