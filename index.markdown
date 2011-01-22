@@ -1,6 +1,6 @@
 ---
 layout: base
-title: Twistar - Twisted Active Record
+title: Twistar - Python Twisted ORM
 ---
 # Twistar: Twisted Active Record 
 Twistar is a Python implementation of the [active record pattern](http://en.wikipedia.org/wiki/Active_record_pattern) (also known as an object-relational mapper or ORM) that uses the [Twisted](http://twistedmatrix.com/trac/) framework's [RDBMS support](http://twistedmatrix.com/documents/current/core/howto/rdbms.html) to provide a non-blocking interface to relational databases.
@@ -52,7 +52,7 @@ One or more of the following Python database interfaces that implement the [DBAP
  * [sqlite3](http://docs.python.org/library/sqlite3.html) (SQLite interface)
 
 ## Get The Source 
-There is currently no stable release.  You can use git to get a development release:
+You can look on the [releases](releases.html) page or use git to get a development release:
 {% highlight bash %}
 git clone git://github.com/bmuller/twistar.git
 {% endhighlight %}
