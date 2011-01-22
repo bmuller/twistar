@@ -5,6 +5,15 @@ title: Twistar - Twisted Active Record
 # Twistar: Twisted Active Record 
 Twistar is a Python implementation of the [active record pattern](http://en.wikipedia.org/wiki/Active_record_pattern) (also known as an object-relational mapper or ORM) that uses the [Twisted](http://twistedmatrix.com/trac/) framework's [RDBMS support](http://twistedmatrix.com/documents/current/core/howto/rdbms.html) to provide a non-blocking interface to relational databases.
 
+Twistar currently features:
+* A thoroughly asynchronous API
+* Object validations (and support for the easy creation of new validation methods)
+* Support for callbacks before saving / creating / updating / deleting 
+* Support for object relational models that can be queried asynchronously
+* A simple interface to [DBAPI](http://www.python.org/dev/peps/pep-0249/) objects
+* A framework to support any relational database that has a module that implements the [Python Database API Specification v2.0](http://www.python.org/dev/peps/pep-0249/) (MySQL, PostgreSQL, and SQLite are all supported now)
+* Unit tests
+
 # Quick Example For Those In A Rush 
 For this example, assume that there is a table named "users" with varchar columns for first_name and last_name and an int age column.
 {% highlight python %}
