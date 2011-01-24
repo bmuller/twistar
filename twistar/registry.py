@@ -33,6 +33,16 @@ class Registry:
         for klass in klasses:
             Registry.REGISTRATION[klass.__name__] = klass
 
+            def _aliasize(relations):
+                for relation in relations:
+                    is_poly_as = relation.partition(':')[2].partition('=')
+                    if ( is_poly_as[0] == 'polymorphic_as' ):
+                        Registry.REGISTRATION[klass.__name__+is_poly_as[2]] = klass
+
+            # register the alias, used in poly relations, right now
+            if hasattr(klass, 'HAS_MANY'):
+                _aliasize(klass.HAS_MANY)
+
 
     @classmethod
     def getClass(klass, name):

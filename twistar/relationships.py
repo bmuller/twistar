@@ -44,6 +44,10 @@ class Relationship:
         self.args.update(givenargs)
         
         klassname = self.infl.classify(self.args['class_name'])
+
+        if (hasattr(self.inst, 'polymorphic')) and (self.inst.polymorphic):
+            klassname = getattr(self.inst,self.inst.polymorphic_as+'_type').capitalize()+self.inst.polymorphic_as.capitalize()
+
         self.otherklass = Registry.getClass(klassname)
         self.othername = self.args['association_foreign_key']
         self.thisclass = self.inst.__class__

@@ -207,11 +207,15 @@ class DBObjectTest(unittest.TestCase):
 
     @inlineCallbacks
     def test_loadRelations_polymorphic(self):
-        # create two parents
+        #
+        # create a father
+        #
         father = Father(name='Robert')
         father = yield father.save()
         self.assertEqual(father.name, 'Robert')
-        # father child...
+        #
+        # and his child...
+        #
         child = Child()
         child.name = "Bob"
         child.parent_id = father.id
@@ -219,17 +223,47 @@ class DBObjectTest(unittest.TestCase):
         child = yield child.save()
         self.assertEqual(child.name, 'Bob')
         self.assertEqual(child.parent_id, father.id)
-
+        #
+        # load Bob relations
+        #
+        all = yield child.loadRelations()
+        test_parent = yield child.parent.get()
+        self.assertEqual(test_parent.id, child.parent_id)
+        #
+        # is the child polymorph?
+        #
+        self.assertTrue(child.polymorphic)
+        #
+        # create a mother
+        #
         mother = Mother(name='Maria')
         mother = yield mother.save()
         self.assertEqual(mother.name, 'Maria')
-        # mother child...
+        #
+        # and her child...
+        #
         mochild = Child()
-        mochild.name = "Charlie"
+        mochild.name = "Marika"
         mochild.parent_id = mother.id
         mochild.parent_type = "mother"
         mochild = yield mochild.save()
-        self.assertEqual(mochild.name, 'Charlie')
+        self.assertEqual(mochild.name, 'Marika')
         self.assertEqual(mochild.parent_id, mother.id)
-
+        #
+        # load Marika relations
+        #
+        all = yield mochild.loadRelations()
+        test_moparent = yield mochild.parent.get()
+        self.assertEqual(test_moparent.id, child.parent_id)
+        #print ">>>> %s"%test_parent
+        #print ">>>> %s"%test_moparent
+        #
+        # marika parent is different from bob parent
+        #
+        self.assertNotEqual(test_parent.name, test_moparent.name)
+        #
+        # test for correct names
+        #
+        self.assertEqual(test_parent.name, 'Robert')
+        self.assertEqual(test_moparent.name, 'Maria')
 

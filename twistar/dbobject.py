@@ -302,6 +302,7 @@ class DBObject(Validator):
 
         ds = {}
         for relation in relations:
+            relation = relation.partition(':')[0]
             ds[relation] = getattr(self, relation).get()
         return deferredDict(ds)
 
@@ -329,7 +330,10 @@ class DBObject(Validator):
             name = relation['name']
             args = relation
         else:
-            name = relation
+            name = relation.partition(':')[0]
+            if (relation.partition(':')[2].partition('=')[0] == 'polymorphic') and (relation.partition(':')[2].partition('=')[2] == 'True'):
+                klass.polymorphic = True
+                klass.polymorphic_as = name
             args = {}
         relationshipKlass = Relationship.TYPES[rtype]
         klass.RELATIONSHIP_CACHE[name] = (relationshipKlass, args)
