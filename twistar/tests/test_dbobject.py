@@ -209,11 +209,27 @@ class DBObjectTest(unittest.TestCase):
     def test_loadRelations_polymorphic(self):
         # create two parents
         father = Father(name='Robert')
-        father = yield father.save
+        father = yield father.save()
         self.assertEqual(father.name, 'Robert')
+        # father child...
+        child = Child()
+        child.name = "Bob"
+        child.parent_id = father.id
+        child.parent_type = "father"
+        child = yield child.save()
+        self.assertEqual(child.name, 'Bob')
+        self.assertEqual(child.parent_id, father.id)
 
-        mother = Father(name='Maria')
-        mother = yield mother.save
+        mother = Mother(name='Maria')
+        mother = yield mother.save()
         self.assertEqual(mother.name, 'Maria')
+        # mother child...
+        mochild = Child()
+        mochild.name = "Charlie"
+        mochild.parent_id = mother.id
+        mochild.parent_type = "mother"
+        mochild = yield mochild.save()
+        self.assertEqual(mochild.name, 'Charlie')
+        self.assertEqual(mochild.parent_id, mother.id)
 
 
