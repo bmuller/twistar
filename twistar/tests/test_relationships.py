@@ -228,14 +228,14 @@ class RelationshipTest(unittest.TestCase):
 
 
     @inlineCallbacks
-    def test_poly_get_belongsto_bart_parent(self):
+    def test_poly_get_belongsto_child_to_father_parent(self):
         child = yield Child.find(where=["name = ?", 'Bart'], limit=1)
         parent = yield child.parent.get()
         self.assertEqual(parent.name, 'Homer')
 
 
     @inlineCallbacks
-    def test_poly_get_belongsto_lisa_maggie_parent(self):
+    def test_poly_get_belongsto_children_to_mother_parent(self):
         children = yield Child.find(where=["parent_type = ?", 'mother'])
         self.assertEqual(len(children), 2)
 
@@ -245,7 +245,7 @@ class RelationshipTest(unittest.TestCase):
 
 
     @inlineCallbacks
-    def test_poly_get_belongsto_all_child_and_check_names(self):
+    def test_poly_get_belongsto_all_children_and_check_names(self):
         children = yield Child.find()
         self.assertEqual(len(children), 4)
 
@@ -260,21 +260,21 @@ class RelationshipTest(unittest.TestCase):
 
 
     @inlineCallbacks
-    def test_poly_get_hasmany_marge_sons(self):
+    def test_poly_get_hasmany_mother_parent_children(self):
         marge = yield Mother.find(where=["name = ?", 'Marge'], limit=1)
         sons = yield marge.parent.get()
         self.assertEqual(len(sons), 2)
 
 
     @inlineCallbacks
-    def test_poly_get_hasmany_homer_son(self):
+    def test_poly_get_hasmany_father_parent_child(self):
         son = yield self.father.parent.get()
         self.assertEqual(len(son), 1)
         self.assertEqual(son[0].name, 'Bart')
 
 
     @inlineCallbacks
-    def test_poly_get_hasone_dog_son(self):
+    def test_poly_get_hasone_dog_parent_child(self):
         son = yield self.dog.parent.get()
         self.assertEqual(son.name, 'Dixie')
 
