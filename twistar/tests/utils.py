@@ -37,6 +37,9 @@ class Mother(DBObject):
 class Father(DBObject):
     HASMANY = ['children:polymorphic_as=parent']
 
+class Dog(DBObject):
+    HASONE = ['children:polymorphic_as=parent']
+
 Registry.register(Picture, User, Avatar, FakeObject, FavoriteColor)
-Registry.register(Child, Mother, Father)
+Registry.register(Child, Mother, Father, Dog)
 

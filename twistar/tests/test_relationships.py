@@ -14,11 +14,13 @@ class RelationshipTest(unittest.TestCase):
         self.avatar = yield Avatar(name="an avatar name", user_id=self.user.id).save()
         self.picture = yield Picture(name="a pic", size=10, user_id=self.user.id).save()
         self.favcolor = yield FavoriteColor(name="blue").save()
+        self.dog = yield Dog(name="Pluto").save()
         self.mother = yield Mother(name="Marge").save()
         self.father = yield Father(name="Homer").save()
         self.child1 = yield Child(name="Bart",parent_id=self.father.id,parent_type='father').save()
         self.child2 = yield Child(name="Lisa",parent_id=self.mother.id,parent_type='mother').save()
         self.child3 = yield Child(name="Maggie",parent_id=self.mother.id,parent_type='mother').save()
+        self.child4 = yield Child(name="Dixie",parent_id=self.dog.id,parent_type='dog').save()
         self.config = Registry.getConfig()
 
 
@@ -225,13 +227,13 @@ class RelationshipTest(unittest.TestCase):
         self.assertEqual(len(newcolors), 0)
 
     @inlineCallbacks
-    def test_get_bart_parent(self):
+    def test_get_poly_belongsto_bart_parent(self):
         child = yield Child.find(where=["name = ?", 'Bart'], limit=1)
         parent = yield child.parent.get()
         self.assertEqual(parent.name, 'Homer')
 
     @inlineCallbacks
-    def test_get_lisa_maggie_parent(self):
+    def test_get_poly_belongsto_lisa_maggie_parent(self):
         children = yield Child.find(where=["parent_type = ?", 'mother'])
         self.assertEqual(len(children), 2)
 
@@ -240,29 +242,33 @@ class RelationshipTest(unittest.TestCase):
             self.assertEqual(parent.name, 'Marge')
 
     @inlineCallbacks
-    def test_get_simpons_parents(self):
+    def test_get_poly_belongsto_all_child_and_check_names(self):
         children = yield Child.find()
-        self.assertEqual(len(children), 3)
+        self.assertEqual(len(children), 4)
 
         for child in children:
             parent = yield child.parent.get()
             if child.name == 'Bart':
                 self.assertEqual(parent.name, 'Homer')
+            elif child.name == 'Dixie':
+                self.assertEqual(parent.name, 'Pluto')
             else:
                 self.assertEqual(parent.name, 'Marge')
 
     @inlineCallbacks
-    def test_get_marge_sons(self):
+    def test_get_poly_hasmany_marge_sons(self):
         marge = yield Mother.find(where=["name = ?", 'Marge'], limit=1)
-
         sons = yield marge.parent.get()
         self.assertEqual(len(sons), 2)
 
     @inlineCallbacks
-    def test_get_homer_son(self):
-        homer = yield Father.find(where=["name = ?", 'Homer'], limit=1)
+    def test_get_poly_hasmany_homer_son(self):
         son = yield self.father.parent.get()
         self.assertEqual(len(son), 1)
         self.assertEqual(son[0].name, 'Bart')
 
+    @inlineCallbacks
+    def test_get_poly_hasone_dog_son(self):
+        son = yield self.dog.parent.get()
+        self.assertEqual(son.name, 'Dixie')
 

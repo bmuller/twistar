@@ -20,6 +20,7 @@ def initDB(testKlass):
         txn.execute("""CREATE TABLE children (id INT AUTO_INCREMENT, `name` VARCHAR(255), parent_id INT, parent_type VARCHAR(32), PRIMARY KEY (id))""")
         txn.execute("""CREATE TABLE mothers (id INT AUTO_INCREMENT, name VARCHAR(255), PRIMARY KEY (id))""")
         txn.execute("""CREATE TABLE fathers (id INT AUTO_INCREMENT, name VARCHAR(255), PRIMARY KEY (id))""")
+        txn.execute("""CREATE TABLE dogs (id INT AUTO_INCREMENT, name VARCHAR(255), PRIMARY KEY (id))""")
     return CONNECTION.runInteraction(runInitTxn)
 
 
@@ -35,5 +36,6 @@ def tearDownDB(self):
         txn.execute("DROP TABLE children")
         txn.execute("DROP TABLE mothers")
         txn.execute("DROP TABLE fathers")
+        txn.execute("DROP TABLE dogs")
     return CONNECTION.runInteraction(runTearDownDB)
                 
