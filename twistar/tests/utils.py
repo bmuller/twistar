@@ -32,10 +32,10 @@ class Child(DBObject):
     BELONGSTO = ['parent:polymorphic=True']
 
 class Mother(DBObject):
-    HAS_MANY = ['childs:polymorphic_as=Parent']
+    HASMANY = ['children:polymorphic_as=parent']
 
 class Father(DBObject):
-    HAS_MANY = ['childs:polymorphic_as=Parent']
+    HASMANY = ['children:polymorphic_as=parent']
 
 Registry.register(Picture, User, Avatar, FakeObject, FavoriteColor)
 Registry.register(Child, Mother, Father)

@@ -45,13 +45,27 @@ class Relationship:
         
         klassname = self.infl.classify(self.args['class_name'])
 
-        if (hasattr(self.inst, 'polymorphic')) and (self.inst.polymorphic):
+        if (hasattr(self.inst, 'polymorphic')) and (self.inst.polymorphic) and (hasattr(self.inst, 'polymorphic_dest')):
+            klassname = self.infl.singularize(self.inst.polymorphic_dest).capitalize()
+            self.otherklass = Registry.getClass(klassname)
+            self.othername = self.args['association_foreign_key']
+            self.thisclass = self.inst.__class__
+            self.thisname = self.inst.polymorphic_as+'_id'
+            self.thiscond = [self.inst.polymorphic_as+"_type = ?",self.thisclass.__name__.lower()]
+        elif (hasattr(self.inst, 'polymorphic')) and (self.inst.polymorphic):
             klassname = getattr(self.inst,self.inst.polymorphic_as+'_type').capitalize()+self.inst.polymorphic_as.capitalize()
+            self.otherklass = Registry.getClass(klassname)
+            self.othername = self.args['association_foreign_key']
+            self.thisclass = self.inst.__class__
+            self.thisname = self.args['foreign_key']
+            self.thiscond = None
+        else: 
+            self.otherklass = Registry.getClass(klassname)
+            self.othername = self.args['association_foreign_key']
+            self.thisclass = self.inst.__class__
+            self.thisname = self.args['foreign_key']
+            self.thiscond = None
 
-        self.otherklass = Registry.getClass(klassname)
-        self.othername = self.args['association_foreign_key']
-        self.thisclass = self.inst.__class__
-        self.thisname = self.args['foreign_key']
 
 
 class BelongsTo(Relationship):
@@ -106,6 +120,8 @@ class HasMany(Relationship):
         @return: A C{Deferred} with a callback value of a list of objects.
         """
         where = ["%s = ?" % self.thisname, self.inst.id]
+        if self.thiscond:
+            kwargs['where'] = joinWheres(where, self.thiscond)
         if kwargs.has_key('where'):
             kwargs['where'] = joinWheres(where, kwargs['where'])
         else:
@@ -159,7 +175,10 @@ class HasOne(Relationship):
 
         @return: A C{Deferred} with a callback value of the object this one has (or c{None}).
         """                
-        return self.otherklass.find(where=["%s = ?" % self.thisname, self.inst.id], limit=1)
+        where=["%s = ?" % self.thisname, self.inst.id]
+        if self.thiscond:
+            where = joinWheres(where, self.thiscond)
+        return self.otherklass.find(where=where, limit=1)
 
 
     def set(self, other):

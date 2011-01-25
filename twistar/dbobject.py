@@ -464,6 +464,9 @@ class DBObject(Validator):
         of the class will be returned.
         """
         klass = object.__getattribute__(self, "__class__")
+        if (hasattr(klass, 'polymorphic_dest') and hasattr(klass, 'polymorphic_as')):
+            if (name == klass.polymorphic_as):
+                name = klass.polymorphic_dest
         if not klass.RELATIONSHIP_CACHE is None and klass.RELATIONSHIP_CACHE.has_key(name):
             if object.__getattribute__(self, 'id') is None:
                 raise ReferenceNotSavedError, "Cannot get/set relationship on unsaved object"

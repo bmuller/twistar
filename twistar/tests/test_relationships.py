@@ -261,8 +261,8 @@ class RelationshipTest(unittest.TestCase):
     @inlineCallbacks
     def test_get_homer_son(self):
         homer = yield Father.find(where=["name = ?", 'Homer'], limit=1)
-
-        son = yield homer.parent.get()
-        self.asserEqual(son.name, 'Bart')
+        son = yield self.father.parent.get()
+        self.assertEqual(len(son), 1)
+        self.assertEqual(son[0].name, 'Bart')
 
 

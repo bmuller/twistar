@@ -37,11 +37,21 @@ class Registry:
                 for relation in relations:
                     is_poly_as = relation.partition(':')[2].partition('=')
                     if ( is_poly_as[0] == 'polymorphic_as' ):
-                        Registry.REGISTRATION[klass.__name__+is_poly_as[2]] = klass
+                        klass.polymorphic = True
+                        klass.polymorphic_as = is_poly_as[2]
+                        klass.polymorphic_dest = relation.partition(':')[0]
+                        Registry.REGISTRATION[klass.__name__+is_poly_as[2].capitalize()] = klass
+                    elif ( is_poly_as[0] == 'polymorphic' ) and ( is_poly_as[2] == 'True' ):
+                        Registry.REGISTRATION[relation.partition(':')[0].capitalize()+klass.__name__] = klass
 
             # register the alias, used in poly relations, right now
-            if hasattr(klass, 'HAS_MANY'):
-                _aliasize(klass.HAS_MANY)
+            if hasattr(klass, 'HASMANY'):
+                _aliasize(klass.HASMANY)
+            if hasattr(klass, 'BELONGSTO'):
+                _aliasize(klass.BELONGSTO)
+            if hasattr(klass, 'HASONE'):
+                _aliasize(klass.HASONE)
+
 
 
     @classmethod
