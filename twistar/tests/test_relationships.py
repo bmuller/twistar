@@ -272,3 +272,10 @@ class RelationshipTest(unittest.TestCase):
         son = yield self.dog.parent.get()
         self.assertEqual(son.name, 'Dixie')
 
+    @inlineCallbacks
+    def test_set_poly_hasone(self):
+        child = yield Child(name="Fuffy").save()
+        yield self.dog.parent.set(child)
+        yield child.refresh()
+        self.assertEqual(child.parent_id, self.dog.id)
+        self.assertEqual(child.parent_type, 'dog')

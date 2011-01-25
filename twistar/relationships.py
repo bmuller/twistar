@@ -190,6 +190,8 @@ class HasOne(Relationship):
         tablename = self.otherklass.tablename()
         args = {self.thisname: self.inst.id}
         where = ["id = ?", other.id]        
+        if hasattr(self.otherklass, 'polymorphic') and (self.otherklass.polymorphic):
+            args[self.otherklass.polymorphic_as+'_type'] = self.thisclass.__name__.lower()
         return self.dbconfig.update(tablename, args, where)
 
 
