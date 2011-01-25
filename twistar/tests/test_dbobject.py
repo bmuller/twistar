@@ -15,6 +15,8 @@ class DBObjectTest(unittest.TestCase):
         self.user = yield User(first_name="First", last_name="Last", age=10).save()
         self.avatar = yield Avatar(name="an avatar name", user_id=self.user.id).save()
         self.picture = yield Picture(name="a pic", size=10, user_id=self.user.id).save()        
+        self.father = yield Father(name="Homer").save()        
+        self.child = yield Child(name="Bart", parent_id=self.father.id, parent_type='father').save()        
 
 
     @inlineCallbacks
@@ -206,64 +208,13 @@ class DBObjectTest(unittest.TestCase):
         self.assertEqual(pictures, suball['pictures'])
 
     @inlineCallbacks
-    def test_loadRelations_polymorphic(self):
-        #
-        # create a father
-        #
-        father = Father(name='Robert')
-        father = yield father.save()
-        self.assertEqual(father.name, 'Robert')
-        #
-        # and his child...
-        #
-        child = Child()
-        child.name = "Bob"
-        child.parent_id = father.id
-        child.parent_type = "father"
-        child = yield child.save()
-        self.assertEqual(child.name, 'Bob')
-        self.assertEqual(child.parent_id, father.id)
-        #
-        # load Bob relations
-        #
-        all = yield child.loadRelations()
-        test_parent = yield child.parent.get()
-        self.assertEqual(test_parent.id, child.parent_id)
-        #
-        # is the child polymorph?
-        #
-        self.assertTrue(child.polymorphic)
-        #
-        # create a mother
-        #
-        mother = Mother(name='Maria')
-        mother = yield mother.save()
-        self.assertEqual(mother.name, 'Maria')
-        #
-        # and her child...
-        #
-        mochild = Child()
-        mochild.name = "Marika"
-        mochild.parent_id = mother.id
-        mochild.parent_type = "mother"
-        mochild = yield mochild.save()
-        self.assertEqual(mochild.name, 'Marika')
-        self.assertEqual(mochild.parent_id, mother.id)
-        #
-        # load Marika relations
-        #
-        all = yield mochild.loadRelations()
-        test_moparent = yield mochild.parent.get()
-        self.assertEqual(test_moparent.id, child.parent_id)
-        #print ">>>> %s"%test_parent
-        #print ">>>> %s"%test_moparent
-        #
-        # marika parent is different from bob parent
-        #
-        self.assertNotEqual(test_parent.name, test_moparent.name)
-        #
-        # test for correct names
-        #
-        self.assertEqual(test_parent.name, 'Robert')
-        self.assertEqual(test_moparent.name, 'Maria')
+    def test_poly_loadRelations(self):
+        father = yield Father.find(limit=1)
+        all = yield father.loadRelations()
+
+        children = yield father.parent.get()
+        self.assertEqual(children, all['parent'])
+
+        suball = yield father.loadRelations('parent')
+        self.assertEqual(children, suball['parent'])
 

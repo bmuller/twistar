@@ -302,6 +302,9 @@ class DBObject(Validator):
 
         ds = {}
         for relation in relations:
+            if (hasattr(self,'polymorphic')):
+                if self.polymorphic_dest == relation:
+                    relation = self.polymorphic_as
             relation = relation.partition(':')[0]
             ds[relation] = getattr(self, relation).get()
         return deferredDict(ds)
