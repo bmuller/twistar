@@ -10,17 +10,14 @@ must be installed.
 
 
 = Installation =
-You should be able to simply run:
 $> sudo make install
 
-
-= Generating Documentation =
-You should be able to simply run:
+To generate documentation:
 $> sudo make docs
-
+$> firefox docs/index.html
 
 = Testing =
-You should be able to simply run:
+Just run:
 $> sudo make test
 
 See the README in the twistar/tests folder for more information on testing with
