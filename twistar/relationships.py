@@ -139,6 +139,8 @@ class HasMany(Relationship):
                 raise ReferenceNotSavedError, msg
             ids.append(str(other.id))
         where = ["id IN (%s)" % ",".join(ids)]                
+        if hasattr(self.otherklass, 'polymorphic') and (self.otherklass.polymorphic):
+            args[self.otherklass.polymorphic_as+'_type'] = self.thisclass.__name__.lower()
         return self.dbconfig.update(tablename, args, where)
 
 

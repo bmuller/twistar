@@ -226,14 +226,16 @@ class RelationshipTest(unittest.TestCase):
         newcolors = yield user.favorite_colors.get()
         self.assertEqual(len(newcolors), 0)
 
+
     @inlineCallbacks
-    def test_get_poly_belongsto_bart_parent(self):
+    def test_poly_get_belongsto_bart_parent(self):
         child = yield Child.find(where=["name = ?", 'Bart'], limit=1)
         parent = yield child.parent.get()
         self.assertEqual(parent.name, 'Homer')
 
+
     @inlineCallbacks
-    def test_get_poly_belongsto_lisa_maggie_parent(self):
+    def test_poly_get_belongsto_lisa_maggie_parent(self):
         children = yield Child.find(where=["parent_type = ?", 'mother'])
         self.assertEqual(len(children), 2)
 
@@ -241,8 +243,9 @@ class RelationshipTest(unittest.TestCase):
             parent = yield child.parent.get()
             self.assertEqual(parent.name, 'Marge')
 
+
     @inlineCallbacks
-    def test_get_poly_belongsto_all_child_and_check_names(self):
+    def test_poly_get_belongsto_all_child_and_check_names(self):
         children = yield Child.find()
         self.assertEqual(len(children), 4)
 
@@ -255,27 +258,81 @@ class RelationshipTest(unittest.TestCase):
             else:
                 self.assertEqual(parent.name, 'Marge')
 
+
     @inlineCallbacks
-    def test_get_poly_hasmany_marge_sons(self):
+    def test_poly_get_hasmany_marge_sons(self):
         marge = yield Mother.find(where=["name = ?", 'Marge'], limit=1)
         sons = yield marge.parent.get()
         self.assertEqual(len(sons), 2)
 
+
     @inlineCallbacks
-    def test_get_poly_hasmany_homer_son(self):
+    def test_poly_get_hasmany_homer_son(self):
         son = yield self.father.parent.get()
         self.assertEqual(len(son), 1)
         self.assertEqual(son[0].name, 'Bart')
 
+
     @inlineCallbacks
-    def test_get_poly_hasone_dog_son(self):
+    def test_poly_get_hasone_dog_son(self):
         son = yield self.dog.parent.get()
         self.assertEqual(son.name, 'Dixie')
 
+
     @inlineCallbacks
-    def test_set_poly_hasone(self):
+    def test_poly_set_hasone(self):
         child = yield Child(name="Fuffy").save()
         yield self.dog.parent.set(child)
         yield child.refresh()
         self.assertEqual(child.parent_id, self.dog.id)
         self.assertEqual(child.parent_type, 'dog')
+
+
+    @inlineCallbacks
+    def test_poly_set_hasmany(self):
+        # Generate some sons...
+        sons = [self.child1]
+
+        for _ in range(3):
+            son = yield Child(name="another son").save()
+            sons.append(son)
+        sonids = [int(son.id) for son in sons]
+
+        yield self.father.parent.set(sons)
+        results = yield self.father.parent.get()
+        self.assertEqual(len(results), 4)
+        resultids = [int(son.id) for son in results]
+        sonids.sort()
+        sonids.sort()
+        self.assertEqual(sonids, resultids)
+
+        # now try resetting
+        sons = []
+        for _ in range(3):
+            son = yield Child(name="another son").save()
+            sons.append(son)
+        sonids = [son.id for son in sons]
+        
+        yield self.father.parent.set(sons)
+        results = yield self.father.parent.get()
+        resultids = [son.id for son in results]
+        self.assertEqual(sonids, resultids)        
+
+
+    @inlineCallbacks
+    def test_poly_clear_has_many(self):
+        sons = yield self.mother.parent.get()
+        for _ in range(3):
+            son = yield Child(name="my son").save()
+            sons.append(son)
+
+        yield self.mother.parent.set(sons)
+
+        mosons = yield self.mother.parent.get()
+        self.assertEqual(len(mosons), 5)
+
+        yield self.mother.parent.clear()
+        
+        mosons = yield self.mother.parent.get()
+        self.assertEqual(mosons, [])
+
