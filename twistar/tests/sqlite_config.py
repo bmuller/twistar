@@ -17,10 +17,10 @@ def initDB(testKlass):
         txn.execute("""CREATE TABLE favorite_colors_users (favorite_color_id INTEGER, user_id INTEGER)""")
         txn.execute("""CREATE TABLE coltests (id INTEGER PRIMARY KEY AUTOINCREMENT, `select` TEXT, `where` TEXT)""")
         # poly tables
-        txn.execute("""CREATE TABLE children (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, parent_id INTEGER, parent_type TEXT)""")
-        txn.execute("""CREATE TABLE mothers (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)""")
-        txn.execute("""CREATE TABLE fathers (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)""")
-        txn.execute("""CREATE TABLE dogs (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)""")
+        txn.execute("""CREATE TABLE catalogentries (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, resource_id INTEGER, resource_type TEXT)""")
+        txn.execute("""CREATE TABLE articles (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)""")
+        txn.execute("""CREATE TABLE sounds (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)""")
+        txn.execute("""CREATE TABLE images (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)""")
     return Registry.DBPOOL.runInteraction(runInitTxn)
 
 

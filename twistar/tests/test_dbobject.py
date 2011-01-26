@@ -15,8 +15,8 @@ class DBObjectTest(unittest.TestCase):
         self.user = yield User(first_name="First", last_name="Last", age=10).save()
         self.avatar = yield Avatar(name="an avatar name", user_id=self.user.id).save()
         self.picture = yield Picture(name="a pic", size=10, user_id=self.user.id).save()        
-        self.father = yield Father(name="Homer").save()        
-        self.child = yield Child(name="Bart", parent_id=self.father.id, parent_type='father').save()        
+        self.sound = yield Sound(name="Jazz").save()        
+        self.catalogentry = yield Catalogentry(name="CoolJazz", resource_id=self.sound.id, resource_type='sound').save()        
 
 
     @inlineCallbacks
@@ -209,12 +209,12 @@ class DBObjectTest(unittest.TestCase):
 
     @inlineCallbacks
     def test_poly_loadRelations(self):
-        father = yield Father.find(limit=1)
-        all = yield father.loadRelations()
+        sound = yield Sound.find(limit=1)
+        all = yield sound.loadRelations()
 
-        children = yield father.parent.get()
-        self.assertEqual(children, all['parent'])
+        catalogentries = yield sound.resource.get()
+        self.assertEqual(catalogentries, all['resource'])
 
-        suball = yield father.loadRelations('parent')
-        self.assertEqual(children, suball['parent'])
+        suball = yield sound.loadRelations('resource')
+        self.assertEqual(catalogentries, suball['resource'])
 

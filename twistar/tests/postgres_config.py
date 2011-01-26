@@ -17,10 +17,10 @@ def initDB(testKlass):
         txn.execute("""CREATE TABLE favorite_colors_users (favorite_color_id INT, user_id INT)""")
         txn.execute("""CREATE TABLE coltests (id SERIAL PRIMARY KEY, `select` VARCHAR(255), `where` VARCHAR(255))""")
         # tables used for polymorphic tests
-        txn.execute("""CREATE TABLE children (id SERIAL PRIMARY KEY, name VARCHAR(255), parent_id INT, parent_type VARCHAR(32))""")
-        txn.execute("""CREATE TABLE mothers (id SERIAL PRIMARY KEY, name VARCHAR(255))""")
-        txn.execute("""CREATE TABLE fathers (id SERIAL PRIMARY KEY, name VARCHAR(255))""")
-        txn.execute("""CREATE TABLE dogs (id SERIAL PRIMARY KEY, name VARCHAR(255))""")
+        txn.execute("""CREATE TABLE catalogentries (id SERIAL PRIMARY KEY, name VARCHAR(255), resource_id INT, resource_type VARCHAR(32))""")
+        txn.execute("""CREATE TABLE articles (id SERIAL PRIMARY KEY, name VARCHAR(255))""")
+        txn.execute("""CREATE TABLE sounds (id SERIAL PRIMARY KEY, name VARCHAR(255))""")
+        txn.execute("""CREATE TABLE images (id SERIAL PRIMARY KEY, name VARCHAR(255))""")
     return CONNECTION.runInteraction(runInitTxn)
 
 
@@ -43,16 +43,16 @@ def tearDownDB(self):
         txn.execute("DROP SEQUENCE coltests_id_seq CASCADE")
         txn.execute("DROP TABLE coltests")
 
-        txn.execute("DROP SEQUENCE children_id_seq CASCADE")
-        txn.execute("DROP TABLE children")
+        txn.execute("DROP SEQUENCE catalogentries_id_seq CASCADE")
+        txn.execute("DROP TABLE catalogentries")
 
-        txn.execute("DROP SEQUENCE mother_id_seq CASCADE")
-        txn.execute("DROP TABLE mother")
+        txn.execute("DROP SEQUENCE article_id_seq CASCADE")
+        txn.execute("DROP TABLE article")
 
-        txn.execute("DROP SEQUENCE father_id_seq CASCADE")
-        txn.execute("DROP TABLE father")
+        txn.execute("DROP SEQUENCE sound_id_seq CASCADE")
+        txn.execute("DROP TABLE sound")
 
-        txn.execute("DROP SEQUENCE dogs_id_seq CASCADE")
-        txn.execute("DROP TABLE dogs")
+        txn.execute("DROP SEQUENCE images_id_seq CASCADE")
+        txn.execute("DROP TABLE images")
     return CONNECTION.runInteraction(runTearDownDB)
                 

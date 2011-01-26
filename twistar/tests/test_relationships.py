@@ -14,13 +14,13 @@ class RelationshipTest(unittest.TestCase):
         self.avatar = yield Avatar(name="an avatar name", user_id=self.user.id).save()
         self.picture = yield Picture(name="a pic", size=10, user_id=self.user.id).save()
         self.favcolor = yield FavoriteColor(name="blue").save()
-        self.dog = yield Dog(name="Pluto").save()
-        self.mother = yield Mother(name="Marge").save()
-        self.father = yield Father(name="Homer").save()
-        self.child1 = yield Child(name="Bart",parent_id=self.father.id,parent_type='father').save()
-        self.child2 = yield Child(name="Lisa",parent_id=self.mother.id,parent_type='mother').save()
-        self.child3 = yield Child(name="Maggie",parent_id=self.mother.id,parent_type='mother').save()
-        self.child4 = yield Child(name="Dixie",parent_id=self.dog.id,parent_type='dog').save()
+        self.image = yield Image(name="Picasso_dream").save()
+        self.article = yield Article(name="My_new_article").save()
+        self.sound = yield Sound(name="Jazz").save()
+        self.catalogentry1 = yield Catalogentry(name="CoolJazz",resource_id=self.sound.id,resource_type='sound').save()
+        self.catalogentry2 = yield Catalogentry(name="An_article",resource_id=self.article.id,resource_type='article').save()
+        self.catalogentry3 = yield Catalogentry(name="Another_article",resource_id=self.article.id,resource_type='article').save()
+        self.catalogentry4 = yield Catalogentry(name="Some_catalogued_image",resource_id=self.image.id,resource_type='image').save()
         self.config = Registry.getConfig()
 
 
@@ -228,111 +228,111 @@ class RelationshipTest(unittest.TestCase):
 
 
     @inlineCallbacks
-    def test_poly_get_belongsto_child_to_father_parent(self):
-        child = yield Child.find(where=["name = ?", 'Bart'], limit=1)
-        parent = yield child.parent.get()
-        self.assertEqual(parent.name, 'Homer')
+    def test_poly_get_belongsto_catalogentry_to_sound_resource(self):
+        catalogentry = yield Catalogentry.find(where=["name = ?", 'CoolJazz'], limit=1)
+        resource = yield catalogentry.resource.get()
+        self.assertEqual(resource.name, 'Jazz')
 
 
     @inlineCallbacks
-    def test_poly_get_belongsto_children_to_mother_parent(self):
-        children = yield Child.find(where=["parent_type = ?", 'mother'])
-        self.assertEqual(len(children), 2)
+    def test_poly_get_belongsto_catalogentries_to_article_resource(self):
+        catalogentries = yield Catalogentry.find(where=["resource_type = ?", 'article'])
+        self.assertEqual(len(catalogentries), 2)
 
-        for child in children:
-            parent = yield child.parent.get()
-            self.assertEqual(parent.name, 'Marge')
+        for catalogentry in catalogentries:
+            resource = yield catalogentry.resource.get()
+            self.assertEqual(resource.name, 'My_new_article')
 
 
     @inlineCallbacks
-    def test_poly_get_belongsto_all_children_and_check_names(self):
-        children = yield Child.find()
-        self.assertEqual(len(children), 4)
+    def test_poly_get_belongsto_all_catalogentries_and_check_names(self):
+        catalogentries = yield Catalogentry.find()
+        self.assertEqual(len(catalogentries), 4)
 
-        for child in children:
-            parent = yield child.parent.get()
-            if child.name == 'Bart':
-                self.assertEqual(parent.name, 'Homer')
-            elif child.name == 'Dixie':
-                self.assertEqual(parent.name, 'Pluto')
+        for catalogentry in catalogentries:
+            resource = yield catalogentry.resource.get()
+            if catalogentry.name == 'CoolJazz':
+                self.assertEqual(resource.name, 'Jazz')
+            elif catalogentry.name == 'Some_catalogued_image':
+                self.assertEqual(resource.name, 'Picasso_dream')
             else:
-                self.assertEqual(parent.name, 'Marge')
+                self.assertEqual(resource.name, 'My_new_article')
 
 
     @inlineCallbacks
-    def test_poly_get_hasmany_mother_parent_children(self):
-        marge = yield Mother.find(where=["name = ?", 'Marge'], limit=1)
-        sons = yield marge.parent.get()
-        self.assertEqual(len(sons), 2)
+    def test_poly_get_hasmany_article_resource_catalogentries(self):
+        my_new_article = yield Article.find(where=["name = ?", 'My_new_article'], limit=1)
+        articles = yield my_new_article.resource.get()
+        self.assertEqual(len(articles), 2)
 
 
     @inlineCallbacks
-    def test_poly_get_hasmany_father_parent_child(self):
-        son = yield self.father.parent.get()
-        self.assertEqual(len(son), 1)
-        self.assertEqual(son[0].name, 'Bart')
+    def test_poly_get_hasmany_sound_resource_catalogentry(self):
+        sound = yield self.sound.resource.get()
+        self.assertEqual(len(sound), 1)
+        self.assertEqual(sound[0].name, 'CoolJazz')
 
 
     @inlineCallbacks
-    def test_poly_get_hasone_dog_parent_child(self):
-        son = yield self.dog.parent.get()
-        self.assertEqual(son.name, 'Dixie')
+    def test_poly_get_hasone_image_resource_catalogentry(self):
+        image = yield self.image.resource.get()
+        self.assertEqual(image.name, 'Some_catalogued_image')
 
 
     @inlineCallbacks
     def test_poly_set_hasone(self):
-        child = yield Child(name="Fuffy").save()
-        yield self.dog.parent.set(child)
-        yield child.refresh()
-        self.assertEqual(child.parent_id, self.dog.id)
-        self.assertEqual(child.parent_type, 'dog')
+        catalogentry = yield Catalogentry(name="Fuffy").save()
+        yield self.image.resource.set(catalogentry)
+        yield catalogentry.refresh()
+        self.assertEqual(catalogentry.resource_id, self.image.id)
+        self.assertEqual(catalogentry.resource_type, 'image')
 
 
     @inlineCallbacks
     def test_poly_set_hasmany(self):
-        # Generate some sons...
-        sons = [self.child1]
+        # Generate some catalog entries...
+        entries = [self.catalogentry1]
 
         for _ in range(3):
-            son = yield Child(name="another son").save()
-            sons.append(son)
-        sonids = [int(son.id) for son in sons]
+            entry = yield Catalogentry(name="another catalog entry").save()
+            entries.append(entry)
+        entryids = [int(entry.id) for entry in entries]
 
-        yield self.father.parent.set(sons)
-        results = yield self.father.parent.get()
+        yield self.sound.resource.set(entries)
+        results = yield self.sound.resource.get()
         self.assertEqual(len(results), 4)
-        resultids = [int(son.id) for son in results]
-        sonids.sort()
-        sonids.sort()
-        self.assertEqual(sonids, resultids)
+        resultids = [int(entry.id) for entry in results]
+        entryids.sort()
+        resultids.sort()
+        self.assertEqual(entryids, resultids)
 
         # now try resetting
-        sons = []
+        entries = []
         for _ in range(3):
-            son = yield Child(name="another son").save()
-            sons.append(son)
-        sonids = [son.id for son in sons]
+            entry = yield Catalogentry(name="another catalog entry").save()
+            entries.append(entry)
+        entryids = [entry.id for entry in entries]
         
-        yield self.father.parent.set(sons)
-        results = yield self.father.parent.get()
-        resultids = [son.id for son in results]
-        self.assertEqual(sonids, resultids)        
+        yield self.sound.resource.set(entries)
+        results = yield self.sound.resource.get()
+        resultids = [entry.id for entry in results]
+        self.assertEqual(entryids, resultids)        
 
 
     @inlineCallbacks
     def test_poly_clear_has_many(self):
-        sons = yield self.mother.parent.get()
+        resources = yield self.article.resource.get()
         for _ in range(3):
-            son = yield Child(name="my son").save()
-            sons.append(son)
+            resource = yield Catalogentry(name="another catalog entry").save()
+            resources.append(resource)
 
-        yield self.mother.parent.set(sons)
+        yield self.article.resource.set(resources)
 
-        mosons = yield self.mother.parent.get()
-        self.assertEqual(len(mosons), 5)
+        arresources = yield self.article.resource.get()
+        self.assertEqual(len(arresources), 5)
 
-        yield self.mother.parent.clear()
+        yield self.article.resource.clear()
         
-        mosons = yield self.mother.parent.get()
-        self.assertEqual(mosons, [])
+        arresources = yield self.article.resource.get()
+        self.assertEqual(arresources, [])
 

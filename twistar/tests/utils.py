@@ -28,18 +28,18 @@ class FakeObject(DBObject):
 class Coltest(DBObject):
     pass
 
-class Child(DBObject):
-    BELONGSTO = ['parent:polymorphic=True']
+class Catalogentry(DBObject):
+    BELONGSTO = ['resource:polymorphic=True']
 
-class Mother(DBObject):
-    HASMANY = ['children:polymorphic_as=parent']
+class Article(DBObject):
+    HASMANY = ['catalogentries:polymorphic_as=resource']
 
-class Father(DBObject):
-    HASMANY = ['children:polymorphic_as=parent']
+class Sound(DBObject):
+    HASMANY = ['catalogentries:polymorphic_as=resource']
 
-class Dog(DBObject):
-    HASONE = ['children:polymorphic_as=parent']
+class Image(DBObject):
+    HASONE = ['catalogentries:polymorphic_as=resource']
 
 Registry.register(Picture, User, Avatar, FakeObject, FavoriteColor)
-Registry.register(Child, Mother, Father, Dog)
+Registry.register(Catalogentry, Article, Sound, Image)
 
