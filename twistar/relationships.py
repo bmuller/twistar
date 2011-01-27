@@ -54,8 +54,6 @@ class Relationship:
             self.thisname = self.args['as']+"_id"
             self.thiscond = [self.args['as']+"_type = ?", self.thisclass.__name__.lower()]
         elif ('polymorphic' in self.args) and (self.args['polymorphic']):
-            klassname = self.infl.classify(self.args['name'])
-            self.otherklass = Registry.getClassAlias(self.args['name'])
             link = self.args['name']+"_type"
             linkattr = getattr(self.inst, link)
             klassname = self.infl.classify(linkattr)

@@ -67,18 +67,6 @@ class Registry:
                         return Registry.REGISTRATION[item][name]
         raise ClassNotRegisteredError, "You never registered the class named %s" % name
 
-    
-    @classmethod
-    def getClassAlias(klass, alias):
-        """
-        Get a registered class by the given alias.
-        """        
-        for item in Registry.REGISTRATION:
-            if alias == Registry.REGISTRATION[item]['alias']:
-                name = Registry.REGISTRATION[item]['name']
-                return Registry.REGISTRATION[item][name]
-        raise ClassNotRegisteredError, "You never registered the class named %s" % alias
-
 
     @classmethod
     def getDBAPIClass(klass, name):
