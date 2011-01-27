@@ -1,6 +1,7 @@
 """
 Module handling global registration of variables and classes.
 """
+import uuid
 
 from twisted.python import reflect
 
@@ -31,39 +32,54 @@ class Registry:
         @param klasses: Any number of parameters, each of which is a class.
         """        
         for klass in klasses:
-            Registry.REGISTRATION[klass.__name__] = klass
+            klass_uuid = str(uuid.uuid4())
+            Registry.REGISTRATION[klass_uuid] = dict()
+            Registry.REGISTRATION[klass_uuid]['alias'] = None
+            Registry.REGISTRATION[klass_uuid][klass.__name__] = klass
 
             def _aliasize(relations):
                 for relation in relations:
-                    is_poly_as = relation.partition(':')[2].partition('=')
-                    if ( is_poly_as[0] == 'polymorphic_as' ):
-                        klass.polymorphic = True
-                        klass.polymorphic_as = is_poly_as[2]
-                        klass.polymorphic_dest = relation.partition(':')[0]
-                        Registry.REGISTRATION[klass.__name__+is_poly_as[2].capitalize()] = klass
-                    elif ( is_poly_as[0] == 'polymorphic' ) and ( is_poly_as[2] == 'True' ):
-                        Registry.REGISTRATION[relation.partition(':')[0].capitalize()+klass.__name__] = klass
+                    if 'as' in relation:
+                        Registry.REGISTRATION[klass_uuid]['alias'] = relation['as']
+                        Registry.REGISTRATION[klass_uuid]['name'] = klass.__name__
+                    elif ('polymorphic' in relation) and (relation['polymorphic']):
+                        Registry.REGISTRATION[klass_uuid]['polymorphic'] = relation['polymorphic']
 
-            # register the alias, used in poly relations, right now
             if hasattr(klass, 'HASMANY'):
                 _aliasize(klass.HASMANY)
-            if hasattr(klass, 'BELONGSTO'):
-                _aliasize(klass.BELONGSTO)
             if hasattr(klass, 'HASONE'):
                 _aliasize(klass.HASONE)
-
+            if hasattr(klass, 'BELONGSTO'):
+                _aliasize(klass.BELONGSTO)
 
 
     @classmethod
-    def getClass(klass, name):
+    def getClass(klass, name, alias=None):
         """
         Get a registered class by the given name.
         """        
-        if not Registry.REGISTRATION.has_key(name):
-            raise ClassNotRegisteredError, "You never registered the class named %s" % name
-        return Registry.REGISTRATION[name]
+        for item in Registry.REGISTRATION:
+            if name in Registry.REGISTRATION[item]:
+                if not alias is None:
+                    return Registry.REGISTRATION[item][name]
+                else:
+                    if Registry.REGISTRATION[item]['alias'] == alias:
+                        return Registry.REGISTRATION[item][name]
+        raise ClassNotRegisteredError, "You never registered the class named %s" % name
 
     
+    @classmethod
+    def getClassAlias(klass, alias):
+        """
+        Get a registered class by the given alias.
+        """        
+        for item in Registry.REGISTRATION:
+            if alias == Registry.REGISTRATION[item]['alias']:
+                name = Registry.REGISTRATION[item]['name']
+                return Registry.REGISTRATION[item][name]
+        raise ClassNotRegisteredError, "You never registered the class named %s" % alias
+
+
     @classmethod
     def getDBAPIClass(klass, name):
         """

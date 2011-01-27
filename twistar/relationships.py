@@ -45,27 +45,31 @@ class Relationship:
         
         klassname = self.infl.classify(self.args['class_name'])
 
-        if (hasattr(self.inst, 'polymorphic')) and (self.inst.polymorphic) and (hasattr(self.inst, 'polymorphic_dest')):
-            klassname = self.infl.singularize(self.inst.polymorphic_dest).capitalize()
-            self.otherklass = Registry.getClass(klassname)
+        if 'as' in self.args:
+            setattr(self.inst, self.args['as'], self)
+            klassname = self.infl.classify(self.args['name'])
+            self.otherklass = Registry.getClass(klassname, self.args['as'])
             self.othername = self.args['association_foreign_key']
             self.thisclass = self.inst.__class__
-            self.thisname = self.inst.polymorphic_as+'_id'
-            self.thiscond = [self.inst.polymorphic_as+"_type = ?",self.thisclass.__name__.lower()]
-        elif (hasattr(self.inst, 'polymorphic')) and (self.inst.polymorphic):
-            klassname = getattr(self.inst,self.inst.polymorphic_as+'_type').capitalize()+self.inst.polymorphic_as.capitalize()
+            self.thisname = self.args['as']+"_id"
+            self.thiscond = [self.args['as']+"_type = ?", self.thisclass.__name__.lower()]
+        elif ('polymorphic' in self.args) and (self.args['polymorphic']):
+            klassname = self.infl.classify(self.args['name'])
+            self.otherklass = Registry.getClassAlias(self.args['name'])
+            link = self.args['name']+"_type"
+            linkattr = getattr(self.inst, link)
+            klassname = self.infl.classify(linkattr)
+            self.otherklass = Registry.getClass(klassname, self.args['name'])
+            self.othername = self.args['association_foreign_key']
+            self.thisclass = self.inst.__class__
+            self.thisname = self.args['foreign_key']
+            self.thiscond = None
+        else:
             self.otherklass = Registry.getClass(klassname)
             self.othername = self.args['association_foreign_key']
             self.thisclass = self.inst.__class__
             self.thisname = self.args['foreign_key']
             self.thiscond = None
-        else: 
-            self.otherklass = Registry.getClass(klassname)
-            self.othername = self.args['association_foreign_key']
-            self.thisclass = self.inst.__class__
-            self.thisname = self.args['foreign_key']
-            self.thiscond = None
-
 
 
 class BelongsTo(Relationship):
@@ -139,8 +143,8 @@ class HasMany(Relationship):
                 raise ReferenceNotSavedError, msg
             ids.append(str(other.id))
         where = ["id IN (%s)" % ",".join(ids)]                
-        if hasattr(self.otherklass, 'polymorphic') and (self.otherklass.polymorphic):
-            args[self.otherklass.polymorphic_as+'_type'] = self.thisclass.__name__.lower()
+        if 'as' in self.args:
+            args[self.args['as'] + '_type'] = self.thisclass.__name__.lower()
         return self.dbconfig.update(tablename, args, where)
 
 
@@ -192,8 +196,8 @@ class HasOne(Relationship):
         tablename = self.otherklass.tablename()
         args = {self.thisname: self.inst.id}
         where = ["id = ?", other.id]        
-        if hasattr(self.otherklass, 'polymorphic') and (self.otherklass.polymorphic):
-            args[self.otherklass.polymorphic_as+'_type'] = self.thisclass.__name__.lower()
+        if 'as' in self.args:
+            args[self.args['as'] + '_type'] = self.thisclass.__name__.lower()
         return self.dbconfig.update(tablename, args, where)
 
 

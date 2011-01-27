@@ -321,12 +321,12 @@ class RelationshipTest(unittest.TestCase):
 
     @inlineCallbacks
     def test_poly_clear_has_many(self):
-        resources = yield self.article.resource.get()
+        catentries = yield self.article.resource.get()
         for _ in range(3):
-            resource = yield Catalogentry(name="another catalog entry").save()
-            resources.append(resource)
+            catentry = yield Catalogentry(name="another catalog entry").save()
+            catentries.append(catentry)
 
-        yield self.article.resource.set(resources)
+        yield self.article.resource.set(catentries)
 
         arresources = yield self.article.resource.get()
         self.assertEqual(len(arresources), 5)

@@ -305,11 +305,12 @@ class DBObject(Validator):
 
         ds = {}
         for relation in relations:
-            if (hasattr(self,'polymorphic')):
-                if self.polymorphic_dest == relation:
-                    relation = self.polymorphic_as
-            relation = relation.partition(':')[0]
-            ds[relation] = getattr(self, relation).get()
+            real_relation = relation
+            if relation in self.RELATIONSHIP_CACHE:
+                (inst, args) = self.RELATIONSHIP_CACHE[relation]
+                if 'as' in args:
+                    real_relation = args['as']
+            ds[real_relation] = getattr(self, relation).get()
         return deferredDict(ds)
 
 
@@ -333,13 +334,13 @@ class DBObject(Validator):
             if not relation.has_key('name'):
                 msg = "No key 'name' in the relation %s in class %s" % (relation, klass.__name__)
                 raise InvalidRelationshipError, msg
-            name = relation['name']
+            if 'as' in relation:
+                name = relation['as']
+            else:
+                name = relation['name']
             args = relation
         else:
-            name = relation.partition(':')[0]
-            if (relation.partition(':')[2].partition('=')[0] == 'polymorphic') and (relation.partition(':')[2].partition('=')[2] == 'True'):
-                klass.polymorphic = True
-                klass.polymorphic_as = name
+            name = relation
             args = {}
         relationshipKlass = Relationship.TYPES[rtype]
         klass.RELATIONSHIP_CACHE[name] = (relationshipKlass, args)
@@ -470,9 +471,6 @@ class DBObject(Validator):
         of the class will be returned.
         """
         klass = object.__getattribute__(self, "__class__")
-        if (hasattr(klass, 'polymorphic_dest') and hasattr(klass, 'polymorphic_as')):
-            if (name == klass.polymorphic_as):
-                name = klass.polymorphic_dest
         if not klass.RELATIONSHIP_CACHE is None and klass.RELATIONSHIP_CACHE.has_key(name):
             if object.__getattribute__(self, 'id') is None:
                 raise ReferenceNotSavedError, "Cannot get/set relationship on unsaved object"

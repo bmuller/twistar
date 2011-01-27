@@ -29,16 +29,16 @@ class Coltest(DBObject):
     pass
 
 class Catalogentry(DBObject):
-    BELONGSTO = ['resource:polymorphic=True']
+    BELONGSTO = [{'name': 'resource', 'polymorphic': True}]
 
 class Article(DBObject):
-    HASMANY = ['catalogentries:polymorphic_as=resource']
+    HASMANY = [{'name': 'catalogentries', 'as': 'resource'}]
 
 class Sound(DBObject):
-    HASMANY = ['catalogentries:polymorphic_as=resource']
+    HASMANY = [{'name': 'catalogentries', 'as': 'resource'}]
 
 class Image(DBObject):
-    HASONE = ['catalogentries:polymorphic_as=resource']
+    HASONE = [{'name': 'catalogentries', 'as': 'resource'}]
 
 Registry.register(Picture, User, Avatar, FakeObject, FavoriteColor)
 Registry.register(Catalogentry, Article, Sound, Image)
