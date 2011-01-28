@@ -46,7 +46,6 @@ class Relationship:
         klassname = self.infl.classify(self.args['class_name'])
 
         if 'as' in self.args:
-            setattr(self.inst, self.args['as'], self)
             klassname = self.infl.classify(self.args['name'])
             self.otherklass = Registry.getClass(klassname, self.args['as'])
             self.othername = self.args['association_foreign_key']
