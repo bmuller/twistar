@@ -16,6 +16,12 @@ def initDB(testKlass):
         txn.execute("""CREATE TABLE favorite_colors (id SERIAL PRIMARY KEY, name VARCHAR(255))""")
         txn.execute("""CREATE TABLE favorite_colors_users (favorite_color_id INT, user_id INT)""")
         txn.execute("""CREATE TABLE coltests (id SERIAL PRIMARY KEY, `select` VARCHAR(255), `where` VARCHAR(255))""")
+
+        txn.execute("""CREATE TABLE boys (id SERIAL PRIMARY KEY, `name` VARCHAR(255))""")
+        txn.execute("""CREATE TABLE girls (id SERIAL PRIMARY KEY, `name` VARCHAR(255))""")
+        txn.execute("""CREATE TABLE nicknames (id SERIAL PRIMARY KEY, `value` VARCHAR(255), `nicknameable_id` INT,
+                       `nicknameable_type` VARCHAR(255))""")
+
     return CONNECTION.runInteraction(runInitTxn)
 
 
@@ -37,5 +43,15 @@ def tearDownDB(self):
 
         txn.execute("DROP SEQUENCE coltests_id_seq CASCADE")
         txn.execute("DROP TABLE coltests")
+
+        txn.execute("DROP SEQUENCE boys_id_seq CASCADE")
+        txn.execute("DROP TABLE boys")
+
+        txn.execute("DROP SEQUENCE girls_id_seq CASCADE")
+        txn.execute("DROP TABLE girls")
+
+        txn.execute("DROP SEQUENCE nicknames_id_seq CASCADE")
+        txn.execute("DROP TABLE nicknames")
+        
     return CONNECTION.runInteraction(runTearDownDB)
                 

@@ -38,13 +38,17 @@ class Relationship:
         self.dbconfig = Registry.getConfig()
 
         ## Set args
-        self.args = { 'class_name': propname,
-                      'association_foreign_key': self.infl.foreignKey(self.infl.singularize(propname)),
-                      'foreign_key': self.infl.foreignKey(self.inst.__class__.__name__)}
+        self.args = {
+            'class_name': propname,
+            'association_foreign_key': self.infl.foreignKey(self.infl.singularize(propname)),
+            'foreign_key': self.infl.foreignKey(self.inst.__class__.__name__),
+            'polymorphic': False
+        }
         self.args.update(givenargs)
-        
-        klassname = self.infl.classify(self.args['class_name'])
-        self.otherklass = Registry.getClass(klassname)
+
+        otherklassname = self.infl.classify(self.args['class_name'])
+        if not self.args['polymorphic']:
+            self.otherklass = Registry.getClass(otherklassname)
         self.othername = self.args['association_foreign_key']
         self.thisclass = self.inst.__class__
         self.thisname = self.args['foreign_key']
@@ -62,6 +66,14 @@ class BelongsTo(Relationship):
         @return: A C{Deferred} with a callback value of either the matching class or
         None (if not set).
         """
+        def get_polymorphic(row):
+            kid = getattr(row, "%s_id" % self.args['class_name'])
+            kname = getattr(row, "%s_type" % self.args['class_name'])
+            return Registry.getClass(kname).find(kid)
+
+        if self.args['polymorphic']:
+            return self.inst.find(where=["id = ?", self.inst.id], limit=1).addCallback(get_polymorphic)
+
         return self.otherklass.find(where=["id = ?", getattr(self.inst, self.othername)], limit=1)
 
 
@@ -70,7 +82,9 @@ class BelongsTo(Relationship):
         Set the object that belongs to the caller.
 
         @return: A C{Deferred} with a callback value of the caller.
-        """        
+        """
+        if self.args['polymorphic']:
+            setattr(self.inst, "%s_type" % self.args['class_name'], other.__class__.__name__)
         setattr(self.inst, self.othername, other.id)
         return self.inst.save()
 
@@ -101,12 +115,29 @@ class HasMany(Relationship):
 
         @return: A C{Deferred} with a callback value of a list of objects.
         """
-        where = ["%s = ?" % self.thisname, self.inst.id]
+        if self.args.has_key('as'):
+            w = "%s_id = ? AND %s_type = ?" % (self.args['as'], self.args['as'])
+            where = [w, self.inst.id, self.thisclass.__name__]
+        else:
+            where = ["%s = ?" % self.thisname, self.inst.id]
+            
         if kwargs.has_key('where'):
             kwargs['where'] = joinWheres(where, kwargs['where'])
         else:
             kwargs['where'] = where
         return self.otherklass.find(**kwargs)
+
+
+    def _set_polymorphic(self, others):
+        ds = []
+        for other in others:
+            if other.id is None:
+                msg = "You must save all other instances before defining a relationship"
+                raise ReferenceNotSavedError, msg
+            setattr(other, "%s_id" % self.args['as'], self.inst.id)
+            setattr(other, "%s_type" % self.args['as'], self.thisclass.__name__)
+            ds.append(other.save())
+        return defer.DeferredList(ds)        
 
 
     def _update(self, _, others):
@@ -127,7 +158,10 @@ class HasMany(Relationship):
         Set the objects that caller has.
 
         @return: A C{Deferred}.
-        """                
+        """
+        if self.args.has_key('as'):
+            return self._set_polymorphic(others)
+        
         tablename = self.otherklass.tablename()
         args = {self.thisname: None}
         where = ["%s = ?" % self.thisname, self.inst.id]        

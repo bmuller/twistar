@@ -14,6 +14,8 @@ class RelationshipTest(unittest.TestCase):
         self.avatar = yield Avatar(name="an avatar name", user_id=self.user.id).save()
         self.picture = yield Picture(name="a pic", size=10, user_id=self.user.id).save()
         self.favcolor = yield FavoriteColor(name="blue").save()
+        self.boy = yield Boy(name="Robert").save()
+        self.girl = yield Girl(name="Susan").save()
         self.config = Registry.getConfig()
 
 
@@ -21,6 +23,50 @@ class RelationshipTest(unittest.TestCase):
     def tearDown(self):
         yield tearDownDB(self)            
 
+
+    @inlineCallbacks
+    def test_polymorphic_get(self):
+        bob = yield Nickname(value="Bob", nicknameable_id=self.boy.id, nicknameable_type="Boy").save()
+        sue = yield Nickname(value="Sue", nicknameable_id=self.girl.id, nicknameable_type="Girl").save()        
+        
+        nicknames = yield self.boy.nicknames.get()
+        self.assertEqual(len(nicknames), 1)
+        self.assertEqual(nicknames[0], bob)
+        self.assertEqual(nicknames[0].value, bob.value)
+
+        nicknames = yield self.girl.nicknames.get()
+        self.assertEqual(len(nicknames), 1)
+        self.assertEqual(nicknames[0], sue)
+        self.assertEqual(nicknames[0].value, sue.value)
+
+        boy = yield bob.nicknameable.get()
+        self.assertEqual(boy, self.boy)
+
+        girl = yield sue.nicknameable.get()
+        self.assertEqual(girl, self.girl)
+
+
+    @inlineCallbacks
+    def test_polymorphic_set(self):
+        nicknameone = yield Nickname(value="Bob").save()
+        nicknametwo = yield Nickname(value="Bobby").save()        
+        yield self.boy.nicknames.set([nicknametwo, nicknameone])
+
+        nicknames = yield self.boy.nicknames.get()
+        self.assertEqual(len(nicknames), 2)
+        self.assertEqual(nicknames[0], nicknameone)
+        self.assertEqual(nicknames[1], nicknametwo)
+
+        boy = yield nicknameone.nicknameable.get()
+        self.assertEqual(boy, self.boy)
+
+        nickname = yield Nickname(value="Suzzy").save()
+        yield nickname.nicknameable.set(self.girl)
+        nicknames = yield self.girl.nicknames.get()
+        self.assertEqual(len(nicknames), 1)
+        self.assertEqual(nicknames[0], nickname)
+        self.assertEqual(nicknames[0].value, nickname.value)
+        
 
     @inlineCallbacks
     def test_belongs_to(self):

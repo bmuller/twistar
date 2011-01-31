@@ -28,5 +28,15 @@ class FakeObject(DBObject):
 class Coltest(DBObject):
     pass
 
-Registry.register(Picture, User, Avatar, FakeObject, FavoriteColor)
+class Boy(DBObject):
+    HASMANY = [{'name': 'nicknames', 'as': 'nicknameable'}]
 
+class Girl(DBObject):
+    HASMANY = [{'name': 'nicknames', 'as': 'nicknameable'}]    
+
+class Nickname(DBObject):
+    BELONGSTO = [{'name': 'nicknameable', 'polymorphic': True}]
+
+
+Registry.register(Picture, User, Avatar, FakeObject, FavoriteColor)
+Registry.register(Boy, Girl, Nickname)
