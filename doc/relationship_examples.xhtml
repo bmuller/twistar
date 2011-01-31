@@ -179,6 +179,61 @@ You can now get and set the users of favorite colors and the favorite colors of 
 methods).  Additionally, there is a <code>clear()</code> method that will clear all
 objects in a given relationship.
 </p>
+
+<h2>Polymorphic Relationships</h2>
+<p>
+  With a polymorhpic relationship, a model can belong to more than one other model using a single relationship.  For instance, take the example
+  where two models (say, <code class="python">Boy</code> and <code class="python">Girl</code>) both have many nicknames.  Each <code class="python">Nickname</code>
+  can belong to either a <code class="python">Boy</code> or a <code class="python">Girl</code>.  In this example, the tables for boys and girls may have whatever 
+attributes you would like; the nicknames table, though, needs two columns in addition to an id and a value column.  These columns are used to identify the id and
+type of the other class.  In this case, they will be called <code>nicknameable_id</code> and <code>nicknameable_type</code>.
+</p>
+<p>
+The classes look like this:
+</p>
+<pre class="python">
+from twistar.dbobject import DBObject
+from twistar.registry import Registry
+
+class Boy(DBObject):
+    HASMANY = [{'name': 'nicknames', 'as': 'nicknameable'}]
+
+class Girl(DBObject):
+    HASMANY = [{'name': 'nicknames', 'as': 'nicknameable'}]    
+
+class Nickname(DBObject):
+    BELONGSTO = [{'name': 'nicknameable', 'polymorphic': True}]
+
+Registry.register(Boy, Girl, Nickname)
+</pre>
+<p>
+The use is pretty simple, and follows the same form as you would expect with a traditional &quot;belongs to&quot; relationship.
+</p>
+<pre class="python">
+def sayHi(nicknameable):
+     print "Hello, my name is %s and I am a %s" % (nicknameable.name, nicknameable.__class__.__name__)
+
+def getPerson(nickname):
+     nickname.nicknameable.get().addCallback(sayHi)
+
+def setNickname(nickname, boyOrGirl):
+     boyOrGirl.nicknames.set([nickname]).addCallback(lambda _: getPerson(nickname))
+
+def boySaved(boy):
+     Nickname(value="Bob").save().addCallback(setNickname, boy)
+
+def girlSaved(girl):
+     Nickname(value="Susie").save().addCallback(setNickname, girl)
+
+Boy(name="Robert").save().addCallback(boySaved)
+Girl(name="Susan").save().addCallback(girlSaved)
+</pre>
+<p>
+You can see that the nicknames for the boy are set via <code class="python">boy.nicknames.set</code>; they are fetched as you would expect via <code class="python">boy.nicknames.get</code> 
+(with the same form for girls).  For each nickname, by calling <code class="python">nickname.nicknameable.get</code> you could end up with either a <code class="python">Boy</code> or a 
+<code class="python">Girl</code>.
+</p>
+
   </body>
 </html>
 

@@ -12,6 +12,7 @@ Twistar currently features:
 * Support for object relational models that can be queried asynchronously
 * A simple interface to [DBAPI](http://www.python.org/dev/peps/pep-0249/) objects
 * A framework to support any relational database that has a module that implements the [Python Database API Specification v2.0](http://www.python.org/dev/peps/pep-0249/) (MySQL, PostgreSQL, and SQLite are all supported now)
+* Support for object polymorphism
 * Unit tests
 
 # Quick Example For Those In A Rush 

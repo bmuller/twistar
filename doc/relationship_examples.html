@@ -18,7 +18,7 @@
   <body bgcolor="white">
     <h1 class="title">Relationship Examples</h1>
     <p><a href="index.html">Documentation Index</a></p>
-    <div class="toc"><ol><li><a href="#auto0">Has One</a></li><li><a href="#auto1">Has Many</a></li><li><a href="#auto2">Belongs To</a></li><li><a href="#auto3">Has and Belongs To Many</a></li></ol></div>
+    <div class="toc"><ol><li><a href="#auto0">Has One</a></li><li><a href="#auto1">Has Many</a></li><li><a href="#auto2">Belongs To</a></li><li><a href="#auto3">Has and Belongs To Many</a></li><li><a href="#auto4">Polymorphic Relationships</a></li></ol></div>
     <div class="content">
     <span/>
 <p>Twistar is an <a href="http://en.wikipedia.org/wiki/Object-relational_mapping" shape="rect">Object Relational Mapper (ORM)</a>.  
@@ -265,6 +265,89 @@ You can now get and set the users of favorite colors and the favorite colors of 
 methods).  Additionally, there is a <code>clear()</code> method that will clear all
 objects in a given relationship.
 </p>
+
+<h2>Polymorphic Relationships<a name="auto4"/></h2>
+<p>
+  With a polymorhpic relationship, a model can belong to more than one other model using a single relationship.  For instance, take the example
+  where two models (say, <code class="python">Boy</code> and <code class="python">Girl</code>) both have many nicknames.  Each <code class="python">Nickname</code>
+  can belong to either a <code class="python">Boy</code> or a <code class="python">Girl</code>.  In this example, the tables for boys and girls may have whatever 
+attributes you would like; the nicknames table, though, needs two columns in addition to an id and a value column.  These columns are used to identify the id and
+type of the other class.  In this case, they will be called <code>nicknameable_id</code> and <code>nicknameable_type</code>.
+</p>
+<p>
+The classes look like this:
+</p>
+<pre class="python"><p class="py-linenumber"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+</p><span class="py-src-keyword">from</span> <span class="py-src-variable">twistar</span>.<span class="py-src-variable">dbobject</span> <span class="py-src-keyword">import</span> <span class="py-src-variable">DBObject</span>
+<span class="py-src-keyword">from</span> <span class="py-src-variable">twistar</span>.<span class="py-src-variable">registry</span> <span class="py-src-keyword">import</span> <span class="py-src-variable">Registry</span>
+
+<span class="py-src-keyword">class</span> <span class="py-src-identifier">Boy</span>(<span class="py-src-parameter">DBObject</span>):
+    <span class="py-src-variable">HASMANY</span> = [{<span class="py-src-string">'name'</span>: <span class="py-src-string">'nicknames'</span>, <span class="py-src-string">'as'</span>: <span class="py-src-string">'nicknameable'</span>}]
+
+<span class="py-src-keyword">class</span> <span class="py-src-identifier">Girl</span>(<span class="py-src-parameter">DBObject</span>):
+    <span class="py-src-variable">HASMANY</span> = [{<span class="py-src-string">'name'</span>: <span class="py-src-string">'nicknames'</span>, <span class="py-src-string">'as'</span>: <span class="py-src-string">'nicknameable'</span>}]    
+
+<span class="py-src-keyword">class</span> <span class="py-src-identifier">Nickname</span>(<span class="py-src-parameter">DBObject</span>):
+    <span class="py-src-variable">BELONGSTO</span> = [{<span class="py-src-string">'name'</span>: <span class="py-src-string">'nicknameable'</span>, <span class="py-src-string">'polymorphic'</span>: <span class="py-src-variable">True</span>}]
+
+<span class="py-src-variable">Registry</span>.<span class="py-src-variable">register</span>(<span class="py-src-variable">Boy</span>, <span class="py-src-variable">Girl</span>, <span class="py-src-variable">Nickname</span>)
+</pre>
+<p>
+The use is pretty simple, and follows the same form as you would expect with a traditional &quot;belongs to&quot; relationship.
+</p>
+<pre class="python"><p class="py-linenumber"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+</p><span class="py-src-keyword">def</span> <span class="py-src-identifier">sayHi</span>(<span class="py-src-parameter">nicknameable</span>):
+     <span class="py-src-keyword">print</span> <span class="py-src-string">&quot;Hello, my name is %s and I am a %s&quot;</span> % (<span class="py-src-variable">nicknameable</span>.<span class="py-src-variable">name</span>, <span class="py-src-variable">nicknameable</span>.<span class="py-src-variable">__class__</span>.<span class="py-src-variable">__name__</span>)
+
+<span class="py-src-keyword">def</span> <span class="py-src-identifier">getPerson</span>(<span class="py-src-parameter">nickname</span>):
+     <span class="py-src-variable">nickname</span>.<span class="py-src-variable">nicknameable</span>.<span class="py-src-variable">get</span>().<span class="py-src-variable">addCallback</span>(<span class="py-src-variable">sayHi</span>)
+
+<span class="py-src-keyword">def</span> <span class="py-src-identifier">setNickname</span>(<span class="py-src-parameter">nickname</span>, <span class="py-src-parameter">boyOrGirl</span>):
+     <span class="py-src-variable">boyOrGirl</span>.<span class="py-src-variable">nicknames</span>.<span class="py-src-variable">set</span>([<span class="py-src-variable">nickname</span>]).<span class="py-src-variable">addCallback</span>(<span class="py-src-keyword">lambda</span> <span class="py-src-variable">_</span>: <span class="py-src-variable">getPerson</span>(<span class="py-src-variable">nickname</span>))
+
+<span class="py-src-keyword">def</span> <span class="py-src-identifier">boySaved</span>(<span class="py-src-parameter">boy</span>):
+     <span class="py-src-variable">Nickname</span>(<span class="py-src-variable">value</span>=<span class="py-src-string">&quot;Bob&quot;</span>).<span class="py-src-variable">save</span>().<span class="py-src-variable">addCallback</span>(<span class="py-src-variable">setNickname</span>, <span class="py-src-variable">boy</span>)
+
+<span class="py-src-keyword">def</span> <span class="py-src-identifier">girlSaved</span>(<span class="py-src-parameter">girl</span>):
+     <span class="py-src-variable">Nickname</span>(<span class="py-src-variable">value</span>=<span class="py-src-string">&quot;Susie&quot;</span>).<span class="py-src-variable">save</span>().<span class="py-src-variable">addCallback</span>(<span class="py-src-variable">setNickname</span>, <span class="py-src-variable">girl</span>)
+
+<span class="py-src-variable">Boy</span>(<span class="py-src-variable">name</span>=<span class="py-src-string">&quot;Robert&quot;</span>).<span class="py-src-variable">save</span>().<span class="py-src-variable">addCallback</span>(<span class="py-src-variable">boySaved</span>)
+<span class="py-src-variable">Girl</span>(<span class="py-src-variable">name</span>=<span class="py-src-string">&quot;Susan&quot;</span>).<span class="py-src-variable">save</span>().<span class="py-src-variable">addCallback</span>(<span class="py-src-variable">girlSaved</span>)
+</pre>
+<p>
+You can see that the nicknames for the boy are set via <code class="python">boy.nicknames.set</code>; they are fetched as you would expect via <code class="python">boy.nicknames.get</code> 
+(with the same form for girls).  For each nickname, by calling <code class="python">nickname.nicknameable.get</code> you could end up with either a <code class="python">Boy</code> or a 
+<code class="python">Girl</code>.
+</p>
+
   </div>
 
     <p><a href="index.html">Documentation Index</a></p>
