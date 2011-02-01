@@ -250,8 +250,8 @@ class DBObject(Validator):
                 continue
             value = getattr(self, col, None)
             if (value != None or includeBlank):
-                if isinstance(value, unicode):
-                    h[col] = unicode(value)
+                if isinstance(value, unicode) or isinstance(value, str):
+                    h[col] = value
                 else:
                     h[col] = str(value)
         return h
