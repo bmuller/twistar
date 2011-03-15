@@ -90,7 +90,8 @@ class InteractionBase:
         if id is not None:
             where = ["id = ?", id]
             one = True
-        if limit is not None and int(limit) == 1:
+
+        if not isinstance(limit, tuple) and limit is not None and int(limit) == 1:
             one = True
             
         q = "SELECT %s FROM %s" % (select, tablename)
@@ -103,7 +104,10 @@ class InteractionBase:
         if orderby is not None:
             q += " ORDER BY " + orderby
         if limit is not None:
-            q += " LIMIT " + str(limit)
+	    if isinstance(limit, tuple):
+		q += " LIMIT %s OFFSET %s "%( limit[0], limit[1] )
+	    else:
+            	q += " LIMIT " + str(limit)
         return Registry.DBPOOL.runInteraction(self._doselect, q, args, tablename, one)
 
 
