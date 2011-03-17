@@ -103,11 +103,12 @@ class InteractionBase:
             q += " GROUP BY " + group
         if orderby is not None:
             q += " ORDER BY " + orderby
-        if limit is not None:
-	    if isinstance(limit, tuple):
-		q += " LIMIT %s OFFSET %s "%( limit[0], limit[1] )
-	    else:
-            	q += " LIMIT " + str(limit)
+            
+        if limit is not None and isinstance(limit, tuple):
+            q += " LIMIT %s OFFSET %s " % (limit[0], limit[1])
+        elif isinstance(limit, tuple):
+            q += " LIMIT " + str(limit)
+            
         return Registry.DBPOOL.runInteraction(self._doselect, q, args, tablename, one)
 
 
