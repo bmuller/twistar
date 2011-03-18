@@ -76,6 +76,8 @@ class InteractionBase:
 
         @param limit: Integer limit on the number of results.  If this value is 1, then the result
         will be a single dictionary.  Otherwise, if C{id} is not specified, an array will be returned.
+        This can also be a tuple, where the first value is the integer limit and the second value is
+        an integer offset.  In the case that an offset is specified, an array will always be returned.
 
         @param orderby: String describing how to order the results.
 
@@ -104,9 +106,9 @@ class InteractionBase:
         if orderby is not None:
             q += " ORDER BY " + orderby
             
-        if limit is not None and isinstance(limit, tuple):
-            q += " LIMIT %s OFFSET %s " % (limit[0], limit[1])
-        elif isinstance(limit, tuple):
+        if isinstance(limit, tuple):
+            q += " LIMIT %s OFFSET %s" % (limit[0], limit[1])
+        elif limit is not None:
             q += " LIMIT " + str(limit)
             
         return Registry.DBPOOL.runInteraction(self._doselect, q, args, tablename, one)
