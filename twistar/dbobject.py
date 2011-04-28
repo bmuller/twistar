@@ -8,6 +8,7 @@ from twisted.internet import defer
 from twistar.registry import Registry
 from twistar.relationships import Relationship
 from twistar.exceptions import InvalidRelationshipError, DBObjectSaveError, ReferenceNotSavedError
+from twistar.exceptions import TransactionNotStartedError, TransactionAlreadyStartedError
 from twistar.utils import createInstances, deferredDict
 from twistar.validation import Validator, Errors
 
@@ -58,10 +59,16 @@ class DBObject(Validator):
     # it will be of the form {'othername': <BelongsTo instance>, 'anothername': <HasMany instance>}
     RELATIONSHIP_CACHE = None
 
-    def __init__(self, **kwargs):
+    # this will hold an optional t.e.a.Transaction instance that can be used to put many
+    # ORM operation into a single transaction.
+    _txn = None
+
+    def __init__(self, transaction=None, **kwargs):
         """
         Constructor.  DO NOT OVERWRITE.  Use the L{DBObject.afterInit} method.
-        
+
+	@param transaction: An optional t.e.a.Transaction object       
+ 
         @param kwargs: An optional dictionary containing the properties that
         should be initially set for this object.
 
@@ -70,6 +77,7 @@ class DBObject(Validator):
         self.id = None
         self._deleted = False
         self.errors = Errors()
+	self._txn = transaction
         self.updateAttrs(kwargs)
         self._config = Registry.getConfig()
 
@@ -438,6 +446,41 @@ class DBObject(Validator):
         def _exists(result):
             return result is not None
         return klass.find(where=where, limit=1).addCallback(_exists)
+
+
+    def transaction(self):
+	"""
+	Init a new database transaction. If already set, returns the one active.
+	"""
+	if self._txn is None:
+		self._txn = self._config.startTxn()
+		return self._txn
+	else:
+		raise TransactionAlreadyStartedError("Transaction already started. Call commit or rollback to close it")
+
+
+    def rollback(self):
+	"""
+	Rollback current object transaction. Clean up transaction once finished.
+	"""
+	if self._txn is None:
+		raise TransactionNotStartedError("Cannot call commit without a transaction")
+	else:
+		def _resetTxn(result):
+			self._txn = None
+		return self._config.rollback(self).addCallback(_resetTxn)
+
+
+    def commit(self):
+	"""
+	Commits current object transaction. Clean up transaction once finished.
+	"""
+	if self._txn is None:
+		raise TransactionNotStartedError("Cannot call commit without a transaction")
+	else:
+		def _resetTxn(result):
+			self._txn = None
+		return self._config.commit(self).addCallback(_resetTxn)
 
 
     def __str__(self):

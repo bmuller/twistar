@@ -1,11 +1,14 @@
 """
 Base module for interfacing with databases.
 """
+import sys
 
 from twisted.python import log
 
+from twisted.internet import reactor, threads
+
 from twistar.registry import Registry        
-from twistar.exceptions import ImaginaryTableError
+from twistar.exceptions import ImaginaryTableError, TransactionNotStartedError
 
 class InteractionBase:
     """
@@ -51,6 +54,18 @@ class InteractionBase:
         """        
         self.log(query, args, kwargs)
         return Registry.DBPOOL.runQuery(query, *args, **kwargs)
+
+
+    def startTxn(self):
+        """
+	Start a transaction. 
+
+	@return: a C{t.e.a.Transaction} instance
+        """    
+	txn = {}    
+	txn['connection'] = Registry.DBPOOL.connectionFactory(Registry.DBPOOL)
+	txn['transaction'] = Registry.DBPOOL.transactionFactory(Registry.DBPOOL, txn['connection'])	
+	return txn
 
 
     def executeTxn(self, txn, query, *args, **kwargs):
@@ -308,7 +323,10 @@ class InteractionBase:
             self.insert(tablename, vals, txn)
             obj.id = self.getLastInsertID(txn)
             return obj
-        return Registry.DBPOOL.runInteraction(_doinsert)
+	if obj._txn is not None:
+        	return self.runWithTransaction(_doinsert, obj._txn)
+	else:
+        	return Registry.DBPOOL.runInteraction(_doinsert)
 
 
     def updateObj(self, obj):
@@ -325,7 +343,10 @@ class InteractionBase:
             vals = obj.toHash(cols, exclude=['id'])
             return self.update(tablename, vals, where=['id = ?', obj.id], txn=txn)
         # We don't want to return the cursor - so add a blank callback returning the obj
-        return Registry.DBPOOL.runInteraction(_doupdate).addCallback(lambda _: obj)    
+	if obj._txn is not None:
+        	return self.runWithTransaction(_doupdate, obj._txn).addCallback(lambda _: obj)
+	else:
+        	return Registry.DBPOOL.runInteraction(_doupdate).addCallback(lambda _: obj)    
 
 
     def refreshObj(self, obj):
@@ -371,5 +392,69 @@ class InteractionBase:
         colnames = self.escapeColNames(args.keys())
         setstring = ",".join([key + " = %s" for key in colnames])
         return (setstring, args.values())
+
+    
+    def commit(self, obj):
+	return threads.deferToThreadPool(reactor, Registry.DBPOOL.threadpool, self._commit, obj._txn)
+
+
+    def _commit(self, transaction):
+	conn = transaction['connection']
+       	trans = transaction['transaction']
+
+	if trans._cursor is None:
+		raise TransactionNotStartedError("Cannot call commit without a transaction")
+
+	try:
+		trans.close()
+		conn.commit()
+	except:
+        	excType, excValue, excTraceback = sys.exc_info()
+		try:
+			conn.rollback()
+		except:
+			log.err(None, "Rollback failed")
+		raise excType, excValue, excTraceback
+
+
+    def rollback(self, obj):
+	return threads.deferToThreadPool(reactor, Registry.DBPOOL.threadpool, self._rollback, obj._txn)
+
+
+    def _rollback(self, transaction):
+	conn = transaction['connection']
+       	trans = transaction['transaction']
+
+	if trans._cursor is None:
+		raise TransactionNotStartedError("Cannot call rollback without a transaction")
+
+	try:
+		trans.close()
+		conn.rollback()
+	except:
+        	excType, excValue, excTraceback = sys.exc_info()
+		raise excType, excValue, excTraceback
+
+
+    def runWithTransaction(self, interaction, transaction, *args, **kw):
+	return threads.deferToThreadPool(reactor, Registry.DBPOOL.threadpool,
+					 self._runWithTransaction,
+					 interaction, transaction, *args, **kw)
+
+
+    def _runWithTransaction(self, interaction, transaction, *args, **kw):
+	conn = transaction['connection']
+       	trans = transaction['transaction']
+
+	if trans._cursor is None:
+		raise TransactionNotStartedError("Cannot call transaction without a transaction")
+
+	try:
+		result = interaction(trans, *args, **kw)
+		return result
+	except:
+        	excType, excValue, excTraceback = sys.exc_info()
+		# conn.rollback here?
+		raise excType, excValue, excTraceback
 
 

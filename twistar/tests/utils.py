@@ -4,8 +4,8 @@ from twisted.internet import defer
 from twistar.dbobject import DBObject
 from twistar.registry import Registry
 
-from sqlite_config import initDB, tearDownDB
-#from mysql_config import initDB, tearDownDB
+#from sqlite_config import initDB, tearDownDB
+from mysql_config import initDB, tearDownDB
 #from postgres_config import initDB, tearDownDB
 
 class User(DBObject):
@@ -37,6 +37,12 @@ class Girl(DBObject):
 class Nickname(DBObject):
     BELONGSTO = [{'name': 'nicknameable', 'polymorphic': True}]
 
+class Pen(DBObject):
+    pass
+
+class Table(DBObject):
+    pass
 
 Registry.register(Picture, User, Avatar, FakeObject, FavoriteColor)
 Registry.register(Boy, Girl, Nickname)
+Registry.register(Pen, Table)
