@@ -4,8 +4,8 @@ from twisted.internet import defer
 from twistar.dbobject import DBObject
 from twistar.registry import Registry
 
-#from sqlite_config import initDB, tearDownDB
-from mysql_config import initDB, tearDownDB
+from sqlite_config import initDB, tearDownDB
+#from mysql_config import initDB, tearDownDB
 #from postgres_config import initDB, tearDownDB
 
 class User(DBObject):

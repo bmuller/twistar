@@ -277,7 +277,10 @@ class DBObject(Validator):
             oldid = self.id
             self.id = None
             self._deleted = True
-            return self.__class__.deleteAll(where=["id = ?", oldid])
+	    if self._txn is not None:
+            	return self.__class__.deleteAll(where=["id = ?", oldid], txn=self._txn['transaction'])
+	    else:
+            	return self.__class__.deleteAll(where=["id = ?", oldid])
 
         def _deleteOnSuccess(result):
             if result == False:
@@ -417,7 +420,7 @@ class DBObject(Validator):
 
 
     @classmethod
-    def deleteAll(klass, where=None):
+    def deleteAll(klass, where=None, txn=None):
         """
         Delete all instances of C{klass} in the database.
 
@@ -428,7 +431,7 @@ class DBObject(Validator):
         """
         config = Registry.getConfig()
         tablename = klass.tablename()
-        return config.delete(tablename, where)
+        return config.delete(tablename, where, txn)
 
 
     @classmethod

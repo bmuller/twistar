@@ -225,7 +225,7 @@ class InteractionBase:
         return result[0][0]
     
 
-    def delete(self, tablename, where=None):
+    def delete(self, tablename, where=None, txn=None):
         """
         Delete from the given tablename.
 
@@ -239,6 +239,8 @@ class InteractionBase:
         if where is not None:
             wherestr, args = self.whereToString(where)
             q += " WHERE " + wherestr
+        if txn is not None:
+            return self.executeTxn(txn, q, args)
         return self.executeOperation(q, args)
 
 

@@ -2,7 +2,7 @@ from twisted.trial import unittest
 from twisted.enterprise import adbapi
 from twisted.internet.defer import inlineCallbacks
 
-from twistar.exceptions import ReferenceNotSavedError, TransactionNotStartedError, TransactionAlreadyStartedError
+from twistar.exceptions import TransactionNotStartedError, TransactionAlreadyStartedError, DBObjectSaveError
 
 from utils import *
 
@@ -188,3 +188,42 @@ class TransactionTest(unittest.TestCase):
 	new_pen = yield Pen.find(another_pen.id)
 	self.assertEqual(new_pen.len, 20)
 
+    @inlineCallbacks
+    def test_delete(self):
+    	pen = Pen(color="red", len=10)
+	pen.transaction()
+	yield pen.save()
+	yield pen.commit()
+
+	new_pen = yield Pen.find(pen.id)
+	self.assertEqual(new_pen.id, pen.id)
+
+	pen.transaction()
+	yield pen.delete()
+	yield pen.commit()
+
+	new_pen = None
+	new_pen = yield Pen.find(pen.id, limit=1)
+	self.assertEqual(new_pen, None)
+
+
+    @inlineCallbacks
+    def test_delete_with_rollback(self):
+    	pen = Pen(color="red", len=10)
+	pen.transaction()
+	yield pen.save()
+	yield pen.commit()
+
+	new_pen = yield Pen.find(pen.id)
+	self.assertEqual(new_pen.id, pen.id)
+
+	pen.transaction()
+	yield pen.delete()
+
+	self.assertRaises(DBObjectSaveError, pen.save)
+
+	yield pen.rollback()
+
+	new_pen = None
+	new_pen = yield Pen.find(pen.id, limit=1)
+	self.assertEqual(new_pen.color, pen.color)
