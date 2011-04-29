@@ -60,7 +60,7 @@ class InteractionBase:
         """
 	Start a transaction. 
 
-	@return: a C{t.e.a.Transaction} instance
+	@return: a C{dict} containing a C{t.e.a.Transaction} and C{t.e.a.Connection} instances
         """    
 	txn = {}    
 	txn['connection'] = Registry.DBPOOL.connectionFactory(Registry.DBPOOL)
@@ -232,6 +232,9 @@ class InteractionBase:
         @param where: Conditional of the same form as the C{where} parameter in L{DBObject.find}.
         If given, the rows deleted will be restricted to ones matching this conditional.
 
+        @param txn: If txn is given it will be used for the query,
+        otherwise a typical runQuery will be used
+
         @return: A C{Deferred}.        
         """
         q = "DELETE FROM %s" % tablename
@@ -397,6 +400,11 @@ class InteractionBase:
 
     
     def commit(self, obj):
+	"""
+	Commits current obj transaction.
+
+        @return: A C{Deferred}
+	"""
 	return threads.deferToThreadPool(reactor, Registry.DBPOOL.threadpool, self._commit, obj._txn)
 
 
@@ -420,6 +428,11 @@ class InteractionBase:
 
 
     def rollback(self, obj):
+	"""
+	Rollback current obj transaction.
+
+        @return: A C{Deferred}
+	"""
 	return threads.deferToThreadPool(reactor, Registry.DBPOOL.threadpool, self._rollback, obj._txn)
 
 
@@ -439,6 +452,33 @@ class InteractionBase:
 
 
     def runWithTransaction(self, interaction, transaction, *args, **kw):
+	"""
+	Interact with the database and return the result, using the given transaction and connection.
+	Inspired from twisted.enterprise.adbapi.ConnectionPool.runInteraction
+
+	The 'interaction' is a callable object which will be executed in a thread using a pooled connection. 
+	It will be passed an C{Transaction} object as an argument (whose interface is identical to that of 
+	the database cursor for your DB-API module of choice), and its results will be returned as a Deferred. 
+	If running the method raises an exception, the transaction will NOT be rolled back. 
+	The transaction will NOT be committed automatically, you have to call commit on the transaction.
+
+	NOTE that the function you pass is *not* run in the main thread: you may have to worry 
+ 	about thread-safety in the function you pass to this if it tries to use non-local objects.
+
+	@param interaction: a callable object whose first argument
+	    is an L{adbapi.Transaction}.
+
+	@param transaction: a C {dict} containing containing a C{t.e.a.Transaction} and C{t.e.a.Connection} instances
+
+	@param *args: additional positional arguments to be passed
+	    to interaction
+
+	@param **kw: keyword arguments to be passed to interaction
+
+	@return: a Deferred which will fire the return value of
+	    'interaction(Transaction(...), *args, **kw)', or a Failure.
+
+	"""
 	return threads.deferToThreadPool(reactor, Registry.DBPOOL.threadpool,
 					 self._runWithTransaction,
 					 interaction, transaction, *args, **kw)

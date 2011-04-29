@@ -454,6 +454,8 @@ class DBObject(Validator):
     def transaction(self):
 	"""
 	Init a new database transaction. If already set, returns the one active.
+
+	@return: A C{dict} containing a {t.e.a.Connection} and C{t.e.a.Transaction}
 	"""
 	if self._txn is None:
 		self._txn = self._config.startTxn()
@@ -464,7 +466,7 @@ class DBObject(Validator):
 
     def rollback(self):
 	"""
-	Rollback current object transaction. Clean up transaction once finished.
+	Rollback current object transaction(s). Clean up transaction once finished.
 	"""
 	if self._txn is None:
 		raise TransactionNotStartedError("Cannot call commit without a transaction")
@@ -476,7 +478,7 @@ class DBObject(Validator):
 
     def commit(self):
 	"""
-	Commits current object transaction. Clean up transaction once finished.
+	Commits current object transaction(s). Clean up transaction once finished.
 	"""
 	if self._txn is None:
 		raise TransactionNotStartedError("Cannot call commit without a transaction")
