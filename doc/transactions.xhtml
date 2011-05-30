@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Transaction Examples</title>
+  </head>
+
+  <body>
+    <h1>Transaction Examples</h1>
+<p>From Active Record Transactions:
+<q>Transactions are protective blocks where SQL statements are only permanent if they can all succeed as one atomic action. 
+The classic example is a transfer between two accounts where you can only have a deposit if the withdrawal succeeded and vice versa. 
+Transactions enforce the integrity of the database and guard the data against program errors or database break-downs. 
+So basically you should use transactions whenever you have a number of statements that must be executed together or not at all.</q>
+</p>
+<p>
+More examples can be found in the <code class="python">RelationshipTest</code> class.
+</p>
+  <h2>Initialization</h2>
+  <p>Given a <code class="python">DBObject</code> class instance, developer can call <code class="python">transaction()</code>
+  method on it, causing the start of the transaction. The method will return a transaction identifier.</p>
+<pre class="python">
+from twisted.internet.defer import inlineCallback
+
+@inlineCallbacks
+def do_some_pen_operations:
+	pen = Pen()
+	txn = pen.transaction()
+</pre>
+
+  <h2>Commit / Rollback</h2>
+  <p>In this example, we will be using a <code class="python">Pen</code> object, which extends <code class="python">DBObject</code> class.</p>
+  <p>WARNING: pseudocode!</p>
+<pre class="python">
+from twisted.internet.defer import inlineCallback
+
+@inlineCallbacks
+def do_some_pen_operations:
+	pen = Pen()
+	pen.transaction()
+
+	pen.owner = "Luke"
+	yield pen.save()
+
+	pen.use() /* do something with the pen */
+
+	/* check if the owner is still Luke, after use */
+	if pen.owner == "Luke":
+		yield pen.commit()
+	else:
+		/* owner has changed, cannot apply ! */
+		yield pen.rollback()
+	
+</pre>
+  <h2>Different classes in a single transaction</h2>
+  <p>In this example, we use the same transaction across different objects, to bind all operations on them to same handler.</p>
+  <p>WARNING: pseudocode!</p>
+<pre class="python">
+from twisted.internet.defer import inlineCallback
+
+@inlineCallbacks
+def do_some_financial_operations:
+	money = Balance()
+	txn = money.transaction()
+
+	account = Account(transaction=txn)
+
+	money.total = 100
+	account.total = -100
+
+
+	yield money.save()
+	yield account.save()
+
+	try:
+		money.commit() /* or account.commit() */
+	except Exception, e:
+		money.rollback()
+</pre>
+  <h2>Notes</h2>
+  <p>After a rollback or commit, the transaction is closed. You need to call <code class="python">transaction()</code> method again
+  to start a new transaction.</p>
+  <p>Depending on DB engine, you cannot call save on a <code class="python">DBObject</code> instance if same class type has an open transaction
+  (not committed yet), because the code will block waiting for the first transaction to finish. If the first open transaction will finish
+  before operation timeout, save will be done, otherwise will get executed after the transaction timeout of the DB engine. For example :</p>
+  <p>WARNING: pseudocode!</p>
+<pre class="python">
+from twisted.internet.defer import inlineCallback
+
+@inlineCallbacks
+def do_some_pen_operations:
+	pen = Pen(color="red")
+	pen.transaction() /* start transaction only on pen */
+
+	another_pen = Pen(color="blue") /* this is not in transaction */
+
+	yield pen.save()
+
+	/* code will block here utile DB engine timeout ... after that save() will throw an Exception */
+	/* after that, neither pen and another_pen are really save, the former because commit has not been called,
+	 * the latter because the DB engine throwed an exception */
+	yield another_pen.save()
+
+	/* not executed at all */
+	yield pen.commit()
+	yield another_pen.commit()
+</pre>
+
+  </body>
+</html>
+
