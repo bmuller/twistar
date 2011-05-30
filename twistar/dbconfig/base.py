@@ -62,9 +62,9 @@ class InteractionBase:
 
 	@return: a C{dict} containing a C{t.e.a.Transaction} and C{t.e.a.Connection} instances
         """    
-	txn = {}    
-	txn['connection'] = Registry.DBPOOL.connectionFactory(Registry.DBPOOL)
-	txn['transaction'] = Registry.DBPOOL.transactionFactory(Registry.DBPOOL, txn['connection'])	
+	txn = None
+	connection = Registry.DBPOOL.connectionFactory(Registry.DBPOOL)
+	txn = Registry.DBPOOL.transactionFactory(Registry.DBPOOL, connection])	
 	return txn
 
 
@@ -409,8 +409,8 @@ class InteractionBase:
 
 
     def _commit(self, transaction):
-	conn = transaction['connection']
        	trans = transaction['transaction']
+	conn = trans._connection
 
 	if trans._cursor is None:
 		raise TransactionNotStartedError("Cannot call commit without a transaction")
@@ -437,8 +437,8 @@ class InteractionBase:
 
 
     def _rollback(self, transaction):
-	conn = transaction['connection']
        	trans = transaction['transaction']
+	conn = trans._connection
 
 	if trans._cursor is None:
 		raise TransactionNotStartedError("Cannot call rollback without a transaction")
@@ -485,8 +485,8 @@ class InteractionBase:
 
 
     def _runWithTransaction(self, interaction, transaction, *args, **kw):
-	conn = transaction['connection']
        	trans = transaction['transaction']
+	conn = trans._connection
 
 	if trans._cursor is None:
 		raise TransactionNotStartedError("Cannot call transaction without a transaction")
