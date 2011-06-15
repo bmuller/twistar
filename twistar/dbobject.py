@@ -397,6 +397,16 @@ class DBObject(Validator):
 
     @classmethod
     def count(klass, where=None):
+        """
+        Count instances of a given class.
+
+        @param where: A C{list} whose first element is the string version of the
+        condition with question marks in place of any parameters.  Further elements
+        of the C{list} should be the values of any parameters specified.  For instance,
+        C{['first_name = ? AND age > ?', 'Bob', 21]}.
+
+        @return: A C{Deferred} which returns the total number of db records to a callback.
+        """
         def get_result(res):
             return res[0]['count(*)']
         config = Registry.getConfig()
