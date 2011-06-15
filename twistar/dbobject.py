@@ -406,6 +406,13 @@ class DBObject(Validator):
         d = config.select(klass.tablename(), id, where, group, limit, orderby)
         return d.addCallback(createInstances, klass)
 
+    @classmethod
+    def count(klass, where=None):
+        def get_result(res):
+            return res[0]['count(*)']
+        config = Registry.getConfig()
+        d = config.select(klass.tablename(), where=where, select='count(*)')
+        return d.addCallback(get_result)
 
     @classmethod
     def all(klass):
