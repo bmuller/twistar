@@ -128,6 +128,15 @@ class HasMany(Relationship):
         return self.otherklass.find(**kwargs)
 
     def count(self, **kwargs):
+        """
+        Get the number of objects that caller has.
+
+        @param kwargs: These could include C{limit}, C{orderby}, or any others included in
+        C{DBObject.find}.  If a C{where} parameter is included, the conditions will
+        be added to the ones already imposed by default in this method.
+
+        @return: A C{Deferred} with the number of objects.
+        """
         if self.args.has_key('as'):
             w = "%s_id = ? AND %s_type = ?" % (self.args['as'], self.args['as'])
             where = [w, self.inst.id, self.thisclass.__name__]
@@ -271,6 +280,15 @@ class HABTM(Relationship):
         return self.dbconfig.select(tablename, where=where).addCallback(_get)
 
     def count(self, **kwargs):
+        """
+        Get the number of objects that caller has.
+
+        @param kwargs: These could include C{limit}, C{orderby}, or any others included in
+        C{InteractionBase.select}.  If a C{where} parameter is included, the conditions will
+        be added to the ones already imposed by default in this method.
+
+        @return: A C{Deferred} with the number of objects.
+        """
         def _get(rows):
             if len(rows) == 0:
                 return defer.succeed(0)
