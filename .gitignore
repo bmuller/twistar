@@ -2,3 +2,6 @@ apidoc/*
 doc/*.html
 *.pyc
 _trial_temp
+build
+dist
+twistar.egg-info

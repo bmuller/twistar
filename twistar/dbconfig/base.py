@@ -373,3 +373,16 @@ class InteractionBase:
         return (setstring, args.values())
 
 
+    def count(self, tablename, where=None):
+        """
+        Get the number of rows in the given table (optionally, that meet the given where criteria).
+
+        @param tablename: The tablename to count rows from.
+
+        @param where: Conditional of the same form as the C{where} parameter in L{DBObject.find}.
+
+        @return: A C{Deferred} that returns the number of rows.
+        """
+        d = self.select(tablename, where=where, select='count(*)')
+        d.addCallback(lambda res: res[0]['count(*)'])
+        return d

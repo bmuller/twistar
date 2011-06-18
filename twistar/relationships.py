@@ -115,17 +115,9 @@ class HasMany(Relationship):
 
         @return: A C{Deferred} with a callback value of a list of objects.
         """
-        if self.args.has_key('as'):
-            w = "%s_id = ? AND %s_type = ?" % (self.args['as'], self.args['as'])
-            where = [w, self.inst.id, self.thisclass.__name__]
-        else:
-            where = ["%s = ?" % self.thisname, self.inst.id]
-            
-        if kwargs.has_key('where'):
-            kwargs['where'] = joinWheres(where, kwargs['where'])
-        else:
-            kwargs['where'] = where
+        kwargs = self._generateGetArgs(kwargs)
         return self.otherklass.find(**kwargs)
+
 
     def count(self, **kwargs):
         """
@@ -137,17 +129,24 @@ class HasMany(Relationship):
 
         @return: A C{Deferred} with the number of objects.
         """
+        kwargs = self._generateGetArgs(kwargs)
+        return self.otherklass.count(**kwargs)
+
+
+    def _generateGetArgs(self, kwargs):
         if self.args.has_key('as'):
             w = "%s_id = ? AND %s_type = ?" % (self.args['as'], self.args['as'])
             where = [w, self.inst.id, self.thisclass.__name__]
         else:
             where = ["%s = ?" % self.thisname, self.inst.id]
-            
+
         if kwargs.has_key('where'):
             kwargs['where'] = joinWheres(where, kwargs['where'])
         else:
             kwargs['where'] = where
-        return self.otherklass.count(**kwargs)
+
+        return kwargs
+
 
     def _set_polymorphic(self, others):
         ds = []
@@ -279,6 +278,7 @@ class HABTM(Relationship):
         where = ["%s = ?" % self.thisname, self.inst.id]
         return self.dbconfig.select(tablename, where=where).addCallback(_get)
 
+
     def count(self, **kwargs):
         """
         Get the number of objects that caller has.
@@ -297,16 +297,13 @@ class HABTM(Relationship):
             ids = [str(row[self.othername]) for row in rows]
             where = ["id IN (%s)" % ",".join(ids)]
             if kwargs.has_key('where'):
-                kwargs['where'] = joinWheres(where, kwargs['where'])
-            else:
-                kwargs['where'] = where
-            kwargs['select'] = 'count(*)'
-            d = self.dbconfig.select(self.otherklass.tablename(), **kwargs)
-            return d.addCallback(lambda x: x[0]['count(*)'])
+                where = joinWheres(where, kwargs['where'])
+            return self.dbconfig.count(self.otherklass.tablename(), where=where)
 
         tablename = self.tablename()
         where = ["%s = ?" % self.thisname, self.inst.id]
         return self.dbconfig.select(tablename, where=where).addCallback(_get)
+
 
     def _set(self, _, others):
         args = []
