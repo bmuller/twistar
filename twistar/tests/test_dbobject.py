@@ -54,6 +54,15 @@ class DBObjectTest(unittest.TestCase):
         resultids = [result.id for result in results]
         self.assertEqual(ids, resultids)
 
+    @inlineCallbacks
+    def test_count(self):
+        ids = []
+        for _ in range(3):
+            user = yield User(first_name="blah").save()
+            ids.append(user.id)
+        yield User(first_name="not blah").save()
+        results = yield User.count(where=["first_name = ?", "blah"])
+        self.assertEqual(3, results)
 
     @inlineCallbacks
     def test_all(self):
@@ -64,6 +73,15 @@ class DBObjectTest(unittest.TestCase):
         results = yield User.all()
         resultids = [result.id for result in results]
         self.assertEqual(ids, resultids)
+
+    @inlineCallbacks
+    def test_count_all(self):
+        ids = [self.user.id]
+        for _ in range(3):
+            user = yield User(first_name="blah").save()
+            ids.append(user.id)
+        results = yield User.count()
+        self.assertEqual(4, results)
 
     
     @inlineCallbacks
