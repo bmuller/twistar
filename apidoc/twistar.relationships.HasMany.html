@@ -43,25 +43,37 @@
     <td><span>Get the objects that caller has.</span></td>
   </tr><tr class="method">
     
-    <td class="lineno">156</td>
+    <td class="lineno">122</td>
+    <td>Method</td>
+    <td><a href="twistar.relationships.HasMany.html#count">count</a></td>
+    <td><span>Get the number of objects that caller has.</span></td>
+  </tr><tr class="method">
+    
+    <td class="lineno">176</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#set">set</a></td>
     <td><span>Set the objects that caller has.</span></td>
   </tr><tr class="method">
     
-    <td class="lineno">174</td>
+    <td class="lineno">194</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#clear">clear</a></td>
     <td><span>Clear the list of all of the objects that this one has.</span></td>
   </tr><tr class="method private">
     
-    <td class="lineno">131</td>
+    <td class="lineno">136</td>
+    <td>Method</td>
+    <td><a href="twistar.relationships.HasMany.html#_generateGetArgs">_generateGetArgs</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method private">
+    
+    <td class="lineno">151</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#_set_polymorphic">_set_polymorphic</a></td>
     <td><span class="undocumented">Undocumented</span></td>
   </tr><tr class="method private">
     
-    <td class="lineno">143</td>
+    <td class="lineno">163</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#_update">_update</a></td>
     <td><span class="undocumented">Undocumented</span></td>
@@ -109,10 +121,16 @@
     <td><span>Constructor.</span></td>
   </tr><tr class="method">
     
-    <td class="lineno">174</td>
+    <td class="lineno">194</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#clear">clear</a></td>
     <td><span>Clear the list of all of the objects that this one has.</span></td>
+  </tr><tr class="method">
+    
+    <td class="lineno">122</td>
+    <td>Method</td>
+    <td><a href="twistar.relationships.HasMany.html#count">count</a></td>
+    <td><span>Get the number of objects that caller has.</span></td>
   </tr><tr class="method">
     
     <td class="lineno">108</td>
@@ -121,19 +139,25 @@
     <td><span>Get the objects that caller has.</span></td>
   </tr><tr class="method">
     
-    <td class="lineno">156</td>
+    <td class="lineno">176</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#set">set</a></td>
     <td><span>Set the objects that caller has.</span></td>
   </tr><tr class="method private">
     
-    <td class="lineno">131</td>
+    <td class="lineno">136</td>
+    <td>Method</td>
+    <td><a href="twistar.relationships.HasMany.html#_generateGetArgs">_generateGetArgs</a></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method private">
+    
+    <td class="lineno">151</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#_set_polymorphic">_set_polymorphic</a></td>
     <td><span class="undocumented">Undocumented</span></td>
   </tr><tr class="method private">
     
-    <td class="lineno">143</td>
+    <td class="lineno">163</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#_update">_update</a></td>
     <td><span class="undocumented">Undocumented</span></td>
@@ -164,6 +188,45 @@ is included, the conditions will be added to the ones already imposed by
 default in this method.
 </td></tr><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2">A <code>Deferred</code> with a callback value of a list of objects.
 </td></tr></table></div>
+  </div>
+</div><div class="function">
+  <a name="twistar.relationships.HasMany.count">
+    
+  </a>
+  <a name="count">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    count(self, **kwargs):
+    
+  </div>
+  <div class="functionBody">
+    
+    <div>Get the number of objects that caller has.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">kwargs</td><td>These could include <code>limit</code>, <code>orderby</code>, or any others
+included in <code>DBObject.find</code>.  If a <code>where</code> parameter 
+is included, the conditions will be added to the ones already imposed by 
+default in this method.
+</td></tr><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2">A <code>Deferred</code> with the number of objects.
+</td></tr></table></div>
+  </div>
+</div><div class="function">
+  <a name="twistar.relationships.HasMany._generateGetArgs">
+    
+  </a>
+  <a name="_generateGetArgs">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    _generateGetArgs(self, kwargs):
+    
+  </div>
+  <div class="functionBody">
+    
+    <div class="undocumented">Undocumented</div>
   </div>
 </div><div class="function">
   <a name="twistar.relationships.HasMany._set_polymorphic">
@@ -236,7 +299,7 @@ default in this method.
   </div>
 </div>
     <address>
-      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2011-01-31 17:28:55.
+      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2011-06-18 14:10:55.
     </address>
   </body>
 </html>

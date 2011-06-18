@@ -93,88 +93,95 @@ but</span></td>
     <td><span>Select rows from a table.</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">137</td>
+    <td class="lineno">144</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#insert">insert</a></td>
     <td><span>Insert a row into the given table.</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">163</td>
+    <td class="lineno">170</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#escapeColNames">escapeColNames</a></td>
     <td><span>Escape column names for insertion into SQL statement.</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">174</td>
+    <td class="lineno">181</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#insertMany">insertMany</a></td>
     <td><span>Insert many values into a table.</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">194</td>
+    <td class="lineno">201</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#getLastInsertID">getLastInsertID</a></td>
     <td><span>Using the given txn, get the id of the last inserted row.</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">206</td>
+    <td class="lineno">213</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#delete">delete</a></td>
     <td><span>Delete from the given tablename.</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">223</td>
+    <td class="lineno">230</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#update">update</a></td>
     <td><span>Update a row into the given table.</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">252</td>
+    <td class="lineno">259</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#valuesToHash">valuesToHash</a></td>
     <td><span>Given a row from a database query (values), create</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">274</td>
+    <td class="lineno">281</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#getSchema">getSchema</a></td>
     <td><span>Get the schema (in the form of a list of column names) for</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">288</td>
+    <td class="lineno">295</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#insertObj">insertObj</a></td>
     <td><span>Insert the given object into its table.</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">307</td>
+    <td class="lineno">314</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#updateObj">updateObj</a></td>
     <td><span>Update the given object's row in the object's table.</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">324</td>
+    <td class="lineno">331</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#refreshObj">refreshObj</a></td>
     <td><span>Update the given object based on the information in the object's 
 table.</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">338</td>
+    <td class="lineno">345</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#whereToString">whereToString</a></td>
     <td><span>Convert a conditional to the form needed for a query using the DBAPI.  
 For instance,</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">354</td>
+    <td class="lineno">361</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#updateArgsToString">updateArgsToString</a></td>
     <td><span>Convert dictionary of arguments to form needed for DB update query.  
 This method will</span></td>
+  </tr><tr class="basemethod">
+    
+    <td class="lineno">376</td>
+    <td>Method</td>
+    <td><a href="twistar.dbconfig.base.InteractionBase.html#count">count</a></td>
+    <td><span>Get the number of rows in the given table (optionally, that meet the 
+given where criteria).</span></td>
   </tr><tr class="basemethod private">
     
-    <td class="lineno">110</td>
+    <td class="lineno">117</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#_doselect">_doselect</a></td>
     <td><span>Private callback for actual select query call.</span></td>
@@ -195,13 +202,20 @@ This method will</span></td>
   </tr>
 <tr class="basemethod">
     
-    <td class="lineno">206</td>
+    <td class="lineno">376</td>
+    <td>Method</td>
+    <td><a href="twistar.dbconfig.base.InteractionBase.html#count">count</a></td>
+    <td><span>Get the number of rows in the given table (optionally, that meet the 
+given where criteria).</span></td>
+  </tr><tr class="basemethod">
+    
+    <td class="lineno">213</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#delete">delete</a></td>
     <td><span>Delete from the given tablename.</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">163</td>
+    <td class="lineno">170</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#escapeColNames">escapeColNames</a></td>
     <td><span>Escape column names for insertion into SQL statement.</span></td>
@@ -228,19 +242,19 @@ but</span></td>
     <td><span>Execute given query within the given transaction.  Also, makes call</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">194</td>
+    <td class="lineno">201</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#getLastInsertID">getLastInsertID</a></td>
     <td><span>Using the given txn, get the id of the last inserted row.</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">274</td>
+    <td class="lineno">281</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#getSchema">getSchema</a></td>
     <td><span>Get the schema (in the form of a list of column names) for</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">137</td>
+    <td class="lineno">144</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#insert">insert</a></td>
     <td><span>Insert a row into the given table.</span></td>
@@ -253,13 +267,13 @@ but</span></td>
 string like <code>&quot;(%s,%s,%s)&quot;</code>.</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">174</td>
+    <td class="lineno">181</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#insertMany">insertMany</a></td>
     <td><span>Insert many values into a table.</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">288</td>
+    <td class="lineno">295</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#insertObj">insertObj</a></td>
     <td><span>Insert the given object into its table.</span></td>
@@ -272,7 +286,7 @@ string like <code>&quot;(%s,%s,%s)&quot;</code>.</span></td>
 <code>twisted.python.log.msg</code> if</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">324</td>
+    <td class="lineno">331</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#refreshObj">refreshObj</a></td>
     <td><span>Update the given object based on the information in the object's 
@@ -285,39 +299,39 @@ table.</span></td>
     <td><span>Select rows from a table.</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">223</td>
+    <td class="lineno">230</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#update">update</a></td>
     <td><span>Update a row into the given table.</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">354</td>
+    <td class="lineno">361</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#updateArgsToString">updateArgsToString</a></td>
     <td><span>Convert dictionary of arguments to form needed for DB update query.  
 This method will</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">307</td>
+    <td class="lineno">314</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#updateObj">updateObj</a></td>
     <td><span>Update the given object's row in the object's table.</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">252</td>
+    <td class="lineno">259</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#valuesToHash">valuesToHash</a></td>
     <td><span>Given a row from a database query (values), create</span></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">338</td>
+    <td class="lineno">345</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#whereToString">whereToString</a></td>
     <td><span>Convert a conditional to the form needed for a query using the DBAPI.  
 For instance,</span></td>
   </tr><tr class="basemethod private">
     
-    <td class="lineno">110</td>
+    <td class="lineno">117</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#_doselect">_doselect</a></td>
     <td><span>Private callback for actual select query call.</span></td>
@@ -347,7 +361,7 @@ string like <code>&quot;(%s,%s,%s)&quot;</code>.<table class="fieldTable"></tabl
   </div>
 </div>
     <address>
-      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2011-01-31 17:28:55.
+      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2011-06-18 14:10:55.
     </address>
   </body>
 </html>
