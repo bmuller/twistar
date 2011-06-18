@@ -9,7 +9,3 @@ test:
 
 install:
 	python setup.py install
-
-updatedocs:
-	rsync -v ./doc/* coop.butterfat.net:/var/www/twistar/doc
-	rsync -v ./apidoc/* coop.butterfat.net:/var/www/twistar/apidoc
