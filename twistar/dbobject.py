@@ -67,7 +67,7 @@ class DBObject(Validator):
         """
         Constructor.  DO NOT OVERWRITE.  Use the L{DBObject.afterInit} method.
 
-	@param transaction: An optional t.e.a.Transaction object       
+        @param transaction: An optional t.e.a.Transaction object       
  
         @param kwargs: An optional dictionary containing the properties that
         should be initially set for this object.
@@ -77,7 +77,7 @@ class DBObject(Validator):
         self.id = None
         self._deleted = False
         self.errors = Errors()
-	self._txn = transaction
+        self._txn = transaction
         self.updateAttrs(kwargs)
         self._config = Registry.getConfig()
 
@@ -277,10 +277,10 @@ class DBObject(Validator):
             oldid = self.id
             self.id = None
             self._deleted = True
-	    if self._txn is not None:
-            	return self.__class__.deleteAll(where=["id = ?", oldid], txn=self._txn)
-	    else:
-            	return self.__class__.deleteAll(where=["id = ?", oldid])
+            if self._txn is not None:
+                return self.__class__.deleteAll(where=["id = ?", oldid], txn=self._txn)
+            else:
+                return self.__class__.deleteAll(where=["id = ?", oldid])
 
         def _deleteOnSuccess(result):
             if result == False:
@@ -485,40 +485,40 @@ class DBObject(Validator):
 
 
     def transaction(self):
-	"""
-	Init a new database transaction. If already set, returns the one active.
+        """
+        Init a new database transaction. If already set, returns the one active.
 
-	@return: A C{dict} containing a {t.e.a.Connection} and C{t.e.a.Transaction}
-	"""
-	if self._txn is None:
-		self._txn = self._config.startTxn()
-		return self._txn
-	else:
-		raise TransactionAlreadyStartedError("Transaction already started. Call commit or rollback to close it")
+        @return: A C{dict} containing a {t.e.a.Connection} and C{t.e.a.Transaction}
+        """
+        if self._txn is None:
+                self._txn = self._config.startTxn()
+                return self._txn
+        else:
+                raise TransactionAlreadyStartedError("Transaction already started. Call commit or rollback to close it")
 
 
     def rollback(self):
-	"""
-	Rollback current object transaction(s). Clean up transaction once finished.
-	"""
-	if self._txn is None:
-		raise TransactionNotStartedError("Cannot call commit without a transaction")
-	else:
-		def _resetTxn(result):
-			self._txn = None
-		return self._config.rollback(self).addCallback(_resetTxn)
+        """
+        Rollback current object transaction(s). Clean up transaction once finished.
+        """
+        if self._txn is None:
+                raise TransactionNotStartedError("Cannot call commit without a transaction")
+        else:
+                def _resetTxn(result):
+                        self._txn = None
+                return self._config.rollback(self).addCallback(_resetTxn)
 
 
     def commit(self):
-	"""
-	Commits current object transaction(s). Clean up transaction once finished.
-	"""
-	if self._txn is None:
-		raise TransactionNotStartedError("Cannot call commit without a transaction")
-	else:
-		def _resetTxn(result):
-			self._txn = None
-		return self._config.commit(self).addCallback(_resetTxn)
+        """
+        Commits current object transaction(s). Clean up transaction once finished.
+        """
+        if self._txn is None:
+                raise TransactionNotStartedError("Cannot call commit without a transaction")
+        else:
+                def _resetTxn(result):
+                        self._txn = None
+                return self._config.commit(self).addCallback(_resetTxn)
 
 
     def __str__(self):
