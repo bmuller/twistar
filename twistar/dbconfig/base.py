@@ -58,14 +58,14 @@ class InteractionBase:
 
     def startTxn(self):
         """
-	Start a transaction. 
+        Start a transaction. 
 
-	@return: a C{dict} containing a C{t.e.a.Transaction} and C{t.e.a.Connection} instances
+        @return: a C{dict} containing a C{t.e.a.Transaction} and C{t.e.a.Connection} instances
         """    
-	txn = None
-	connection = Registry.DBPOOL.connectionFactory(Registry.DBPOOL)
-	txn = Registry.DBPOOL.transactionFactory(Registry.DBPOOL, connection)	
-	return txn
+        txn = None
+        connection = Registry.DBPOOL.connectionFactory(Registry.DBPOOL)
+        txn = Registry.DBPOOL.transactionFactory(Registry.DBPOOL, connection)   
+        return txn
 
 
     def executeTxn(self, txn, query, *args, **kwargs):
@@ -328,10 +328,10 @@ class InteractionBase:
             self.insert(tablename, vals, txn)
             obj.id = self.getLastInsertID(txn)
             return obj
-	if obj._txn is not None:
-        	return self.runWithTransaction(_doinsert, obj._txn)
-	else:
-        	return Registry.DBPOOL.runInteraction(_doinsert)
+        if obj._txn is not None:
+                return self.runWithTransaction(_doinsert, obj._txn)
+        else:
+                return Registry.DBPOOL.runInteraction(_doinsert)
 
 
     def updateObj(self, obj):
@@ -348,10 +348,10 @@ class InteractionBase:
             vals = obj.toHash(cols, exclude=['id'])
             return self.update(tablename, vals, where=['id = ?', obj.id], txn=txn)
         # We don't want to return the cursor - so add a blank callback returning the obj
-	if obj._txn is not None:
-        	return self.runWithTransaction(_doupdate, obj._txn).addCallback(lambda _: obj)
-	else:
-        	return Registry.DBPOOL.runInteraction(_doupdate).addCallback(lambda _: obj)    
+        if obj._txn is not None:
+                return self.runWithTransaction(_doupdate, obj._txn).addCallback(lambda _: obj)
+        else:
+                return Registry.DBPOOL.runInteraction(_doupdate).addCallback(lambda _: obj)    
 
 
     def refreshObj(self, obj):
@@ -415,102 +415,102 @@ class InteractionBase:
 
 
     def runWithTransaction(self, interaction, transaction, *args, **kw):
-	"""
-	Interact with the database and return the result, using the given transaction and connection.
-	Inspired from twisted.enterprise.adbapi.ConnectionPool.runInteraction
+        """
+        Interact with the database and return the result, using the given transaction and connection.
+        Inspired from twisted.enterprise.adbapi.ConnectionPool.runInteraction
 
-	The 'interaction' is a callable object which will be executed in a thread using a pooled connection. 
-	It will be passed an C{Transaction} object as an argument (whose interface is identical to that of 
-	the database cursor for your DB-API module of choice), and its results will be returned as a Deferred. 
-	If running the method raises an exception, the transaction will NOT be rolled back. 
-	The transaction will NOT be committed automatically, you have to call commit on the transaction.
+        The 'interaction' is a callable object which will be executed in a thread using a pooled connection. 
+        It will be passed an C{Transaction} object as an argument (whose interface is identical to that of 
+        the database cursor for your DB-API module of choice), and its results will be returned as a Deferred. 
+        If running the method raises an exception, the transaction will NOT be rolled back. 
+        The transaction will NOT be committed automatically, you have to call commit on the transaction.
 
-	NOTE that the function you pass is *not* run in the main thread: you may have to worry 
- 	about thread-safety in the function you pass to this if it tries to use non-local objects.
+        NOTE that the function you pass is *not* run in the main thread: you may have to worry 
+        about thread-safety in the function you pass to this if it tries to use non-local objects.
 
-	@param interaction: a callable object whose first argument
-	    is an L{adbapi.Transaction}.
+        @param interaction: a callable object whose first argument
+            is an L{adbapi.Transaction}.
 
-	@param transaction: a C {dict} containing containing a C{t.e.a.Transaction} and C{t.e.a.Connection} instances
+        @param transaction: a C {dict} containing containing a C{t.e.a.Transaction} and C{t.e.a.Connection} instances
 
-	@param *args: additional positional arguments to be passed
-	    to interaction
+        @param *args: additional positional arguments to be passed
+            to interaction
 
-	@param **kw: keyword arguments to be passed to interaction
+        @param **kw: keyword arguments to be passed to interaction
 
-	@return: a Deferred which will fire the return value of
-	    'interaction(Transaction(...), *args, **kw)', or a Failure.
+        @return: a Deferred which will fire the return value of
+            'interaction(Transaction(...), *args, **kw)', or a Failure.
 
-	"""
-	return threads.deferToThreadPool(reactor, Registry.DBPOOL.threadpool,
-					 self._runWithTransaction,
-					 interaction, transaction, *args, **kw)
+        """
+        return threads.deferToThreadPool(reactor, Registry.DBPOOL.threadpool,
+                                         self._runWithTransaction,
+                                         interaction, transaction, *args, **kw)
 
 
     def _runWithTransaction(self, interaction, transaction, *args, **kw):
-       	trans = transaction
-	conn = trans._connection
+        trans = transaction
+        conn = trans._connection
 
-	if trans._cursor is None:
-		raise TransactionNotStartedError("Cannot call transaction without a transaction")
+        if trans._cursor is None:
+                raise TransactionNotStartedError("Cannot call transaction without a transaction")
 
-	try:
-		result = interaction(trans, *args, **kw)
-		return result
-	except:
-        	excType, excValue, excTraceback = sys.exc_info()
-		# conn.rollback here?
-		raise excType, excValue, excTraceback
+        try:
+                result = interaction(trans, *args, **kw)
+                return result
+        except:
+                excType, excValue, excTraceback = sys.exc_info()
+                # conn.rollback here?
+                raise excType, excValue, excTraceback
 
 
     def commit(self, obj):
-	"""
-	Commits current obj transaction.
+        """
+        Commits current obj transaction.
 
         @return: A C{Deferred}
-	"""
-	return threads.deferToThreadPool(reactor, Registry.DBPOOL.threadpool, self._commit, obj._txn)
+        """
+        return threads.deferToThreadPool(reactor, Registry.DBPOOL.threadpool, self._commit, obj._txn)
 
 
     def _commit(self, transaction):
-       	trans = transaction
-	conn = trans._connection
+        trans = transaction
+        conn = trans._connection
 
-	if trans._cursor is None:
-		raise TransactionNotStartedError("Cannot call commit without a transaction")
+        if trans._cursor is None:
+                raise TransactionNotStartedError("Cannot call commit without a transaction")
 
-	try:
-		trans.close()
-		conn.commit()
-	except:
-        	excType, excValue, excTraceback = sys.exc_info()
-		try:
-			conn.rollback()
-		except:
-			log.err(None, "Rollback failed")
-		raise excType, excValue, excTraceback
+        try:
+                trans.close()
+                conn.commit()
+        except:
+                excType, excValue, excTraceback = sys.exc_info()
+                try:
+                        conn.rollback()
+                except:
+                        log.err(None, "Rollback failed")
+                raise excType, excValue, excTraceback
 
 
     def rollback(self, obj):
-	"""
-	Rollback current obj transaction.
+        """
+        Rollback current obj transaction.
 
         @return: A C{Deferred}
-	"""
-	return threads.deferToThreadPool(reactor, Registry.DBPOOL.threadpool, self._rollback, obj._txn)
+        """
+        return threads.deferToThreadPool(reactor, Registry.DBPOOL.threadpool, self._rollback, obj._txn)
 
 
     def _rollback(self, transaction):
-       	trans = transaction
-	conn = trans._connection
+        trans = transaction
+        conn = trans._connection
 
-	if trans._cursor is None:
-		raise TransactionNotStartedError("Cannot call rollback without a transaction")
+        if trans._cursor is None:
+                raise TransactionNotStartedError("Cannot call rollback without a transaction")
 
-	try:
-		trans.close()
-		conn.rollback()
-	except:
-        	excType, excValue, excTraceback = sys.exc_info()
-		raise excType, excValue, excTraceback
+        try:
+                trans.close()
+                conn.rollback()
+        except:
+                excType, excValue, excTraceback = sys.exc_info()
+                raise excType, excValue, excTraceback
 
