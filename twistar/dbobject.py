@@ -425,6 +425,22 @@ class DBObject(Validator):
         return d.addCallback(get_result)
 
     @classmethod
+    def count(klass, where=None):
+        """
+        Count instances of a given class.
+
+        @param where: An optional C{list} whose first element is the string version of the
+        condition with question marks in place of any parameters.  Further elements
+        of the C{list} should be the values of any parameters specified.  For instance,
+        C{['first_name = ? AND age > ?', 'Bob', 21]}.
+
+        @return: A C{Deferred} which returns the total number of db records to a callback.
+        """
+        config = Registry.getConfig()
+        return config.count(klass.tablename(), where=where)
+
+
+    @classmethod
     def all(klass):
         """
         Get all instances of the given class in the database.  Note that this is the

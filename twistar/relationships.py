@@ -115,17 +115,37 @@ class HasMany(Relationship):
 
         @return: A C{Deferred} with a callback value of a list of objects.
         """
+        kwargs = self._generateGetArgs(kwargs)
+        return self.otherklass.find(**kwargs)
+
+
+    def count(self, **kwargs):
+        """
+        Get the number of objects that caller has.
+
+        @param kwargs: These could include C{limit}, C{orderby}, or any others included in
+        C{DBObject.find}.  If a C{where} parameter is included, the conditions will
+        be added to the ones already imposed by default in this method.
+
+        @return: A C{Deferred} with the number of objects.
+        """
+        kwargs = self._generateGetArgs(kwargs)
+        return self.otherklass.count(**kwargs)
+
+
+    def _generateGetArgs(self, kwargs):
         if self.args.has_key('as'):
             w = "%s_id = ? AND %s_type = ?" % (self.args['as'], self.args['as'])
             where = [w, self.inst.id, self.thisclass.__name__]
         else:
             where = ["%s = ?" % self.thisname, self.inst.id]
-            
+
         if kwargs.has_key('where'):
             kwargs['where'] = joinWheres(where, kwargs['where'])
         else:
             kwargs['where'] = where
-        return self.otherklass.find(**kwargs)
+
+        return kwargs
 
     def count(self, **kwargs):
         """
@@ -307,6 +327,32 @@ class HABTM(Relationship):
         tablename = self.tablename()
         where = ["%s = ?" % self.thisname, self.inst.id]
         return self.dbconfig.select(tablename, where=where).addCallback(_get)
+
+    def count(self, **kwargs):
+        """
+        Get the number of objects that caller has.
+
+        @param kwargs: These could include C{limit}, C{orderby}, or any others included in
+        C{InteractionBase.select}.  If a C{where} parameter is included, the conditions will
+        be added to the ones already imposed by default in this method.
+
+        @return: A C{Deferred} with the number of objects.
+        """
+        def _get(rows):
+            if len(rows) == 0:
+                return defer.succeed(0)
+            if not kwargs.has_key('where'):
+                return defer.succeed(len(rows))
+            ids = [str(row[self.othername]) for row in rows]
+            where = ["id IN (%s)" % ",".join(ids)]
+            if kwargs.has_key('where'):
+                where = joinWheres(where, kwargs['where'])
+            return self.dbconfig.count(self.otherklass.tablename(), where=where)
+
+        tablename = self.tablename()
+        where = ["%s = ?" % self.thisname, self.inst.id]
+        return self.dbconfig.select(tablename, where=where).addCallback(_get)
+
 
     def _set(self, _, others):
         args = []
