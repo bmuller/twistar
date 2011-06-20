@@ -2,4 +2,6 @@ apidoc/*
 doc/*.html
 *.pyc
 _trial_temp
-\ No newline at end of file
+build
+dist
+twistar.egg-info
