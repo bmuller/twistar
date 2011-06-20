@@ -399,21 +399,55 @@ class InteractionBase:
         return (setstring, args.values())
 
 
-    def count(self, tablename, where=None):
-        """
-        Get the number of rows in the given table (optionally, that meet the given where criteria).
+    def runWithTransaction(self, interaction, transaction, *args, **kw):
+	"""
+	Interact with the database and return the result, using the given transaction and connection.
+	Inspired from twisted.enterprise.adbapi.ConnectionPool.runInteraction
 
-        @param tablename: The tablename to count rows from.
+	The 'interaction' is a callable object which will be executed in a thread using a pooled connection. 
+	It will be passed an C{Transaction} object as an argument (whose interface is identical to that of 
+	the database cursor for your DB-API module of choice), and its results will be returned as a Deferred. 
+	If running the method raises an exception, the transaction will NOT be rolled back. 
+	The transaction will NOT be committed automatically, you have to call commit on the transaction.
 
-        @param where: Conditional of the same form as the C{where} parameter in L{DBObject.find}.
+	NOTE that the function you pass is *not* run in the main thread: you may have to worry 
+ 	about thread-safety in the function you pass to this if it tries to use non-local objects.
 
-        @return: A C{Deferred} that returns the number of rows.
-        """
-        d = self.select(tablename, where=where, select='count(*)')
-        d.addCallback(lambda res: res[0]['count(*)'])
-        return d
+	@param interaction: a callable object whose first argument
+	    is an L{adbapi.Transaction}.
 
-    
+	@param transaction: a C {dict} containing containing a C{t.e.a.Transaction} and C{t.e.a.Connection} instances
+
+	@param *args: additional positional arguments to be passed
+	    to interaction
+
+	@param **kw: keyword arguments to be passed to interaction
+
+	@return: a Deferred which will fire the return value of
+	    'interaction(Transaction(...), *args, **kw)', or a Failure.
+
+	"""
+	return threads.deferToThreadPool(reactor, Registry.DBPOOL.threadpool,
+					 self._runWithTransaction,
+					 interaction, transaction, *args, **kw)
+
+
+    def _runWithTransaction(self, interaction, transaction, *args, **kw):
+       	trans = transaction['transaction']
+	conn = trans._connection
+
+	if trans._cursor is None:
+		raise TransactionNotStartedError("Cannot call transaction without a transaction")
+
+	try:
+		result = interaction(trans, *args, **kw)
+		return result
+	except:
+        	excType, excValue, excTraceback = sys.exc_info()
+		# conn.rollback here?
+		raise excType, excValue, excTraceback
+
+
     def commit(self, obj):
 	"""
 	Commits current obj transaction.
@@ -464,54 +498,4 @@ class InteractionBase:
 	except:
         	excType, excValue, excTraceback = sys.exc_info()
 		raise excType, excValue, excTraceback
-
-
-    def runWithTransaction(self, interaction, transaction, *args, **kw):
-	"""
-	Interact with the database and return the result, using the given transaction and connection.
-	Inspired from twisted.enterprise.adbapi.ConnectionPool.runInteraction
-
-	The 'interaction' is a callable object which will be executed in a thread using a pooled connection. 
-	It will be passed an C{Transaction} object as an argument (whose interface is identical to that of 
-	the database cursor for your DB-API module of choice), and its results will be returned as a Deferred. 
-	If running the method raises an exception, the transaction will NOT be rolled back. 
-	The transaction will NOT be committed automatically, you have to call commit on the transaction.
-
-	NOTE that the function you pass is *not* run in the main thread: you may have to worry 
- 	about thread-safety in the function you pass to this if it tries to use non-local objects.
-
-	@param interaction: a callable object whose first argument
-	    is an L{adbapi.Transaction}.
-
-	@param transaction: a C {dict} containing containing a C{t.e.a.Transaction} and C{t.e.a.Connection} instances
-
-	@param *args: additional positional arguments to be passed
-	    to interaction
-
-	@param **kw: keyword arguments to be passed to interaction
-
-	@return: a Deferred which will fire the return value of
-	    'interaction(Transaction(...), *args, **kw)', or a Failure.
-
-	"""
-	return threads.deferToThreadPool(reactor, Registry.DBPOOL.threadpool,
-					 self._runWithTransaction,
-					 interaction, transaction, *args, **kw)
-
-
-    def _runWithTransaction(self, interaction, transaction, *args, **kw):
-       	trans = transaction['transaction']
-	conn = trans._connection
-
-	if trans._cursor is None:
-		raise TransactionNotStartedError("Cannot call transaction without a transaction")
-
-	try:
-		result = interaction(trans, *args, **kw)
-		return result
-	except:
-        	excType, excValue, excTraceback = sys.exc_info()
-		# conn.rollback here?
-		raise excType, excValue, excTraceback
-
 
