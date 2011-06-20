@@ -64,7 +64,7 @@ class InteractionBase:
         """    
 	txn = None
 	connection = Registry.DBPOOL.connectionFactory(Registry.DBPOOL)
-	txn = Registry.DBPOOL.transactionFactory(Registry.DBPOOL, connection])	
+	txn = Registry.DBPOOL.transactionFactory(Registry.DBPOOL, connection)	
 	return txn
 
 
@@ -448,7 +448,7 @@ class InteractionBase:
 
 
     def _runWithTransaction(self, interaction, transaction, *args, **kw):
-       	trans = transaction['transaction']
+       	trans = transaction
 	conn = trans._connection
 
 	if trans._cursor is None:
@@ -473,7 +473,7 @@ class InteractionBase:
 
 
     def _commit(self, transaction):
-       	trans = transaction['transaction']
+       	trans = transaction
 	conn = trans._connection
 
 	if trans._cursor is None:
@@ -501,7 +501,7 @@ class InteractionBase:
 
 
     def _rollback(self, transaction):
-       	trans = transaction['transaction']
+       	trans = transaction
 	conn = trans._connection
 
 	if trans._cursor is None:

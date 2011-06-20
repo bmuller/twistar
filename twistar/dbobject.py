@@ -278,7 +278,7 @@ class DBObject(Validator):
             self.id = None
             self._deleted = True
 	    if self._txn is not None:
-            	return self.__class__.deleteAll(where=["id = ?", oldid], txn=self._txn['transaction'])
+            	return self.__class__.deleteAll(where=["id = ?", oldid], txn=self._txn)
 	    else:
             	return self.__class__.deleteAll(where=["id = ?", oldid])
 

@@ -21,8 +21,8 @@ class TransactionTest(unittest.TestCase):
     def test_init_start_transaction(self):
 	pen = Pen()
 	txn = pen.transaction()
-	self.assertTrue(isinstance(txn['transaction'], adbapi.Transaction))
-	self.assertTrue(isinstance(txn['connection'], adbapi.Connection))
+	self.assertTrue(isinstance(txn, adbapi.Transaction))
+	self.assertTrue(isinstance(txn._connection, adbapi.Connection))
 
 
     def test_init_with_transaction(self):
