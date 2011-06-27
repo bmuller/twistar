@@ -41,7 +41,7 @@ def joinWheres(wone, wtwo, joiner="AND"):
 
     @return: A joined version of the two given wheres.
     """
-    statement = ["%s %s %s" % (wone[0], joiner, wtwo[0])]
+    statement = ["(%s) %s (%s)" % (wone[0], joiner, wtwo[0])]
     args = wone[1:] + wtwo[1:]
     return statement + args
                 
