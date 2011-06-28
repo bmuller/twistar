@@ -44,7 +44,23 @@ def joinWheres(wone, wtwo, joiner="AND"):
     statement = ["(%s) %s (%s)" % (wone[0], joiner, wtwo[0])]
     args = wone[1:] + wtwo[1:]
     return statement + args
-                
+
+
+def joinMultipleWheres(wheres, joiner="AND"):
+    """
+    Take a list of wheres (of the same format as the C{where} parameter in the
+    function L{DBObject.find}) and join them.
+
+    @param wone: List of where clauses to join C{list}
+
+    @param joiner: Optional text for joining the two wheres.
+
+    @return: A joined version of the list of th given wheres.
+    """
+    f = lambda x, y: joinWheres(x, y, joiner)
+    wheres = [w for w in wheres if w]   # discard empty wheres
+    return reduce(f, wheres)
+
 
 def deferredDict(d):
     """
