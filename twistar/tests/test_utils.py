@@ -47,9 +47,9 @@ class UtilsTest(unittest.TestCase):
         
         first = ['first_name = ?', "First"]
         last = ['last_name = ?', "Last"]
-        second = ['age <> ?', 20]
+        age = ['age <> ?', 20]
 
-        where = utils.joinMultipleWheres([first, second, last], joiner='AND')
+        where = utils.joinMultipleWheres([first, last, age], joiner='AND')
 
         results = yield User.count(where=where)
         self.assertEqual(1, results)
