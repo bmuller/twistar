@@ -51,7 +51,7 @@ def joinMultipleWheres(wheres, joiner="AND"):
     Take a list of wheres (of the same format as the C{where} parameter in the
     function L{DBObject.find}) and join them.
 
-    @param wone: List of where clauses to join C{list}
+    @param wheres: List of where clauses to join C{list}
 
     @param joiner: Optional text for joining the two wheres.
 
