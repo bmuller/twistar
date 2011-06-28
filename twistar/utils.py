@@ -57,10 +57,11 @@ def joinMultipleWheres(wheres, joiner="AND"):
 
     @return: A joined version of the list of th given wheres.
     """
+    wheres = [w for w in wheres if w]   # discard empty wheres
     if not wheres:
         return []
+
     f = lambda x, y: joinWheres(x, y, joiner)
-    wheres = [w for w in wheres if w]   # discard empty wheres
     return reduce(f, wheres)
 
 
