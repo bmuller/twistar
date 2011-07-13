@@ -13,14 +13,10 @@ class PostgreSQLDBConfig(InteractionBase):
 
     def insertArgsToString(self, vals):
         if len(vals) > 0:
-            return "(" + ",".join(["%s" for _ in vals.items()]) + ")"            
+            return "(" + ",".join(["%s" for _ in vals.items()]) + ")"
         return "DEFAULT VALUES"
-            
-
-    
 
 
+    def escapeColNames(self, colnames):
+        return map(lambda x: '"%s"' % x, colnames)
 
-
-
-        
