@@ -55,7 +55,7 @@ def joinMultipleWheres(wheres, joiner="AND"):
 
     @param joiner: Optional text for joining the two wheres.
 
-    @return: A joined version of the list of th given wheres.
+    @return: A joined version of the list of the given wheres.
     """
     wheres = [w for w in wheres if w]   # discard empty wheres
     if not wheres:

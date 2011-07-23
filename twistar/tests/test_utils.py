@@ -44,7 +44,7 @@ class UtilsTest(unittest.TestCase):
     @inlineCallbacks
     def test_joinMultipleWheres(self):
         yield User(first_name="First", last_name="Last", age=20).save()
-        
+
         first = ['first_name = ?', "First"]
         last = ['last_name = ?', "Last"]
         age = ['age <> ?', 20]
