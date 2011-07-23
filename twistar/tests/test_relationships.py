@@ -54,8 +54,12 @@ class RelationshipTest(unittest.TestCase):
 
         nicknames = yield self.boy.nicknames.get()
         self.assertEqual(len(nicknames), 2)
-        self.assertEqual(nicknames[0], nicknameone)
-        self.assertEqual(nicknames[1], nicknametwo)
+        # since the insert is asynchronous - two may have been inserted
+        # before one
+        if not nicknames[0] == nicknametwo:
+            self.assertEqual(nicknames[0], nicknameone)
+        if not nicknames[1] == nicknameone:
+            self.assertEqual(nicknames[1], nicknametwo)
 
         boy = yield nicknameone.nicknameable.get()
         self.assertEqual(boy, self.boy)

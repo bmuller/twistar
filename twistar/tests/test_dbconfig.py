@@ -133,7 +133,8 @@ class DBConfigTest(unittest.TestCase):
         yield self.dbconfig.updateObj(coltest)
 
         tablename = Coltest.tablename()
-        ctest = yield self.dbconfig.select(tablename, where=['`select` = ?', args['select']], limit=1)
+        colnames = self.dbconfig.escapeColNames(["select"])
+        ctest = yield self.dbconfig.select(tablename, where=['%s = ?' % colnames[0], args['select']], limit=1)
 
         for key, value in args.items():
             self.assertEqual(value, ctest[key])
