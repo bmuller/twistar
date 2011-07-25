@@ -29,7 +29,32 @@ class UtilsTest(unittest.TestCase):
         results = yield User.count(where=where)
         self.assertEqual(1, results)
 
+
+    def test_joinMultipleWheres_empty_arg(self):
+        where = utils.joinMultipleWheres([], joiner='AND')
+        self.assertEqual(where, [])
     
+
+    def test_joinMultipleWheres_single_where(self):
+        where = ['first_name = ?', "First"]
+        joined_where = utils.joinMultipleWheres([where], joiner='AND')
+        self.assertEqual(where, joined_where)
+
+
+    @inlineCallbacks
+    def test_joinMultipleWheres(self):
+        yield User(first_name="First", last_name="Last", age=20).save()
+
+        first = ['first_name = ?', "First"]
+        last = ['last_name = ?', "Last"]
+        age = ['age <> ?', 20]
+
+        where = utils.joinMultipleWheres([first, last, age], joiner='AND')
+
+        results = yield User.count(where=where)
+        self.assertEqual(1, results)
+
+
     @inlineCallbacks
     def tearDown(self):
         yield tearDownDB(self)

@@ -15,12 +15,12 @@ def initDB(testKlass):
                        size INT, user_id INT)""") 
         txn.execute("""CREATE TABLE favorite_colors (id SERIAL PRIMARY KEY, name VARCHAR(255))""")
         txn.execute("""CREATE TABLE favorite_colors_users (favorite_color_id INT, user_id INT)""")
-        txn.execute("""CREATE TABLE coltests (id SERIAL PRIMARY KEY, `select` VARCHAR(255), `where` VARCHAR(255))""")
+        txn.execute("""CREATE TABLE coltests (id SERIAL PRIMARY KEY, "select" VARCHAR(255), "where" VARCHAR(255))""")
 
-        txn.execute("""CREATE TABLE boys (id SERIAL PRIMARY KEY, `name` VARCHAR(255))""")
-        txn.execute("""CREATE TABLE girls (id SERIAL PRIMARY KEY, `name` VARCHAR(255))""")
-        txn.execute("""CREATE TABLE nicknames (id SERIAL PRIMARY KEY, `value` VARCHAR(255), `nicknameable_id` INT,
-                       `nicknameable_type` VARCHAR(255))""")
+        txn.execute("""CREATE TABLE boys (id SERIAL PRIMARY KEY, "name" VARCHAR(255))""")
+        txn.execute("""CREATE TABLE girls (id SERIAL PRIMARY KEY, "name" VARCHAR(255))""")
+        txn.execute("""CREATE TABLE nicknames (id SERIAL PRIMARY KEY, "value" VARCHAR(255), "nicknameable_id" INT,
+                       "nicknameable_type" VARCHAR(255))""")
 
         txn.execute("""CREATE TABLE pens (id SERIAL PRIMARY KEY, color VARCHAR(255) UNIQUE, len INT)""");
         txn.execute("""CREATE TABLE tables (id SERIAL PRIMARY KEY, color VARCHAR(255) UNIQUE, weight INT)""");
