@@ -23,6 +23,15 @@ class DBObjectTest(unittest.TestCase):
 
 
     @inlineCallbacks
+    def test_count_save(self):
+        count = yield User.count()
+        self.assertEqual(count, 1)
+        self.user.first_name = "something else"
+        user = yield self.user.save()
+        self.assertEqual(user.first_name, "something else")
+
+
+    @inlineCallbacks
     def test_creation(self):
         # test creating blank object 
         u = yield User().save()
