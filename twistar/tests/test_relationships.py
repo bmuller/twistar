@@ -98,6 +98,9 @@ class RelationshipTest(unittest.TestCase):
         yield picture.user.clear()
         user = yield picture.user.get()
         self.assertEqual(user, None)
+        yield picture.refresh()
+        user = yield picture.user.get()
+        self.assertEqual(user, None)
 
 
     @inlineCallbacks
@@ -189,6 +192,11 @@ class RelationshipTest(unittest.TestCase):
         yield self.user.pictures.set(pics)
         yield self.user.pictures.clear()
         
+        userpics = yield self.user.pictures.get()
+        self.assertEqual(userpics, [])
+
+        # even go so far as to refetch user
+        user = yield User.find(self.user.id)
         userpics = yield self.user.pictures.get()
         self.assertEqual(userpics, [])
 

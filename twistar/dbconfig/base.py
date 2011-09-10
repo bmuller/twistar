@@ -322,7 +322,7 @@ class InteractionBase:
             tablename = klass.tablename()
             cols = self.getSchema(tablename, txn)
             
-            vals = obj.toHash(cols, exclude=['id'])
+            vals = obj.toHash(cols, includeBlank=True, exclude=['id'])
             return self.update(tablename, vals, where=['id = ?', obj.id], txn=txn)
         # We don't want to return the cursor - so add a blank callback returning the obj
         return Registry.DBPOOL.runInteraction(_doupdate).addCallback(lambda _: obj)    
