@@ -142,6 +142,20 @@ class RelationshipTest(unittest.TestCase):
 
 
     @inlineCallbacks
+    def test_has_many_get_same_find_args(self):
+        # First, make a few pics
+        ids = [self.picture.id]
+        for _ in range(3):
+            pic = yield Picture(user_id=self.user.id).save()
+            ids.append(pic.id)
+
+	args = {'orderby': None, 'where': None, 'group': None, 'limit': None}
+        pics = yield self.user.pictures.get(**args)
+	find_pics = yield Picture.find(**args)
+        self.assertEqual(pics, find_pics)
+
+
+    @inlineCallbacks
     def test_has_many_count_with_args(self):
         # First, make a few pics
         ids = [self.picture.id]
@@ -264,6 +278,24 @@ class RelationshipTest(unittest.TestCase):
         
         newcolor = yield self.user.favorite_colors.get(where=['name = ?','red'], limit=1)
         self.assertEqual(newcolor.id, color.id)
+
+
+    @inlineCallbacks
+    def test_habtm_get_same_find_args(self):
+        color = yield FavoriteColor(name="red").save()
+        colors = [self.favcolor, color]
+        colorids = [color.id for color in colors]
+
+        args = {'user_id': self.user.id, 'favorite_color_id': colors[0].id}
+        yield self.config.insert('favorite_colors_users', args)
+        args = {'user_id': self.user.id, 'favorite_color_id': colors[1].id}
+        yield self.config.insert('favorite_colors_users', args)
+        
+	args = {'orderby': None, 'where': None, 'group': None, 'limit': None}
+
+        newcolor = yield self.user.favorite_colors.get(**args)
+        newcolor_find = yield FavoriteColor.find(**args)
+        self.assertEqual(newcolor, newcolor_find)
 
 
     @inlineCallbacks

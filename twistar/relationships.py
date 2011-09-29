@@ -140,7 +140,7 @@ class HasMany(Relationship):
         else:
             where = ["%s = ?" % self.thisname, self.inst.id]
 
-        if kwargs.has_key('where'):
+        if kwargs.has_key('where') and kwargs['where']:
             kwargs['where'] = joinWheres(where, kwargs['where'])
         else:
             kwargs['where'] = where
@@ -267,7 +267,7 @@ class HABTM(Relationship):
                 return defer.succeed([])
             ids = [str(row[self.othername]) for row in rows]
             where = ["id IN (%s)" % ",".join(ids)]
-            if kwargs.has_key('where'):
+            if kwargs.has_key('where') and kwargs['where']:
                 kwargs['where'] = joinWheres(where, kwargs['where'])
             else:
                 kwargs['where'] = where
