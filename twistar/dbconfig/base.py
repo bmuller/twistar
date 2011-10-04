@@ -8,7 +8,9 @@ from twisted.python import log
 from twisted.internet import reactor, threads
 
 from twistar.registry import Registry        
-from twistar.exceptions import ImaginaryTableError, TransactionNotStartedError
+from twistar.exceptions import ImaginaryTableError
+from twistar.exceptions import CannotRefreshError
+from twistar.exceptions import TransactionNotStartedError
 
 class InteractionBase:
     """
