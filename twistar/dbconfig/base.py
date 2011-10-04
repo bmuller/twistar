@@ -115,9 +115,9 @@ class InteractionBase:
 
 
     def _build_select(self, tablename, id=None, where=None, group=None, limit=None, orderby=None, select=None):
-	"""
-	Private helper to actually build the query strings and it's args
-	"""
+        """
+        Private helper to actually build the query strings and it's args
+        """
         select = select or "*"
 
         if id is not None:
@@ -138,7 +138,7 @@ class InteractionBase:
         elif limit is not None:
             q += " LIMIT " + str(limit)
 
-	return q, args
+        return q, args
 
 
     def _doselect(self, txn, q, args, tablename, one=False):
