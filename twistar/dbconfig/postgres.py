@@ -20,8 +20,3 @@ class PostgreSQLDBConfig(InteractionBase):
     def escapeColNames(self, colnames):
         return map(lambda x: '"%s"' % x, colnames)
 
-
-    def count(self, tablename, where=None):
-        d = self.select(tablename, where=where, select='count(*)')
-        d.addCallback(lambda res: res[0]['count'])
-        return d
