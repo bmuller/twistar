@@ -129,6 +129,19 @@ class RelationshipTest(unittest.TestCase):
 
 
     @inlineCallbacks
+    def test_has_many_count_nocache(self):
+        # First, count comments
+        totalnum = yield self.user.comments.count()
+        self.assertEqual(totalnum, 0)
+
+        for _ in range(3):
+            pic = yield Comment(user_id=self.user.id).save()
+
+        totalnum = yield self.user.comments.count()
+        self.assertEqual(totalnum, 3)
+
+
+    @inlineCallbacks
     def test_has_many_get_with_args(self):
         # First, make a few pics
         ids = [self.picture.id]

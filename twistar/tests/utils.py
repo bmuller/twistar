@@ -9,11 +9,14 @@ from sqlite_config import initDB, tearDownDB
 #from postgres_config import initDB, tearDownDB
 
 class User(DBObject):
-    HASMANY = ['pictures']
+    HASMANY = ['pictures', 'comments']
     HASONE = ['avatar']
     HABTM = ['favorite_colors']
 
 class Picture(DBObject):
+    BELONGSTO = ['user']
+
+class Comment(DBObject):
     BELONGSTO = ['user']
 
 class Avatar(DBObject):
@@ -43,6 +46,6 @@ class Pen(DBObject):
 class Table(DBObject):
     pass
 
-Registry.register(Picture, User, Avatar, FakeObject, FavoriteColor)
+Registry.register(Picture, User, Comment, Avatar, FakeObject, FavoriteColor)
 Registry.register(Boy, Girl, Nickname)
 Registry.register(Pen, Table)
