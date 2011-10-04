@@ -102,15 +102,27 @@ class InteractionBase:
         Otherwise, an array of dictionaries are returned.
         """
         one = False
-        select = select or "*"
         
         if id is not None:
-            where = ["id = ?", id]
             one = True
 
         if not isinstance(limit, tuple) and limit is not None and int(limit) == 1:
             one = True
             
+        q, args = self._build_select( tablename, id, where, group, limit, orderby, select )
+
+        return Registry.DBPOOL.runInteraction(self._doselect, q, args, tablename, one)
+
+
+    def _build_select(self, tablename, id=None, where=None, group=None, limit=None, orderby=None, select=None):
+	"""
+	Private helper to actually build the query strings and it's args
+	"""
+        select = select or "*"
+
+        if id is not None:
+            where = ["id = ?", id]
+
         q = "SELECT %s FROM %s" % (select, tablename)
         args = []
         if where is not None:
@@ -125,8 +137,8 @@ class InteractionBase:
             q += " LIMIT %s OFFSET %s" % (limit[0], limit[1])
         elif limit is not None:
             q += " LIMIT " + str(limit)
-            
-        return Registry.DBPOOL.runInteraction(self._doselect, q, args, tablename, one)
+
+	return q, args
 
 
     def _doselect(self, txn, q, args, tablename, one=False):
@@ -409,8 +421,12 @@ class InteractionBase:
 
         @return: A C{Deferred} that returns the number of rows.
         """
-        d = self.select(tablename, where=where, select='count(*)')
-        d.addCallback(lambda res: res[0]['count(*)'])
+        q, args = self._build_select(tablename, where=where, select='count(*)')
+        d = self.execute(q, args)
+        def _parse_count_result(result):
+                val = result[0]
+                return val[0]
+        d.addCallback(_parse_count_result)
         return d
 
 
