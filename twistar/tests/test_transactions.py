@@ -53,6 +53,9 @@ class TransactionTest(unittest.TestCase):
         new_pen = yield Pen.find(pen.id)
         self.assertEqual(new_pen, None)
 
+	# cleanup, mostly for pgsql
+        yield pen.rollback()
+
 
     @inlineCallbacks
     def test_save_with_transaction_commit(self):
