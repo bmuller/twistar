@@ -5,7 +5,7 @@ Base module for interfacing with databases.
 from twisted.python import log
 
 from twistar.registry import Registry        
-from twistar.exceptions import ImaginaryTableError
+from twistar.exceptions import ImaginaryTableError, CannotRefreshError
 
 class InteractionBase:
     """
