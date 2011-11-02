@@ -44,8 +44,12 @@ class Pen(DBObject):
     pass
 
 class Table(DBObject):
+    HABTM = ['pens']
+    HASMANY = ['rubbers']
+
+class Rubber(DBObject):
     pass
 
 Registry.register(Picture, User, Comment, Avatar, FakeObject, FavoriteColor)
 Registry.register(Boy, Girl, Nickname)
-Registry.register(Pen, Table)
+Registry.register(Pen, Table, Rubber)

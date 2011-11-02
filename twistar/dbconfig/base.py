@@ -206,7 +206,7 @@ class InteractionBase:
         return map(lambda x: "`%s`" % x, colnames)
 
 
-    def insertMany(self, tablename, vals):
+    def insertMany(self, tablename, vals, txn=None):
         """
         Insert many values into a table.
 
@@ -223,6 +223,8 @@ class InteractionBase:
         for val in vals:
             args = args + val.values()
         q = "INSERT INTO %s (%s) VALUES %s" % (tablename, colnames, params)
+        if txn is not None:
+            return self.executeTxn(txn, q, args)
         return self.executeOperation(q, args)
         
 

@@ -26,6 +26,8 @@ def initDB(testKlass):
 
         txn.execute("""CREATE TABLE pens (id SERIAL PRIMARY KEY, color VARCHAR(255) UNIQUE, len INT)""");
         txn.execute("""CREATE TABLE tables (id SERIAL PRIMARY KEY, color VARCHAR(255) UNIQUE, weight INT)""");
+        txn.execute("""CREATE TABLE pens_tables (pen_id INT, table_id INT)""")
+        txn.execute("""CREATE TABLE rubbers (id SERIAL PRIMARY KEY, color VARCHAR(255), table_id INT)""");
 
 
     return CONNECTION.runInteraction(runInitTxn)
@@ -67,6 +69,11 @@ def tearDownDB(self):
         
         txn.execute("DROP SEQUENCE tables_id_seq CASCADE")
         txn.execute("DROP TABLE tables")
+        
+        txn.execute("DROP SEQUENCE rubbers_id_seq CASCADE")
+        txn.execute("DROP TABLE rubbers")
+        
+        txn.execute("DROP TABLE pens_tables")
         
     return CONNECTION.runInteraction(runTearDownDB)
                 

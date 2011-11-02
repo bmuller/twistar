@@ -160,7 +160,7 @@ class HasMany(Relationship):
         return defer.DeferredList(ds)        
 
 
-    def _update(self, _, others):
+    def _update(self, _, others, txn):
         tablename = self.otherklass.tablename()
         args = {self.thisname: self.inst.id}
         ids = []
@@ -170,10 +170,10 @@ class HasMany(Relationship):
                 raise ReferenceNotSavedError, msg
             ids.append(str(other.id))
         where = ["id IN (%s)" % ",".join(ids)]                
-        return self.dbconfig.update(tablename, args, where)
+        return defer.maybeDeferred(self.dbconfig.update, tablename, args, where, txn=txn)
 
 
-    def set(self, others):
+    def set(self, others, txn=None):
         """
         Set the objects that caller has.
 
@@ -184,10 +184,10 @@ class HasMany(Relationship):
         
         tablename = self.otherklass.tablename()
         args = {self.thisname: None}
-        where = ["%s = ?" % self.thisname, self.inst.id]        
-        d = self.dbconfig.update(tablename, args, where)
+        where = ["%s = ?" % self.thisname, self.inst.id] 
+        d = defer.maybeDeferred(self.dbconfig.update, tablename, args, where, txn=txn)
         if len(others) > 0:
-            d.addCallback(self._update, others)
+            d.addCallback(self._update, others, txn=txn)
         return d
 
 
@@ -292,7 +292,7 @@ class HABTM(Relationship):
         def _get(rows):
             if len(rows) == 0:
                 return defer.succeed(0)
-            if not kwargs.has_key('where'):
+            if not kwargs.has_key('where') or not kwargs['where']:
                 return defer.succeed(len(rows))
             ids = [str(row[self.othername]) for row in rows]
             where = ["id IN (%s)" % ",".join(ids)]
@@ -305,26 +305,25 @@ class HABTM(Relationship):
         return self.dbconfig.select(tablename, where=where).addCallback(_get)
 
 
-    def _set(self, _, others):
+    def _set(self, _, others, txn=None):
         args = []
         for other in others:
             if other.id is None:
                 msg = "You must save all other instances before defining a relationship"
                 raise ReferenceNotSavedError, msg                
             args.append({self.thisname: self.inst.id, self.othername: other.id})
-        return self.dbconfig.insertMany(self.tablename(), args)
+        return defer.maybeDeferred(self.dbconfig.insertMany, self.tablename(), args, txn=txn)
         
-
-    def set(self, others):
+    def set(self, others, txn=None):
         """
         Set the objects that caller has.
 
         @return: A C{Deferred}.
         """                        
         where = ["%s = ?" % self.thisname, self.inst.id]
-        d = self.dbconfig.delete(self.tablename(), where=where)
+        d = defer.maybeDeferred(self.dbconfig.delete, self.tablename(), where=where, txn=txn)
         if len(others) > 0:
-            d.addCallback(self._set, others)
+            d.addCallback(self._set, others, txn=txn)
         return d
 
 

@@ -327,6 +327,21 @@ class RelationshipTest(unittest.TestCase):
 
 
     @inlineCallbacks
+    def test_habtm_count_with__no_args(self):
+        color = yield FavoriteColor(name="red").save()
+        colors = [self.favcolor, color]
+        colorids = [color.id for color in colors]
+
+        args = {'user_id': self.user.id, 'favorite_color_id': colors[0].id}
+        yield self.config.insert('favorite_colors_users', args)
+        args = {'user_id': self.user.id, 'favorite_color_id': colors[1].id}
+        yield self.config.insert('favorite_colors_users', args)
+
+        newcolorsnum = yield self.user.favorite_colors.count(where=None)
+        self.assertEqual(newcolorsnum, 2)
+
+
+    @inlineCallbacks
     def test_set_habtm(self):
         user = yield User().save()
         color = yield FavoriteColor(name="red").save()

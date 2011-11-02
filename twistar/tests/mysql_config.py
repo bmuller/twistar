@@ -28,6 +28,9 @@ def initDB(testKlass):
                        color VARCHAR(255), len INT, PRIMARY KEY (id), UNIQUE(color)) ENGINE=INNODB""")
         txn.execute("""CREATE TABLE tables (id INT AUTO_INCREMENT,
                        color VARCHAR(255), weight INT, PRIMARY KEY (id), UNIQUE(color)) ENGINE=INNODB""")
+        txn.execute("""CREATE TABLE pens_tables (pen_id INT, table_id INT) ENGINE=INNODB""")
+        txn.execute("""CREATE TABLE rubbers (id INT AUTO_INCREMENT,
+                       color VARCHAR(255), table_id INT, PRIMARY KEY (id)) ENGINE=INNODB""")
 
     return CONNECTION.runInteraction(runInitTxn)
 
@@ -46,5 +49,7 @@ def tearDownDB(self):
         txn.execute("DROP TABLE nicknames")
         txn.execute("DROP TABLE pens")
         txn.execute("DROP TABLE tables")
+        txn.execute("DROP TABLE rubbers")
+        txn.execute("DROP TABLE pens_tables")
     return CONNECTION.runInteraction(runTearDownDB)
                 

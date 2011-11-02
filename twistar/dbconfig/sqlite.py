@@ -28,12 +28,14 @@ class SQLiteDBConfig(InteractionBase):
 
     
     ## retarded sqlite can't handle multiple row inserts
-    def insertMany(self, tablename, vals):
+    def insertMany(self, tablename, vals, txn=None):
         def _insertMany(txn):
             for val in vals:
                 self.insert(tablename, val, txn)
-        return Registry.DBPOOL.runInteraction(_insertMany)
-
+        if txn is not None:
+            return self.runWithTransaction(_insertMany, txn)
+        else:
+            return Registry.DBPOOL.runInteraction(_insertMany)
 
 
 

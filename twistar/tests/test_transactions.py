@@ -52,8 +52,7 @@ class TransactionTest(unittest.TestCase):
         
         new_pen = yield Pen.find(pen.id)
         self.assertEqual(new_pen, None)
-
-	# cleanup, mostly for pgsql
+    # cleanup, mostly for pgsql
         yield pen.rollback()
 
 
@@ -230,3 +229,100 @@ class TransactionTest(unittest.TestCase):
         new_pen = None
         new_pen = yield Pen.find(pen.id, limit=1)
         self.assertEqual(new_pen.color, pen.color)
+
+
+    @inlineCallbacks
+    def test_set_hasmany(self):
+        table = yield Table(color="red")
+        txn = table.transaction()
+        yield table.save()
+        rubbers = []
+        for _ in range(3):
+            rubber = yield Rubber(color="green", transaction=txn).save()
+            rubbers.append(rubber)
+        rubberids = [int(rubber.id) for rubber in rubbers]
+        yield table.rubbers.set(rubbers, txn)
+        yield table.commit()
+        self.assertEqual(table._txn, None)
+        results = yield table.rubbers.get()
+        resultids = [int(rubber.id) for rubber in results]
+        self.assertEqual(rubberids, resultids)
+
+
+    @inlineCallbacks
+    def test_set_hasmany_rollback(self):
+        table = yield Table(color="red")
+        txn = table.transaction()
+        yield table.save()
+        rubbers = []
+        for _ in range(3):
+            rubber = yield Rubber(color="green", transaction=txn).save()
+            rubbers.append(rubber)
+        rubberids = [int(rubber.id) for rubber in rubbers]
+        yield table.rubbers.set(rubbers, txn)
+        yield table.rollback()
+        self.assertEqual(table._txn, None)
+        results = yield table.rubbers.get()
+        self.assertEqual(results, [])
+
+
+    @inlineCallbacks
+    def test_set_hasmany_no_commit(self):
+        table = yield Table(color="red")
+        txn = table.transaction()
+        yield table.save()
+        rubbers = []
+        for _ in range(3):
+            rubber = yield Rubber(color="green", transaction=txn).save()
+            rubbers.append(rubber)
+        rubberids = [int(rubber.id) for rubber in rubbers]
+        yield table.rubbers.set(rubbers, txn)
+        results = yield table.rubbers.get()
+        self.assertEqual(results, [])
+        #Need for pgsql
+        yield table.rollback()
+
+
+    @inlineCallbacks
+    def test_set_habtm(self):
+        table = yield Table(color="blue").save()
+        pen = yield Pen(color="red").save()
+        another_pen = yield Pen(color="green").save()
+        pensid = [pen.id, another_pen.id]
+        pens = [pen, another_pen]
+        txn = table.transaction()
+        yield table.pens.set(pens, txn)
+        yield table.commit()
+        newpens = yield table.pens.get()
+        newpensids = [pen.id for pen in newpens]
+        self.assertEqual(newpensids, pensid)
+
+
+    @inlineCallbacks
+    def test_set_habtm_no_commit(self):
+        table = yield Table(color="blue").save()
+        pen = yield Pen(color="red").save()
+        another_pen = yield Pen(color="green").save()
+        pensid = [pen.id, another_pen.id]
+        pens = [pen, another_pen]
+        txn = table.transaction()
+        yield table.pens.set(pens, txn)
+        newpens = yield table.pens.get()
+        self.assertEqual(newpens, [])
+        #Need for pgsql
+        yield table.rollback()
+
+
+    @inlineCallbacks
+    def test_set_habtm_rollback(self):
+        table = yield Table(color="blue").save()
+        pen = yield Pen(color="red").save()
+        another_pen = yield Pen(color="green").save()
+        pens = [pen, another_pen]
+        txn = table.transaction()
+        yield table.pens.set(pens, txn)
+        yield table.rollback()
+        self.assertEqual(table._txn, None)
+        newpens = yield table.pens.get()
+        self.assertEqual(newpens, [])
+
