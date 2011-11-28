@@ -160,7 +160,7 @@ class HasMany(Relationship):
         return defer.DeferredList(ds)        
 
 
-    def _update(self, _, others, txn):
+    def _update(self, _, others, transaction):
         tablename = self.otherklass.tablename()
         args = {self.thisname: self.inst.id}
         ids = []
@@ -170,10 +170,10 @@ class HasMany(Relationship):
                 raise ReferenceNotSavedError, msg
             ids.append(str(other.id))
         where = ["id IN (%s)" % ",".join(ids)]                
-        return defer.maybeDeferred(self.dbconfig.update, tablename, args, where, txn=txn)
+        return defer.maybeDeferred(self.dbconfig.update, tablename, args, where, transaction=transaction)
 
 
-    def set(self, others, txn=None):
+    def set(self, others, transaction=None):
         """
         Set the objects that caller has.
 
@@ -185,9 +185,9 @@ class HasMany(Relationship):
         tablename = self.otherklass.tablename()
         args = {self.thisname: None}
         where = ["%s = ?" % self.thisname, self.inst.id] 
-        d = defer.maybeDeferred(self.dbconfig.update, tablename, args, where, txn=txn)
+        d = defer.maybeDeferred(self.dbconfig.update, tablename, args, where, transaction=transaction)
         if len(others) > 0:
-            d.addCallback(self._update, others, txn=txn)
+            d.addCallback(self._update, others, transaction=transaction)
         return d
 
 
@@ -305,25 +305,25 @@ class HABTM(Relationship):
         return self.dbconfig.select(tablename, where=where).addCallback(_get)
 
 
-    def _set(self, _, others, txn=None):
+    def _set(self, _, others, transaction=None):
         args = []
         for other in others:
             if other.id is None:
                 msg = "You must save all other instances before defining a relationship"
                 raise ReferenceNotSavedError, msg                
             args.append({self.thisname: self.inst.id, self.othername: other.id})
-        return defer.maybeDeferred(self.dbconfig.insertMany, self.tablename(), args, txn=txn)
+        return defer.maybeDeferred(self.dbconfig.insertMany, self.tablename(), args, transaction=transaction)
         
-    def set(self, others, txn=None):
+    def set(self, others, transaction=None):
         """
         Set the objects that caller has.
 
         @return: A C{Deferred}.
         """                        
         where = ["%s = ?" % self.thisname, self.inst.id]
-        d = defer.maybeDeferred(self.dbconfig.delete, self.tablename(), where=where, txn=txn)
+        d = defer.maybeDeferred(self.dbconfig.delete, self.tablename(), where=where, transaction=transaction)
         if len(others) > 0:
-            d.addCallback(self._set, others, txn=txn)
+            d.addCallback(self._set, others, transaction=transaction)
         return d
 
 

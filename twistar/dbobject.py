@@ -61,7 +61,7 @@ class DBObject(Validator):
 
     # this will hold an optional t.e.a.Transaction instance that can be used to put many
     # ORM operation into a single transaction.
-    _txn = None
+    _transaction = None
 
     def __init__(self, transaction=None, **kwargs):
         """
@@ -77,7 +77,7 @@ class DBObject(Validator):
         self.id = None
         self._deleted = False
         self.errors = Errors()
-        self._txn = transaction
+        self._transaction = transaction
         self.updateAttrs(kwargs)
         self._config = Registry.getConfig()
 
@@ -274,8 +274,8 @@ class DBObject(Validator):
             oldid = self.id
             self.id = None
             self._deleted = True
-            if self._txn is not None:
-                return self.__class__.deleteAll(where=["id = ?", oldid], txn=self._txn)
+            if self._transaction is not None:
+                return self.__class__.deleteAll(where=["id = ?", oldid], transaction=self._transaction)
             else:
                 return self.__class__.deleteAll(where=["id = ?", oldid])
 
@@ -433,7 +433,7 @@ class DBObject(Validator):
 
 
     @classmethod
-    def deleteAll(klass, where=None, txn=None):
+    def deleteAll(klass, where=None, transaction=None):
         """
         Delete all instances of C{klass} in the database.
 
@@ -444,7 +444,7 @@ class DBObject(Validator):
         """
         config = Registry.getConfig()
         tablename = klass.tablename()
-        return config.delete(tablename, where, txn)
+        return config.delete(tablename, where, transaction)
 
 
     @classmethod
@@ -470,9 +470,9 @@ class DBObject(Validator):
 
         @return: A C{dict} containing a {t.e.a.Connection} and C{t.e.a.Transaction}
         """
-        if self._txn is None:
-                self._txn = self._config.startTxn()
-                return self._txn
+        if self._transaction is None:
+                self._transaction = self._config.startTxn()
+                return self._transaction
         else:
                 raise TransactionAlreadyStartedError("Transaction already started. Call commit or rollback to close it")
 
@@ -481,11 +481,11 @@ class DBObject(Validator):
         """
         Rollback current object transaction(s). Clean up transaction once finished.
         """
-        if self._txn is None:
+        if self._transaction is None:
                 raise TransactionNotStartedError("Cannot call commit without a transaction")
         else:
                 def _resetTxn(result):
-                        self._txn = None
+                        self._transaction = None
                 return self._config.rollback(self).addCallback(_resetTxn)
 
 
@@ -493,11 +493,11 @@ class DBObject(Validator):
         """
         Commits current object transaction(s). Clean up transaction once finished.
         """
-        if self._txn is None:
+        if self._transaction is None:
                 raise TransactionNotStartedError("Cannot call commit without a transaction")
         else:
                 def _resetTxn(result):
-                        self._txn = None
+                        self._transaction = None
                 return self._config.commit(self).addCallback(_resetTxn)
 
 

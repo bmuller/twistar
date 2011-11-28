@@ -4,10 +4,10 @@ from twistar.dbconfig.base import InteractionBase
 class PostgreSQLDBConfig(InteractionBase):
     includeBlankInInsert = False
 
-    def getLastInsertID(self, txn):
+    def getLastInsertID(self, transaction):
         q = "SELECT lastval()"
-        self.executeTxn(txn, q)
-        result = txn.fetchall()
+        self.executeTxn(transaction, q)
+        result = transaction.fetchall()
         return result[0][0]
 
 

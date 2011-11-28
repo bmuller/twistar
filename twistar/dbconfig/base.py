@@ -63,19 +63,19 @@ class InteractionBase:
 
         @return: a C{dict} containing a C{t.e.a.Transaction} and C{t.e.a.Connection} instances
         """    
-        txn = None
+        transaction = None
         connection = Registry.DBPOOL.connectionFactory(Registry.DBPOOL)
-        txn = Registry.DBPOOL.transactionFactory(Registry.DBPOOL, connection)   
-        return txn
+        transaction = Registry.DBPOOL.transactionFactory(Registry.DBPOOL, connection)   
+        return transaction
 
 
-    def executeTxn(self, txn, query, *args, **kwargs):
+    def executeTxn(self, transaction, query, *args, **kwargs):
         """
         Execute given query within the given transaction.  Also, makes call
         to L{log} function.
         """        
         self.log(query, args, kwargs)
-        return txn.execute(query, *args, **kwargs)
+        return transaction.execute(query, *args, **kwargs)
 
 
     def select(self, tablename, id=None, where=None, group=None, limit=None, orderby=None, select=None):
@@ -142,22 +142,22 @@ class InteractionBase:
         return q, args
 
 
-    def _doselect(self, txn, q, args, tablename, one=False):
+    def _doselect(self, transaction, q, args, tablename, one=False):
         """
         Private callback for actual select query call.
         """
-        self.executeTxn(txn, q, args)
+        self.executeTxn(transaction, q, args)
 
         if one:
-            result = txn.fetchone()
+            result = transaction.fetchone()
             if not result:
                 return None
-            vals = self.valuesToHash(txn, result, tablename)
+            vals = self.valuesToHash(transaction, result, tablename)
             return vals
 
         results = []
-        for result in txn.fetchall():
-            vals = self.valuesToHash(txn, result, tablename)
+        for result in transaction.fetchall():
+            vals = self.valuesToHash(transaction, result, tablename)
             results.append(vals)            
         return results
     
@@ -169,7 +169,7 @@ class InteractionBase:
         return "(" + ",".join(["%s" for _ in vals.items()]) + ")"
 
 
-    def insert(self, tablename, vals, txn=None):
+    def insert(self, tablename, vals, transaction=None):
         """
         Insert a row into the given table.
 
@@ -178,7 +178,7 @@ class InteractionBase:
         @param vals: Values to insert.  Should be a dictionary in the form of
         C{{'name': value, 'othername': value}}.
 
-        @param txn: If txn is given it will be used for the query,
+        @param transaction: If transaction is given it will be used for the query,
         otherwise a typical runQuery will be used
 
         @return: A C{Deferred} that calls a callback with the id of new row.
@@ -190,8 +190,8 @@ class InteractionBase:
             colnames = "(" + ",".join(ecolnames) + ")"
             params = "VALUES %s" % params
         q = "INSERT INTO %s %s %s" % (tablename, colnames, params)
-        if not txn is None:
-            return self.executeTxn(txn, q, vals.values())
+        if not transaction is None:
+            return self.executeTxn(transaction, q, vals.values())
         return self.executeOperation(q, vals.values())
 
 
@@ -206,7 +206,7 @@ class InteractionBase:
         return map(lambda x: "`%s`" % x, colnames)
 
 
-    def insertMany(self, tablename, vals, txn=None):
+    def insertMany(self, tablename, vals, transaction=None):
         """
         Insert many values into a table.
 
@@ -223,31 +223,31 @@ class InteractionBase:
         for val in vals:
             args = args + val.values()
         q = "INSERT INTO %s (%s) VALUES %s" % (tablename, colnames, params)
-        if txn is not None:
-            return self.executeTxn(txn, q, args)
+        if transaction is not None:
+            return self.executeTxn(transaction, q, args)
         return self.executeOperation(q, args)
         
 
-    def getLastInsertID(self, txn):
+    def getLastInsertID(self, transaction):
         """
-        Using the given txn, get the id of the last inserted row.
+        Using the given transaction, get the id of the last inserted row.
 
         @return: The integer id of the last inserted row.
         """
         q = "SELECT LAST_INSERT_ID()"
-        self.executeTxn(txn, q)            
-        result = txn.fetchall()
+        self.executeTxn(transaction, q)            
+        result = transaction.fetchall()
         return result[0][0]
     
 
-    def delete(self, tablename, where=None, txn=None):
+    def delete(self, tablename, where=None, transaction=None):
         """
         Delete from the given tablename.
 
         @param where: Conditional of the same form as the C{where} parameter in L{DBObject.find}.
         If given, the rows deleted will be restricted to ones matching this conditional.
 
-        @param txn: If txn is given it will be used for the query,
+        @param transaction: If transaction is given it will be used for the query,
         otherwise a typical runQuery will be used
 
         @return: A C{Deferred}.        
@@ -257,12 +257,12 @@ class InteractionBase:
         if where is not None:
             wherestr, args = self.whereToString(where)
             q += " WHERE " + wherestr
-        if txn is not None:
-            return self.executeTxn(txn, q, args)
+        if transaction is not None:
+            return self.executeTxn(transaction, q, args)
         return self.executeOperation(q, args)
 
 
-    def update(self, tablename, args, where=None, txn=None):
+    def update(self, tablename, args, where=None, transaction=None):
         """
         Update a row into the given table.
 
@@ -274,7 +274,7 @@ class InteractionBase:
         @param where: Conditional of the same form as the C{where} parameter in L{DBObject.find}.
         If given, the rows updated will be restricted to ones matching this conditional.        
 
-        @param txn: If txn is given it will be used for the query,
+        @param transaction: If transaction is given it will be used for the query,
         otherwise a typical runQuery will be used
 
         @return: A C{Deferred}
@@ -286,24 +286,24 @@ class InteractionBase:
             q += " WHERE " + wherestr
             args += whereargs
             
-        if txn is not None:
-            return self.executeTxn(txn, q, args)
+        if transaction is not None:
+            return self.executeTxn(transaction, q, args)
         return self.executeOperation(q, args)
 
 
-    def valuesToHash(self, txn, values, tablename):
+    def valuesToHash(self, transaction, values, tablename):
         """
         Given a row from a database query (values), create
         a hash using keys from the table schema and values from
         the given values;
 
-        @param txn: The transaction to use for the schema update query.
+        @param transaction: The transaction to use for the schema update query.
 
         @param values: A row from a db (as a C{list}).
 
         @param tablename: Name of the table to fetch the schema for.
         """
-        cols = [row[0] for row in txn.description]
+        cols = [row[0] for row in transaction.description]
         if not Registry.SCHEMAS.has_key(tablename):
             Registry.SCHEMAS[tablename] = cols
         h = {}
@@ -313,17 +313,17 @@ class InteractionBase:
         return h
 
 
-    def getSchema(self, tablename, txn=None):
+    def getSchema(self, tablename, transaction=None):
         """
         Get the schema (in the form of a list of column names) for
         a given tablename.  Use the given transaction if specified.
         """
-        if not Registry.SCHEMAS.has_key(tablename) and txn is not None:
+        if not Registry.SCHEMAS.has_key(tablename) and transaction is not None:
             try:
-                self.executeTxn(txn, "SELECT * FROM %s LIMIT 1" % tablename)
+                self.executeTxn(transaction, "SELECT * FROM %s LIMIT 1" % tablename)
             except Exception, e:
                 raise ImaginaryTableError, "Table %s does not exist." % tablename
-            Registry.SCHEMAS[tablename] = [row[0] for row in txn.description]
+            Registry.SCHEMAS[tablename] = [row[0] for row in transaction.description]
         return Registry.SCHEMAS.get(tablename, [])
             
 
@@ -333,18 +333,18 @@ class InteractionBase:
 
         @return: A C{Deferred} that sends a callback the inserted object.
         """
-        def _doinsert(txn):
+        def _doinsert(transaction):
             klass = obj.__class__
             tablename = klass.tablename()
-            cols = self.getSchema(tablename, txn)
+            cols = self.getSchema(tablename, transaction)
             if len(cols) == 0:
                 raise ImaginaryTableError, "Table %s does not exist." % tablename
             vals = obj.toHash(cols, includeBlank=self.__class__.includeBlankInInsert, exclude=['id'])
-            self.insert(tablename, vals, txn)
-            obj.id = self.getLastInsertID(txn)
+            self.insert(tablename, vals, transaction)
+            obj.id = self.getLastInsertID(transaction)
             return obj
-        if obj._txn is not None:
-                return self.runWithTransaction(_doinsert, obj._txn)
+        if obj._transaction is not None:
+                return self.runWithTransaction(_doinsert, obj._transaction)
         else:
                 return Registry.DBPOOL.runInteraction(_doinsert)
 
@@ -355,16 +355,16 @@ class InteractionBase:
 
         @return: A C{Deferred} that sends a callback the updated object.
         """        
-        def _doupdate(txn):
+        def _doupdate(transaction):
             klass = obj.__class__
             tablename = klass.tablename()
-            cols = self.getSchema(tablename, txn)
-            
+            cols = self.getSchema(tablename, transaction)
+
             vals = obj.toHash(cols, includeBlank=True, exclude=['id'])
-            return self.update(tablename, vals, where=['id = ?', obj.id], txn=txn)
+            return self.update(tablename, vals, where=['id = ?', obj.id], transaction=transaction)
         # We don't want to return the cursor - so add a blank callback returning the obj
-        if obj._txn is not None:
-                return self.runWithTransaction(_doupdate, obj._txn).addCallback(lambda _: obj)
+        if obj._transaction is not None:
+                return self.runWithTransaction(_doupdate, obj._transaction).addCallback(lambda _: obj)
         else:
                 return Registry.DBPOOL.runInteraction(_doupdate).addCallback(lambda _: obj)    
 
@@ -403,7 +403,7 @@ class InteractionBase:
         """
         Convert dictionary of arguments to form needed for DB update query.  This method will
         vary by database driver.
-        
+
         @param args: Values to insert.  Should be a dictionary in the form of
         C{{'name': value, 'othername': value}}.
 
@@ -488,7 +488,7 @@ class InteractionBase:
 
         @return: A C{Deferred}
         """
-        return threads.deferToThreadPool(reactor, Registry.DBPOOL.threadpool, self._commit, obj._txn)
+        return threads.deferToThreadPool(reactor, Registry.DBPOOL.threadpool, self._commit, obj._transaction)
 
 
     def _commit(self, transaction):
@@ -516,7 +516,7 @@ class InteractionBase:
 
         @return: A C{Deferred}
         """
-        return threads.deferToThreadPool(reactor, Registry.DBPOOL.threadpool, self._rollback, obj._txn)
+        return threads.deferToThreadPool(reactor, Registry.DBPOOL.threadpool, self._rollback, obj._transaction)
 
 
     def _rollback(self, transaction):
