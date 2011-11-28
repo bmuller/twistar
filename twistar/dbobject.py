@@ -373,7 +373,7 @@ class DBObject(Validator):
 
 
     @classmethod
-    def find(klass, id=None, where=None, group=None, limit=None, orderby=None):
+    def find(klass, id=None, where=None, group=None, limit=None, orderby=None, transaction=None):
         """
         Find instances of a given class.
 
@@ -393,6 +393,8 @@ class DBObject(Validator):
 
         @param orderby: A C{str} describing the ordering, like C{orderby='first_name DESC'}.        
 
+        @param orderby: A C{t.e.a.Transaction} to use for this query.
+
         @return: A C{Deferred} which returns the following to a callback:
         If id is specified (or C{limit} is 1) then a single
         instance of C{klass} will be returned if one is found that fits the criteria, C{None}
@@ -400,7 +402,7 @@ class DBObject(Validator):
         be returned with all matching results.
         """
         config = Registry.getConfig()
-        d = config.select(klass.tablename(), id, where, group, limit, orderby)
+        d = config.select(klass.tablename(), id, where, group, limit, orderby, transaction=transaction)
         return d.addCallback(createInstances, klass)
 
 

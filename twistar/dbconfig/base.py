@@ -61,7 +61,7 @@ class InteractionBase:
         """
         Start a transaction. 
 
-        @return: a C{dict} containing a C{t.e.a.Transaction} and C{t.e.a.Connection} instances
+        @return: a C{t.e.a.Transaction} instance
         """    
         transaction = None
         connection = Registry.DBPOOL.connectionFactory(Registry.DBPOOL)
@@ -78,7 +78,7 @@ class InteractionBase:
         return transaction.execute(query, *args, **kwargs)
 
 
-    def select(self, tablename, id=None, where=None, group=None, limit=None, orderby=None, select=None):
+    def select(self, tablename, id=None, where=None, group=None, limit=None, orderby=None, select=None, transaction=None):
         """
         Select rows from a table.
 
@@ -99,6 +99,8 @@ class InteractionBase:
 
         @param select: Columns to select.  Default is C{*}.
 
+        @param transaction: An optional C{t.e.a.Transaction} instance.
+
         @return: If C{limit} is 1 or id is set, then the result is one dictionary or None if not found.
         Otherwise, an array of dictionaries are returned.
         """
@@ -112,7 +114,10 @@ class InteractionBase:
             
         q, args = self._build_select( tablename, id, where, group, limit, orderby, select )
 
-        return Registry.DBPOOL.runInteraction(self._doselect, q, args, tablename, one)
+        if transaction:
+                return self.runWithTransaction(self._doselect, transaction, q, args, tablename, one)
+        else:
+            return Registry.DBPOOL.runInteraction(self._doselect, q, args, tablename, one)
 
 
     def _build_select(self, tablename, id=None, where=None, group=None, limit=None, orderby=None, select=None):

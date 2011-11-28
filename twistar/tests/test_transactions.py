@@ -52,8 +52,35 @@ class TransactionTest(unittest.TestCase):
         
         new_pen = yield Pen.find(pen.id)
         self.assertEqual(new_pen, None)
-    # cleanup, mostly for pgsql
+
+        # cleanup, mostly for pgsql
         yield pen.rollback()
+
+
+    @inlineCallbacks
+    def test_find_outside_transaction_commit(self):
+        pen = Pen(color="red", len=10)
+        pen.transaction()
+        saved_pen = yield pen.save()
+        self.assertTrue(type(pen.id) == int or type(pen.id) == long)
+
+        new_pen = yield Pen.find(pen.id)
+        self.assertEqual(new_pen, None)
+
+        yield pen.commit()
+
+
+    @inlineCallbacks
+    def test_find_inside_transaction_commit(self):
+        pen = Pen(color="red", len=10)
+        txn = pen.transaction()
+        saved_pen = yield pen.save()
+        self.assertTrue(type(pen.id) == int or type(pen.id) == long)
+
+        new_pen = yield Pen.find(pen.id, transaction=txn)
+        self.assertEqual(new_pen, pen)
+
+        yield pen.commit()
 
 
     @inlineCallbacks
@@ -326,3 +353,39 @@ class TransactionTest(unittest.TestCase):
         newpens = yield table.pens.get()
         self.assertEqual(newpens, [])
 
+
+    @inlineCallbacks
+    def test_get_hasmany_outside_transaction(self):
+        table = yield Table(color="red")
+        transaction = table.transaction()
+        yield table.save()
+        rubbers = []
+        for _ in range(3):
+            rubber = yield Rubber(color="green", transaction=transaction).save()
+            rubbers.append(rubber)
+        rubberids = [int(rubber.id) for rubber in rubbers]
+        yield table.rubbers.set(rubbers, transaction)
+
+        table_rubbers = yield table.rubbers.get()
+        self.assertEqual(table_rubbers, [])
+
+        yield table.rollback()
+
+
+    @inlineCallbacks
+    def test_get_hasmany_inside_transaction(self):
+        table = yield Table(color="red")
+        transaction = table.transaction()
+        yield table.save()
+        rubbers = []
+        for _ in range(3):
+            rubber = yield Rubber(color="green", transaction=transaction).save()
+            rubbers.append(rubber)
+        rubberids = [int(rubber.id) for rubber in rubbers]
+        yield table.rubbers.set(rubbers, transaction)
+
+        table_rubbers = yield table.rubbers.get(transaction=transaction)
+        self.assertNotEqual(table_rubbers, [])
+        self.assertEqual(len(table_rubbers), 3)
+
+        yield table.rollback()
