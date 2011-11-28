@@ -195,7 +195,7 @@ class InteractionBase:
             colnames = "(" + ",".join(ecolnames) + ")"
             params = "VALUES %s" % params
         q = "INSERT INTO %s %s %s" % (tablename, colnames, params)
-        if not transaction is None:
+        if transaction:
             return self.executeTxn(transaction, q, vals.values())
         return self.executeOperation(q, vals.values())
 
