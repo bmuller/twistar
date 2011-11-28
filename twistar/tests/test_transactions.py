@@ -2,7 +2,7 @@ from twisted.trial import unittest
 from twisted.enterprise import adbapi
 from twisted.internet.defer import inlineCallbacks
 
-from twistar.exceptions import TransactionNotStartedError, TransactionAlreadyStartedError, DBObjectSaveError
+from twistar.exceptions import TransactionNotStartedError, DBObjectSaveError
 
 from utils import *
 
@@ -34,8 +34,7 @@ class TransactionTest(unittest.TestCase):
 
     def test_init_multiple_transaction(self):
         pen = Pen()
-        transaction = pen.transaction()
-        self.assertRaises(TransactionAlreadyStartedError, pen.transaction)
+        self.assertEqual(pen.transaction(), pen.transaction())
 
 
     def test_fail_commit(self):

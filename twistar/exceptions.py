@@ -41,12 +41,9 @@ class DBObjectSaveError(Exception):
     Error saving a DBObject.
     """
 
+
 class TransactionNotStartedError(Exception):
    """
    Error resulting from the attempt of using a method which needs a transaction started
    """
 
-class TransactionAlreadyStartedError(Exception):
-   """
-   Error resulting from the attempt of starting another transaction on same object
-   """
