@@ -2,7 +2,7 @@ from twisted.trial import unittest
 from twisted.enterprise import adbapi
 from twisted.internet.defer import inlineCallbacks
 
-from twistar.exceptions import TransactionNotStartedError, DBObjectSaveError
+from twistar.exceptions import TransactionNotStartedError, DBObjectSaveError, TransactionAlreadyStartedError
 
 from utils import *
 
@@ -20,21 +20,28 @@ class TransactionTest(unittest.TestCase):
 
     def test_init_start_transaction(self):
         pen = Pen()
-        transaction = pen.transaction()
+        transaction = pen.startTransaction()
         self.assertTrue(isinstance(transaction, adbapi.Transaction))
         self.assertTrue(isinstance(transaction._connection, adbapi.Connection))
 
 
     def test_init_with_transaction(self):
         pen = Pen()
-        transaction = pen.transaction()
+        transaction = pen.startTransaction()
         pen2 = Pen(transaction = transaction)
         self.assertEqual(pen._transaction, pen2._transaction)
 
 
+    def test_init_multiple_startTransaction(self):
+        pen = Pen()
+        txn = pen.startTransaction()
+        self.assertRaises(TransactionAlreadyStartedError, pen.startTransaction)
+
+
     def test_init_multiple_transaction(self):
         pen = Pen()
-        self.assertEqual(pen.transaction(), pen.transaction())
+        txn = pen.startTransaction()
+        self.assertEqual(txn, pen.transaction())
 
 
     def test_fail_commit(self):
@@ -45,7 +52,7 @@ class TransactionTest(unittest.TestCase):
     @inlineCallbacks
     def test_save_with_transaction_no_commit(self):
         pen = Pen(color="red", len=10)
-        pen.transaction()
+        pen.startTransaction()
         saved_pen = yield pen.save()
         self.assertTrue(type(pen.id) == int or type(pen.id) == long)
         
@@ -59,7 +66,7 @@ class TransactionTest(unittest.TestCase):
     @inlineCallbacks
     def test_find_outside_transaction_commit(self):
         pen = Pen(color="red", len=10)
-        pen.transaction()
+        pen.startTransaction()
         saved_pen = yield pen.save()
         self.assertTrue(type(pen.id) == int or type(pen.id) == long)
 
@@ -72,7 +79,7 @@ class TransactionTest(unittest.TestCase):
     @inlineCallbacks
     def test_find_inside_transaction_commit(self):
         pen = Pen(color="red", len=10)
-        txn = pen.transaction()
+        txn = pen.startTransaction()
         saved_pen = yield pen.save()
         self.assertTrue(type(pen.id) == int or type(pen.id) == long)
 
@@ -85,7 +92,7 @@ class TransactionTest(unittest.TestCase):
     @inlineCallbacks
     def test_save_with_transaction_commit(self):
         pen = Pen(color="red", len=10)
-        pen.transaction()
+        pen.startTransaction()
         saved_pen = yield pen.save()
         self.assertTrue(type(pen.id) == int or type(pen.id) == long)
         yield pen.commit()
@@ -97,7 +104,7 @@ class TransactionTest(unittest.TestCase):
     @inlineCallbacks
     def test_multiple_save_with_transaction_commit(self):
         pen = Pen(color="red", len=10)
-        transaction = pen.transaction()
+        transaction = pen.startTransaction()
         saved_pen = yield pen.save()
         self.assertTrue(type(pen.id) == int or type(pen.id) == long)
 
@@ -124,7 +131,7 @@ class TransactionTest(unittest.TestCase):
     @inlineCallbacks
     def test_multiple_save_with_transaction_commit_using_another_obj(self):
         pen = Pen(color="red", age=10)
-        transaction = pen.transaction()
+        transaction = pen.startTransaction()
         saved_pen = yield pen.save()
         self.assertTrue(type(pen.id) == int or type(pen.id) == long)
 
@@ -151,7 +158,7 @@ class TransactionTest(unittest.TestCase):
     @inlineCallbacks
     def test_already_commited(self):
         pen = Pen(color="red", len=10)
-        transaction = pen.transaction()
+        transaction = pen.startTransaction()
         yield pen.save()
         yield pen.commit()
 
@@ -167,7 +174,7 @@ class TransactionTest(unittest.TestCase):
     @inlineCallbacks
     def test_rollback(self):
         pen = Pen(color="red")
-        transaction = pen.transaction()
+        transaction = pen.startTransaction()
         yield pen.save()
         yield pen.rollback()
         self.assertEqual(pen._transaction, None)
@@ -182,7 +189,7 @@ class TransactionTest(unittest.TestCase):
         pen = Pen(color="red")
         another_pen = Pen(color="red")
 
-        transaction = pen.transaction()
+        transaction = pen.startTransaction()
         yield pen.save()
         yield self.failUnlessFailure(another_pen.save(), Exception)
         yield pen.commit()
@@ -193,11 +200,11 @@ class TransactionTest(unittest.TestCase):
     @inlineCallbacks
     def test_concurrent_insert_2(self):
         pen = Pen(color="red", len=10)
-        pen.transaction()
+        pen.startTransaction()
         yield pen.save()
 
         another_pen = Pen(color="red", len=20)
-        another_pen.transaction()
+        another_pen.startTransaction()
         yield self.failUnlessFailure(another_pen.save(), Exception)
 
         self.assertEqual(another_pen.color, pen.color)
@@ -219,14 +226,14 @@ class TransactionTest(unittest.TestCase):
     @inlineCallbacks
     def test_delete(self):
         pen = Pen(color="red", len=10)
-        pen.transaction()
+        pen.startTransaction()
         yield pen.save()
         yield pen.commit()
 
         new_pen = yield Pen.find(pen.id)
         self.assertEqual(new_pen.id, pen.id)
 
-        pen.transaction()
+        pen.startTransaction()
         yield pen.delete()
         yield pen.commit()
 
@@ -238,14 +245,14 @@ class TransactionTest(unittest.TestCase):
     @inlineCallbacks
     def test_delete_with_rollback(self):
         pen = Pen(color="red", len=10)
-        pen.transaction()
+        pen.startTransaction()
         yield pen.save()
         yield pen.commit()
 
         new_pen = yield Pen.find(pen.id)
         self.assertEqual(new_pen.id, pen.id)
 
-        pen.transaction()
+        pen.startTransaction()
         yield pen.delete()
 
         self.assertRaises(DBObjectSaveError, pen.save)
@@ -260,7 +267,7 @@ class TransactionTest(unittest.TestCase):
     @inlineCallbacks
     def test_set_hasmany(self):
         table = yield Table(color="red")
-        transaction = table.transaction()
+        transaction = table.startTransaction()
         yield table.save()
         rubbers = []
         for _ in range(3):
@@ -278,7 +285,7 @@ class TransactionTest(unittest.TestCase):
     @inlineCallbacks
     def test_set_hasmany_rollback(self):
         table = yield Table(color="red")
-        transaction = table.transaction()
+        transaction = table.startTransaction()
         yield table.save()
         rubbers = []
         for _ in range(3):
@@ -295,7 +302,7 @@ class TransactionTest(unittest.TestCase):
     @inlineCallbacks
     def test_set_hasmany_no_commit(self):
         table = yield Table(color="red")
-        transaction = table.transaction()
+        transaction = table.startTransaction()
         yield table.save()
         rubbers = []
         for _ in range(3):
@@ -316,7 +323,7 @@ class TransactionTest(unittest.TestCase):
         another_pen = yield Pen(color="green").save()
         pensid = [pen.id, another_pen.id]
         pens = [pen, another_pen]
-        transaction = table.transaction()
+        transaction = table.startTransaction()
         yield table.pens.set(pens, transaction)
         yield table.commit()
         newpens = yield table.pens.get()
@@ -331,7 +338,7 @@ class TransactionTest(unittest.TestCase):
         another_pen = yield Pen(color="green").save()
         pensid = [pen.id, another_pen.id]
         pens = [pen, another_pen]
-        transaction = table.transaction()
+        transaction = table.startTransaction()
         yield table.pens.set(pens, transaction)
         newpens = yield table.pens.get()
         self.assertEqual(newpens, [])
@@ -345,7 +352,7 @@ class TransactionTest(unittest.TestCase):
         pen = yield Pen(color="red").save()
         another_pen = yield Pen(color="green").save()
         pens = [pen, another_pen]
-        transaction = table.transaction()
+        transaction = table.startTransaction()
         yield table.pens.set(pens, transaction)
         yield table.rollback()
         self.assertEqual(table._transaction, None)
@@ -356,7 +363,7 @@ class TransactionTest(unittest.TestCase):
     @inlineCallbacks
     def test_get_hasmany_outside_transaction(self):
         table = yield Table(color="red")
-        transaction = table.transaction()
+        transaction = table.startTransaction()
         yield table.save()
         rubbers = []
         for _ in range(3):
@@ -374,7 +381,7 @@ class TransactionTest(unittest.TestCase):
     @inlineCallbacks
     def test_get_hasmany_inside_transaction(self):
         table = yield Table(color="red")
-        transaction = table.transaction()
+        transaction = table.startTransaction()
         yield table.save()
         rubbers = []
         for _ in range(3):

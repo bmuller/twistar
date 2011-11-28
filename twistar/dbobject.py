@@ -8,7 +8,7 @@ from twisted.internet import defer
 from twistar.registry import Registry
 from twistar.relationships import Relationship
 from twistar.exceptions import InvalidRelationshipError, DBObjectSaveError, ReferenceNotSavedError
-from twistar.exceptions import TransactionNotStartedError
+from twistar.exceptions import TransactionNotStartedError, TransactionAlreadyStartedError
 from twistar.utils import createInstances, deferredDict
 from twistar.validation import Validator, Errors
 
@@ -468,7 +468,19 @@ class DBObject(Validator):
 
     def transaction(self):
         """
-        Init a new database transaction. If already set, returns the one active.
+        Read current database transaction. If already set, returns the one active.
+
+        @return: A C{dict} containing a {t.e.a.Connection} and C{t.e.a.Transaction}
+        """
+        if self._transaction is None:
+                raise TransactionNotStartedError("Transaction not yet started!")
+        else:
+                return self._transaction
+
+
+    def startTransaction(self):
+        """
+        Init a new database transaction. If already set, raises {TransactionAlreadyStartedError}
 
         @return: A C{dict} containing a {t.e.a.Connection} and C{t.e.a.Transaction}
         """
@@ -476,7 +488,7 @@ class DBObject(Validator):
                 self._transaction = self._config.startTxn()
                 return self._transaction
         else:
-                return self._transaction
+                raise TransactionAlreadyStartedError("Transaction already started. Call commit or rollback to close it")
 
 
     def rollback(self):
