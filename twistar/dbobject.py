@@ -466,15 +466,21 @@ class DBObject(Validator):
         return klass.find(where=where, limit=1).addCallback(_exists)
 
 
-    def transaction(self):
+    def transaction(self, transaction=None):
         """
         Read current database transaction. If already set, returns the one active.
 
         @return: A C{dict} containing a {t.e.a.Connection} and C{t.e.a.Transaction}
         """
         if self._transaction is None:
-                raise TransactionNotStartedError("Transaction not yet started!")
+                if transaction:
+                    self._transaction = transaction
+                    return self._transaction
+                else:
+                    raise TransactionNotStartedError("Transaction not yet started!")
         else:
+                if transaction:
+                    raise TransactionAlreadyStartedError("Transaction already started, cannot set!")
                 return self._transaction
 
 

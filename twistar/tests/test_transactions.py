@@ -43,6 +43,22 @@ class TransactionTest(unittest.TestCase):
         self.assertRaises(TransactionNotStartedError, pen.transaction)
 
 
+    def test_inject_transaction(self):
+        pen = Pen()
+        pen.startTransaction()
+        another_pen = Pen()
+        another_pen.transaction(pen.transaction())
+        self.assertEqual(pen.transaction(), another_pen.transaction())
+
+
+    def test_inject_transaction_already_started(self):
+        pen = Pen()
+        pen.startTransaction()
+        another_pen = Pen()
+        another_pen.startTransaction()
+        self.assertRaises(TransactionAlreadyStartedError, another_pen.transaction, pen.transaction())
+
+
     def test_init_multiple_transaction(self):
         pen = Pen()
         txn = pen.startTransaction()
