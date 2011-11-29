@@ -20,6 +20,15 @@ class InteractionBase:
     LOG = False
     includeBlankInInsert = True
 
+
+    def logEncode(self, s, encoding='utf-8'):
+        """
+        Encode the given string if necessary for printing to logs.
+        """
+        if isinstance(s, basestring):
+            return s.encode(encoding)
+        return str(s)
+
     
     def log(self, query, args, kwargs):
         """
@@ -30,7 +39,7 @@ class InteractionBase:
             return
         log.msg("TWISTAR query: %s" % query)
         if len(args) > 0:
-            log.msg("TWISTAR args: %s" % ",".join(map(lambda x: str(x), *args)))
+            log.msg("TWISTAR args: %s" % ",".join(map(self.logEncode, *args)))
         elif len(kwargs) > 0:
             log.msg("TWISTAR kargs: %s" % str(kwargs))        
 

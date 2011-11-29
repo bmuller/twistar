@@ -3,6 +3,7 @@ from twisted.enterprise import adbapi
 from twisted.internet.defer import inlineCallbacks
 
 from twistar.registry import Registry
+from twistar.dbconfig.base import InteractionBase
 
 from utils import *
 
@@ -138,3 +139,13 @@ class DBConfigTest(unittest.TestCase):
 
         for key, value in args.items():
             self.assertEqual(value, ctest[key])
+
+
+    def test_unicode_logging(self):
+        ustr =  u'\N{SNOWMAN}'
+
+        InteractionBase.LOG = True
+        InteractionBase().log(ustr, [ustr], {ustr: ustr})
+        InteractionBase.LOG = False
+
+
