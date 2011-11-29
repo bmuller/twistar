@@ -38,6 +38,11 @@ class TransactionTest(unittest.TestCase):
         self.assertRaises(TransactionAlreadyStartedError, pen.startTransaction)
 
 
+    def test_read_not_started_transaction(self):
+        pen = Pen()
+        self.assertRaises(TransactionNotStartedError, pen.transaction)
+
+
     def test_init_multiple_transaction(self):
         pen = Pen()
         txn = pen.startTransaction()
