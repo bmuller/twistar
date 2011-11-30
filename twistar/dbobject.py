@@ -479,7 +479,7 @@ class DBObject(Validator):
                 else:
                     raise TransactionNotStartedError("Transaction not yet started!")
         else:
-                if transaction:
+                if transaction and transaction != self._transaction:
                     raise TransactionAlreadyStartedError("Transaction already started, cannot set!")
                 return self._transaction
 

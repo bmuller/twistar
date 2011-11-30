@@ -59,7 +59,7 @@ class BelongsTo(Relationship):
     Class representing a belongs-to relationship.
     """
     
-    def get(self):
+    def get(self, transaction=None):
         """
         Get the object that belong to the caller.
 
@@ -72,12 +72,12 @@ class BelongsTo(Relationship):
             return Registry.getClass(kname).find(kid)
 
         if self.args['polymorphic']:
-            return self.inst.find(where=["id = ?", self.inst.id], limit=1).addCallback(get_polymorphic)
+            return self.inst.find(where=["id = ?", self.inst.id], limit=1, transaction=transaction).addCallback(get_polymorphic)
 
-        return self.otherklass.find(where=["id = ?", getattr(self.inst, self.othername)], limit=1)
+        return self.otherklass.find(where=["id = ?", getattr(self.inst, self.othername)], limit=1, transaction=transaction)
 
 
-    def set(self, other):
+    def set(self, other, transaction=None):
         """
         Set the object that belongs to the caller.
 
@@ -86,16 +86,20 @@ class BelongsTo(Relationship):
         if self.args['polymorphic']:
             setattr(self.inst, "%s_type" % self.args['class_name'], other.__class__.__name__)
         setattr(self.inst, self.othername, other.id)
+        if transaction:
+            self.inst.transaction(transaction)
         return self.inst.save()
 
 
-    def clear(self):
+    def clear(self, transaction=None):
         """
         Remove the relationship linking the object that belongs to the caller.
 
         @return: A C{Deferred} with a callback value of the caller.
         """                
         setattr(self.inst, self.othername, None)
+        if transaction:
+            self.inst.transaction(transaction)
         return self.inst.save()
 
 
@@ -203,16 +207,16 @@ class HasOne(Relationship):
     A class representing the has one relationship.
     """
     
-    def get(self):
+    def get(self, transaction=None):
         """
         Get the object that caller has.
 
         @return: A C{Deferred} with a callback value of the object this one has (or c{None}).
         """                
-        return self.otherklass.find(where=["%s = ?" % self.thisname, self.inst.id], limit=1)
+        return self.otherklass.find(where=["%s = ?" % self.thisname, self.inst.id], limit=1, transaction=transaction)
 
 
-    def set(self, other):
+    def set(self, other, transaction=None):
         """
         Set the object that caller has.
 
@@ -221,7 +225,7 @@ class HasOne(Relationship):
         tablename = self.otherklass.tablename()
         args = {self.thisname: self.inst.id}
         where = ["id = ?", other.id]        
-        return self.dbconfig.update(tablename, args, where)
+        return self.dbconfig.update(tablename, args, where, transaction=transaction)
 
 
 class HABTM(Relationship):
@@ -313,7 +317,8 @@ class HABTM(Relationship):
                 raise ReferenceNotSavedError, msg                
             args.append({self.thisname: self.inst.id, self.othername: other.id})
         return defer.maybeDeferred(self.dbconfig.insertMany, self.tablename(), args, transaction=transaction)
-        
+    
+    
     def set(self, others, transaction=None):
         """
         Set the objects that caller has.

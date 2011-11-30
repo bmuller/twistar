@@ -416,3 +416,69 @@ class TransactionTest(unittest.TestCase):
         self.assertEqual(len(table_rubbers), 3)
 
         yield table.rollback()
+
+
+    @inlineCallbacks
+    def test_has_one_inside_transaction(self):
+        user = User()
+        txn = user.startTransaction()
+        yield user.save()
+        avatar=Avatar()
+        avatar.transaction(txn)
+        yield avatar.save()
+        yield user.avatar.set(avatar, transaction=txn)
+        new_avatar = yield user.avatar.get(transaction=txn)
+        self.assertEqual(avatar, new_avatar)
+        yield user.commit()
+        new_avatar = yield user.avatar.get()
+        self.assertEqual(avatar, new_avatar)
+    
+ 
+    @inlineCallbacks
+    def test_has_one_outside_transaction(self):
+        user = User()
+        txn = user.startTransaction()
+        yield user.save()
+        avatar=Avatar()
+        avatar.transaction(txn)
+        yield avatar.save()
+        yield user.avatar.set(avatar, transaction=txn)
+        new_avatar = yield user.avatar.get()
+        self.assertNotEqual(avatar, new_avatar)
+        self.assertEqual(new_avatar, None)
+        yield user.commit()
+        new_avatar = yield user.avatar.get()
+        self.assertEqual(avatar, new_avatar)
+   
+ 
+    @inlineCallbacks
+    def test_belongsTo_inside_transaction(self):
+        pic=Picture()
+        txn = pic.startTransaction()
+        user = User()
+        user.transaction(txn)
+        yield user.save()
+        yield pic.save()
+        yield pic.user.set(user, transaction=txn)
+        new_user = yield pic.user.get(transaction=txn)
+        self.assertEqual(user, new_user)
+        yield user.commit()
+        new_user = yield pic.user.get()
+        self.assertEqual(user, new_user)
+
+
+    @inlineCallbacks
+    def test_belongsTo_outside_transaction(self):
+        pic=Picture()
+        txn = pic.startTransaction()
+        user = User()
+        user.transaction(txn)
+        yield user.save()
+        yield pic.save()
+        yield pic.user.set(user, transaction=txn)
+        new_user = yield pic.user.get()
+        self.assertNotEqual(user, new_user)
+        self.assertEqual(new_user, None)
+        yield user.commit()
+        new_user = yield pic.user.get()
+        self.assertEqual(user, new_user)
