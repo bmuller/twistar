@@ -24,6 +24,12 @@ class InteractionBase:
     LOG = False
     includeBlankInInsert = True
 
+
+    def _maybe_encode(self, s, encoding='utf-8'):
+        if isinstance(s, basestring):
+            return s.encode(encoding)
+        return str(s)
+
     
     def log(self, query, args, kwargs):
         """
@@ -34,7 +40,7 @@ class InteractionBase:
             return
         log.msg("TWISTAR query: %s" % query)
         if len(args) > 0:
-            log.msg("TWISTAR args: %s" % ",".join(map(lambda x: str(x), *args)))
+            log.msg("TWISTAR args: %s" % ",".join(map(self._maybe_encode, *args)))
         elif len(kwargs) > 0:
             log.msg("TWISTAR kargs: %s" % str(kwargs))        
 
