@@ -25,7 +25,7 @@ class InteractionBase:
         """
         Encode the given string if necessary for printing to logs.
         """
-        if isinstance(s, basestring):
+        if isinstance(s, unicode):
             return s.encode(encoding)
         return str(s)
 

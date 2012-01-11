@@ -142,10 +142,14 @@ class DBConfigTest(unittest.TestCase):
 
 
     def test_unicode_logging(self):
-        ustr =  u'\N{SNOWMAN}'
-
         InteractionBase.LOG = True
+        
+        ustr = u'\N{SNOWMAN}'
         InteractionBase().log(ustr, [ustr], {ustr: ustr})
+        
+        ustr = '\xc3\xa8'
+        InteractionBase().log(ustr, [ustr], {ustr: ustr})
+        
         InteractionBase.LOG = False
 
 
