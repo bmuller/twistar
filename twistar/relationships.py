@@ -332,11 +332,11 @@ class HABTM(Relationship):
         return d
 
 
-    def clear(self):
+    def clear(self, transaction=None):
         """
         Clear the list of all of the objects that this one has.
         """        
-        return self.set([])
+        return self.set([], transaction=transaction)
 
 
 Relationship.TYPES = {'HASMANY': HasMany, 'HASONE': HasOne, 'BELONGSTO': BelongsTo, 'HABTM': HABTM}

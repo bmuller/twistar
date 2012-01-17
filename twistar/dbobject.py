@@ -283,7 +283,10 @@ class DBObject(Validator):
             if result == False:
                 return defer.succeed(self)
             else:
-                ds = [getattr(self, relation).clear() for relation in self.HABTM]
+                if self._transaction is not None:
+                    ds = [getattr(self, relation).clear(transaction=self._transaction) for relation in self.HABTM]
+                else:
+                    ds = [getattr(self, relation).clear() for relation in self.HABTM]
                 return defer.DeferredList(ds).addCallback(_delete)
 
         return defer.maybeDeferred(self.beforeDelete).addCallback(_deleteOnSuccess)
