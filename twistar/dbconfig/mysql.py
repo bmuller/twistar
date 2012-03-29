@@ -26,7 +26,7 @@ class ReconnectingMySQLConnectionPool(adbapi.ConnectionPool):
         except MySQLdb.OperationalError, e:
             if e[0] not in (2006, 2013):
                 raise
-            log.err(None, "Lost connection to MySQL with error '%s', retrying operation" % e)
+            log.err("Lost connection to MySQL, retrying operation.  If no errors follow, retry was successful.")
             conn = self.connections.get(self.threadID())
             self.disconnect(conn)
             return adbapi.ConnectionPool._runInteraction(self, interaction, *args, **kw)
