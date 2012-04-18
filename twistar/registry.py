@@ -78,6 +78,9 @@ class Registry:
         elif dbapi.__name__ == "psycopg2":
             from twistar.dbconfig.postgres import PostgreSQLDBConfig            
             Registry.IMPL = PostgreSQLDBConfig()
+        elif dbapi.__name__ == "pyodbc":
+            from twistar.dbconfig.pyodbc import PyODBCDBConfig
+            Registry.IMPL = PyODBCDBConfig()
         else:
             raise NotImplementedError, "twisteddb does not support the %s driver" % dbapi.__name__
         
