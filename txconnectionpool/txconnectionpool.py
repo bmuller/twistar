@@ -4,7 +4,7 @@ from twisted.python import log
 from twisted.internet import defer
 from twisted.enterprise.adbapi import ConnectionPool, Transaction
 
-from twistar.txthreadworker import TxThreadWorker
+from txthreadworker.txthreadworker import TxThreadWorker
 
 class TxConnectionPool(ConnectionPool):
 

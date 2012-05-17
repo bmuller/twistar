@@ -3,7 +3,7 @@ from twisted.internet import defer
 
 from twistar.registry import Registry
 
-from twistar.txconnectionpool import TxConnectionPool
+from txconnectionpool.txconnectionpool import TxConnectionPool
 CONNECTION = Registry.DBPOOL = TxConnectionPool('MySQLdb', user="root", passwd="", host="127.0.0.1", db="twistar")
 
 def initDB(testKlass):

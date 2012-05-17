@@ -3,7 +3,7 @@ from twisted.internet import defer
 
 from twistar.registry import Registry
 
-from twistar.txconnectionpool import TxConnectionPool
+from txconnectionpool.txconnectionpool import TxConnectionPool
 
 CONNECTION = Registry.DBPOOL = TxConnectionPool('psycopg2', "dbname=twistar")
 
