@@ -12,7 +12,7 @@ class ThreadWorkerState(Names):
     RUNNING = NamedConstant()
 
 
-class ThreadWorker(object):
+class TxThreadWorker(object):
     """
     Thread worker which executes all submitted jobs in a single thread.
 

@@ -4,7 +4,7 @@ from twisted.python import log
 from twisted.internet import defer
 from twisted.enterprise.adbapi import ConnectionPool, Transaction
 
-from twistar.threadworker import ThreadWorker
+from twistar.txthreadworker import TxThreadWorker
 
 class TxConnectionPool(ConnectionPool):
 
@@ -22,7 +22,7 @@ class TxConnectionPool(ConnectionPool):
         the self.transLock dictionary. 
         """        
 
-        worker = ThreadWorker(self.threadpool)
+        worker = TxThreadWorker(self.threadpool)
         worker.start()
         if not self.txWorkersLock:
             self.txWorkersLock = Lock()
