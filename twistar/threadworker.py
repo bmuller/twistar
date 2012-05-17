@@ -27,7 +27,8 @@ class ThreadWorker(object):
     _STOP = object()   # dummmy object to represent the stop command (a job that
                        # when enqueued will stop the ThreadWorker)
 
-    def __init__(self):
+    def __init__(self, threadpool=reactor):
+        self.threadpool = threadpool
         self._current_state = ThreadWorkerState.STOPPED
         self._work_queue = None
 
@@ -44,7 +45,7 @@ class ThreadWorker(object):
         self._work_queue = Queue()
         self._current_state = ThreadWorkerState.RUNNING
 
-        reactor.callInThread(self._start)  
+        self.threadpool.callInThread(self._start)  
 
     def stop(self):
         """

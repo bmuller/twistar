@@ -22,13 +22,14 @@ class TxConnectionPool(ConnectionPool):
         the self.transLock dictionary. 
         """        
 
-        worker = ThreadWorker()
+        worker = ThreadWorker(self.threadpool)
         worker.start()
         if not self.txWorkersLock:
             self.txWorkersLock = Lock()
 
         def initTx():
-            t = Transaction(self, self.connect())
+            conn = self.connectionFactory(self)
+            t = self.transactionFactory(self, conn)
 
             self.txWorkersLock.acquire()
             self.txWorkers[t] = worker
