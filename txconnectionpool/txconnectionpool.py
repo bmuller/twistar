@@ -1,8 +1,8 @@
 from threading import Lock
 
 from twisted.python import log
-from twisted.internet import defer
-from twisted.enterprise.adbapi import ConnectionPool, Transaction
+from twisted.enterprise.adbapi import ConnectionPool
+from twistar.exceptions import TransactionNotStartedError
 
 from txthreadworker.txthreadworker import TxThreadWorker
 
