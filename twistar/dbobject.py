@@ -494,8 +494,14 @@ class DBObject(Validator):
         @return: A C{dict} containing a {t.e.a.Connection} and C{t.e.a.Transaction}
         """
         if self._transaction is None:
-                self._transaction = self._config.startTxn()
-                return self._transaction
+                d = self._config.startTxn()
+
+                def processTxn(result):
+                    self._transaction = result
+                    return self._transaction
+
+                d.addCallback(processTxn)
+                return d
         else:
                 raise TransactionAlreadyStartedError("Transaction already started. Call commit or rollback to close it")
 
@@ -509,7 +515,9 @@ class DBObject(Validator):
         else:
                 def _resetTxn(result):
                         self._transaction = None
-                return self._config.rollback(self).addCallback(_resetTxn)
+                d = self._config.rollback(self._transaction)
+                d.addCallback(_resetTxn)
+                return d
 
 
     def commit(self):
@@ -521,7 +529,9 @@ class DBObject(Validator):
         else:
                 def _resetTxn(result):
                         self._transaction = None
-                return self._config.commit(self).addCallback(_resetTxn)
+                d = self._config.commit(self._transaction)
+                d.addCallback(_resetTxn)
+                return d
 
 
     def __str__(self):

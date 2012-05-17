@@ -3,26 +3,27 @@ from twisted.internet import defer
 
 from twistar.registry import Registry
 
-CONNECTION = Registry.DBPOOL = adbapi.ConnectionPool('MySQLdb', user="", passwd="", host="localhost", db="twistar")
+from twistar.txconnectionpool import TxConnectionPool
+CONNECTION = Registry.DBPOOL = TxConnectionPool('MySQLdb', user="root", passwd="", host="127.0.0.1", db="twistar")
 
 def initDB(testKlass):
     def runInitTxn(txn):
         txn.execute("""CREATE TABLE users (id INT AUTO_INCREMENT,
-                       first_name VARCHAR(255), last_name VARCHAR(255), age INT, dob DATE, PRIMARY KEY (id))""")
+                       first_name VARCHAR(255), last_name VARCHAR(255), age INT, dob DATE, PRIMARY KEY (id)) ENGINE=INNODB""")
         txn.execute("""CREATE TABLE avatars (id INT AUTO_INCREMENT, name VARCHAR(255),
-                       color VARCHAR(255), user_id INT, PRIMARY KEY (id))""")        
+                       color VARCHAR(255), user_id INT, PRIMARY KEY (id)) ENGINE=INNODB""")        
         txn.execute("""CREATE TABLE pictures (id INT AUTO_INCREMENT, name VARCHAR(255),
-                       size INT, user_id INT, PRIMARY KEY (id))""") 
+                       size INT, user_id INT, PRIMARY KEY (id)) ENGINE=INNODB""") 
         txn.execute("""CREATE TABLE comments (id INT AUTO_INCREMENT, subject VARCHAR(255),
-                       body TEXT, user_id INT, PRIMARY KEY (id))""") 
-        txn.execute("""CREATE TABLE favorite_colors (id INT AUTO_INCREMENT, name VARCHAR(255), PRIMARY KEY (id))""")
-        txn.execute("""CREATE TABLE favorite_colors_users (favorite_color_id INT, user_id INT)""")
-        txn.execute("""CREATE TABLE coltests (id INT AUTO_INCREMENT, `select` VARCHAR(255), `where` VARCHAR(255), PRIMARY KEY (id))""")
+                       body TEXT, user_id INT, PRIMARY KEY (id)) ENGINE=INNODB""") 
+        txn.execute("""CREATE TABLE favorite_colors (id INT AUTO_INCREMENT, name VARCHAR(255), PRIMARY KEY (id)) ENGINE=INNODB""")
+        txn.execute("""CREATE TABLE favorite_colors_users (favorite_color_id INT, user_id INT) ENGINE=INNODB""")
+        txn.execute("""CREATE TABLE coltests (id INT AUTO_INCREMENT, `select` VARCHAR(255), `where` VARCHAR(255), PRIMARY KEY (id)) ENGINE=INNODB""")
 
-        txn.execute("""CREATE TABLE boys (id INT AUTO_INCREMENT, `name` VARCHAR(255), PRIMARY KEY (id))""")
-        txn.execute("""CREATE TABLE girls (id INT AUTO_INCREMENT, `name` VARCHAR(255), PRIMARY KEY (id))""")
+        txn.execute("""CREATE TABLE boys (id INT AUTO_INCREMENT, `name` VARCHAR(255), PRIMARY KEY (id)) ENGINE=INNODB""")
+        txn.execute("""CREATE TABLE girls (id INT AUTO_INCREMENT, `name` VARCHAR(255), PRIMARY KEY (id)) ENGINE=INNODB""")
         txn.execute("""CREATE TABLE nicknames (id INT AUTO_INCREMENT, `value` VARCHAR(255), `nicknameable_id` INT,
-                       `nicknameable_type` VARCHAR(255), PRIMARY KEY(id))""")
+                       `nicknameable_type` VARCHAR(255), PRIMARY KEY(id)) ENGINE=INNODB""")
 
         txn.execute("""CREATE TABLE pens (id INT AUTO_INCREMENT,
                        color VARCHAR(255), len INT, PRIMARY KEY (id), UNIQUE(color)) ENGINE=INNODB""")

@@ -2,10 +2,11 @@ from twisted.enterprise import adbapi
 from twisted.internet import defer
 
 from twistar.registry import Registry
+from twistar.txconnectionpool import TxConnectionPool
 
 def initDB(testKlass):
     location = testKlass.mktemp()
-    Registry.DBPOOL = adbapi.ConnectionPool('sqlite3', location, check_same_thread=False)
+    Registry.DBPOOL = TxConnectionPool('sqlite3', location, check_same_thread=False)
     def runInitTxn(txn):
         txn.execute("""CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT,
                        first_name TEXT, last_name TEXT, age INTEGER, dob DATE)""")

@@ -47,6 +47,13 @@ class InteractionBase:
         elif len(kwargs) > 0:
             log.msg("TWISTAR kargs: %s" % str(kwargs))        
 
+    def executeOperationInTransaction(self, query, transaction, *args, **kwargs):
+        """
+        Simply makes same C{twisted.enterprise.dbapi.ConnectionPool.runOperation} call, but
+        with call to L{log} function.
+        """
+        self.log(query, args, kwargs)
+        return Registry.DBPOOL.runOperationInTransaction(transaction, query, *args, **kwargs)
 
     def executeOperation(self, query, *args, **kwargs):
         """
@@ -71,11 +78,9 @@ class InteractionBase:
         Start a transaction. 
 
         @return: a C{t.e.a.Transaction} instance
+        @rtype: C{deferred}
         """    
-        transaction = None
-        connection = Registry.DBPOOL.connectionFactory(Registry.DBPOOL)
-        transaction = Registry.DBPOOL.transactionFactory(Registry.DBPOOL, connection)   
-        return transaction
+        return Registry.DBPOOL.startTransaction()
 
 
     def executeTxn(self, transaction, query, *args, **kwargs):
@@ -124,7 +129,7 @@ class InteractionBase:
         q, args = self._build_select( tablename, id, where, group, limit, orderby, select )
 
         if transaction:
-                return self.runWithTransaction(self._doselect, transaction, q, args, tablename, one)
+                return Registry.DBPOOL.executeOperationInTransaction(self._doselect, transaction, q, args, tablename, one)
         else:
             return Registry.DBPOOL.runInteraction(self._doselect, q, args, tablename, one)
 
@@ -357,8 +362,8 @@ class InteractionBase:
             self.insert(tablename, vals, transaction)
             obj.id = self.getLastInsertID(transaction)
             return obj
-        if obj._transaction is not None:
-                return self.runWithTransaction(_doinsert, obj._transaction)
+        if obj._transaction:
+                return Registry.DBPOOL.executeOperationInTransaction(_doinsert, obj._transaction)
         else:
                 return Registry.DBPOOL.runInteraction(_doinsert)
 
@@ -378,7 +383,7 @@ class InteractionBase:
             return self.update(tablename, vals, where=['id = ?', obj.id], transaction=transaction)
         # We don't want to return the cursor - so add a blank callback returning the obj
         if obj._transaction is not None:
-                return self.runWithTransaction(_doupdate, obj._transaction).addCallback(lambda _: obj)
+                return Registry.DBPOOL.executeOperationInTransaction(_doupdate, obj._transaction).addCallback(lambda _: obj)
         else:
                 return Registry.DBPOOL.runInteraction(_doupdate).addCallback(lambda _: obj)    
 
@@ -496,41 +501,22 @@ class InteractionBase:
                 raise excType, excValue, excTraceback
 
 
-    def commit(self, obj):
+    def commit(self, transaction):
         """
         Commits current obj transaction.
 
         @return: A C{Deferred}
         """
-        return threads.deferToThreadPool(reactor, Registry.DBPOOL.threadpool, self._commit, obj._transaction)
+        return Registry.DBPOOL.commitTransaction(transaction)
 
 
-    def _commit(self, transaction):
-        trans = transaction
-        conn = trans._connection
-
-        if trans._cursor is None:
-                raise TransactionNotStartedError("Cannot call commit without a transaction")
-
-        try:
-                trans.close()
-                conn.commit()
-        except:
-                excType, excValue, excTraceback = sys.exc_info()
-                try:
-                        conn.rollback()
-                except:
-                        log.err(None, "Rollback failed")
-                raise excType, excValue, excTraceback
-
-
-    def rollback(self, obj):
+    def rollback(self, transaction):
         """
         Rollback current obj transaction.
 
         @return: A C{Deferred}
         """
-        return threads.deferToThreadPool(reactor, Registry.DBPOOL.threadpool, self._rollback, obj._transaction)
+        return Registry.DBPOOL.rollbackTransaction(transaction)
 
 
     def _rollback(self, transaction):

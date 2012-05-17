@@ -3,7 +3,9 @@ from twisted.internet import defer
 
 from twistar.registry import Registry
 
-CONNECTION = Registry.DBPOOL = adbapi.ConnectionPool('psycopg2', "dbname=twistar")
+from twistar.txconnectionpool import TxConnectionPool
+
+CONNECTION = Registry.DBPOOL = TxConnectionPool('psycopg2', "dbname=twistar")
 
 def initDB(testKlass):
     def runInitTxn(txn):
