@@ -27,8 +27,9 @@ class TxThreadWorker(object):
     _STOP = object()   # dummmy object to represent the stop command (a job that
                        # when enqueued will stop the ThreadWorker)
 
-    def __init__(self, threadpool=reactor):
-        self.threadpool = threadpool
+    def __init__(self, threadpool=None):
+        self.threadpool = threadpool or reactor.getThreadPool()
+
         self._current_state = ThreadWorkerState.STOPPED
         self._work_queue = None
 
@@ -55,7 +56,7 @@ class TxThreadWorker(object):
         @rtype: a C{Defer}
         """
         if self._current_state != ThreadWorkerState.RUNNING:
-            return
+            return defer.succeed(None)
 
         self._stop_finished = defer.Deferred()
         self._work_queue.put(self._STOP)
@@ -73,7 +74,8 @@ class TxThreadWorker(object):
         @rtype: a C{Defer}
         """
         if self._current_state != ThreadWorkerState.RUNNING:
-            raise RuntimeError('Cannot submit jobs to a stopped ThreadWorker')
+            err = 'Cannot submit jobs to a stopped ThreadWorker'
+            return defer.fail(RuntimeError(err))
         d = defer.Deferred()
         self._work_queue.put((d, job, args, kwargs))
         return d
