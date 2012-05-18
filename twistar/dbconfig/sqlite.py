@@ -32,8 +32,8 @@ class SQLiteDBConfig(InteractionBase):
         def _insertMany(transaction):
             for val in vals:
                 self.insert(tablename, val, transaction)
-        if transaction is not None:
-            return self.runWithTransaction(_insertMany, transaction)
+        if transaction:
+            return _insertMany(transaction)
         else:
             return Registry.DBPOOL.runInteraction(_insertMany)
 

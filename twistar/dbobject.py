@@ -274,7 +274,7 @@ class DBObject(Validator):
             oldid = self.id
             self.id = None
             self._deleted = True
-            if self._transaction is not None:
+            if self._transaction:
                 return self.__class__.deleteAll(where=["id = ?", oldid], transaction=self._transaction)
             else:
                 return self.__class__.deleteAll(where=["id = ?", oldid])
@@ -283,7 +283,7 @@ class DBObject(Validator):
             if result == False:
                 return defer.succeed(self)
             else:
-                if self._transaction is not None:
+                if self._transaction:
                     ds = [getattr(self, relation).clear(transaction=self._transaction) for relation in self.HABTM]
                 else:
                     ds = [getattr(self, relation).clear() for relation in self.HABTM]

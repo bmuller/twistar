@@ -277,7 +277,7 @@ class InteractionBase:
             wherestr, args = self.whereToString(where)
             q += " WHERE " + wherestr
         if transaction is not None:
-            return self.executeTxn(transaction, q, args)
+            return Registry.DBPOOL.runOperationInTransaction(transaction, q, args)
         return self.executeOperation(q, args)
 
 
@@ -382,7 +382,7 @@ class InteractionBase:
             vals = obj.toHash(cols, includeBlank=True, exclude=['id'])
             return self.update(tablename, vals, where=['id = ?', obj.id], transaction=transaction)
         # We don't want to return the cursor - so add a blank callback returning the obj
-        if obj._transaction is not None:
+        if obj._transaction:
                 return Registry.DBPOOL.executeOperationInTransaction(_doupdate, obj._transaction).addCallback(lambda _: obj)
         else:
                 return Registry.DBPOOL.runInteraction(_doupdate).addCallback(lambda _: obj)    
@@ -450,55 +450,6 @@ class InteractionBase:
                 return val[0]
         d.addCallback(_parse_count_result)
         return d
-
-
-    def runWithTransaction(self, interaction, transaction, *args, **kw):
-        """
-        Interact with the database and return the result, using the given transaction and connection.
-        Inspired from twisted.enterprise.adbapi.ConnectionPool.runInteraction
-
-        The 'interaction' is a callable object which will be executed in a thread using a pooled connection. 
-        It will be passed an C{Transaction} object as an argument (whose interface is identical to that of 
-        the database cursor for your DB-API module of choice), and its results will be returned as a Deferred. 
-        If running the method raises an exception, the transaction will NOT be rolled back. 
-        The transaction will NOT be committed automatically, you have to call commit on the transaction.
-
-        NOTE that the function you pass is *not* run in the main thread: you may have to worry 
-        about thread-safety in the function you pass to this if it tries to use non-local objects.
-
-        @param interaction: a callable object whose first argument
-            is an L{adbapi.Transaction}.
-
-        @param transaction: a C {dict} containing containing a C{t.e.a.Transaction} and C{t.e.a.Connection} instances
-
-        @param *args: additional positional arguments to be passed
-            to interaction
-
-        @param **kw: keyword arguments to be passed to interaction
-
-        @return: a Deferred which will fire the return value of
-            'interaction(Transaction(...), *args, **kw)', or a Failure.
-
-        """
-        return threads.deferToThreadPool(reactor, Registry.DBPOOL.threadpool,
-                                         self._runWithTransaction,
-                                         interaction, transaction, *args, **kw)
-
-
-    def _runWithTransaction(self, interaction, transaction, *args, **kw):
-        trans = transaction
-        conn = trans._connection
-
-        if trans._cursor is None:
-                raise TransactionNotStartedError("Cannot call transaction without a transaction")
-
-        try:
-                result = interaction(trans, *args, **kw)
-                return result
-        except:
-                excType, excValue, excTraceback = sys.exc_info()
-                # conn.rollback here?
-                raise excType, excValue, excTraceback
 
 
     def commit(self, transaction):

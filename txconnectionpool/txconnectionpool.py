@@ -50,6 +50,9 @@ class TxConnectionPool(ConnectionPool):
         return self._deferToTrans(self._runQueryInTransaction, trans, *args, **kw)
 
     def executeOperationInTransaction(self, f, trans, *args, **kw):
+        """
+        Execute the specified function into the transaction thread and return result
+        """
         return self._deferToTrans(f, trans, *args, **kw)
       
     def runOperationInTransaction(self, trans, *args, **kw):

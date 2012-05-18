@@ -54,6 +54,11 @@ class Relationship:
         self.thisname = self.args['foreign_key']
 
 
+    def _updateInTransaction(self, transaction, tablename, args, where):
+        return self.dbconfig.update(tablename, args, where, transaction)
+
+
+
 class BelongsTo(Relationship):
     """
     Class representing a belongs-to relationship.
@@ -174,7 +179,10 @@ class HasMany(Relationship):
                 raise ReferenceNotSavedError, msg
             ids.append(str(other.id))
         where = ["id IN (%s)" % ",".join(ids)]                
-        return defer.maybeDeferred(self.dbconfig.update, tablename, args, where, transaction=transaction)
+        if transaction:
+            return Registry.DBPOOL.executeOperationInTransaction(self._updateInTransaction,
+                                transaction, tablename, args, where)
+        return self.dbconfig.update(tablename, args, where)
 
 
     def set(self, others, transaction=None):
@@ -189,17 +197,21 @@ class HasMany(Relationship):
         tablename = self.otherklass.tablename()
         args = {self.thisname: None}
         where = ["%s = ?" % self.thisname, self.inst.id] 
-        d = defer.maybeDeferred(self.dbconfig.update, tablename, args, where, transaction=transaction)
+        if transaction:
+            d = Registry.DBPOOL.executeOperationInTransaction(self._updateInTransaction,
+                            transaction, tablename, args, where)
+        else:
+            d = self.dbconfig.update(tablename, args, where)
         if len(others) > 0:
             d.addCallback(self._update, others, transaction=transaction)
         return d
 
 
-    def clear(self):
+    def clear(self, transaction=None):
         """
         Clear the list of all of the objects that this one has.
         """
-        return self.set([])
+        return self.set([], transaction)
         
 
 class HasOne(Relationship):
@@ -213,7 +225,8 @@ class HasOne(Relationship):
 
         @return: A C{Deferred} with a callback value of the object this one has (or c{None}).
         """                
-        return self.otherklass.find(where=["%s = ?" % self.thisname, self.inst.id], limit=1, transaction=transaction)
+        return self.otherklass.find(where=["%s = ?" % self.thisname, self.inst.id], limit=1, 
+                                    transaction=transaction)
 
 
     def set(self, other, transaction=None):
@@ -225,7 +238,10 @@ class HasOne(Relationship):
         tablename = self.otherklass.tablename()
         args = {self.thisname: self.inst.id}
         where = ["id = ?", other.id]        
-        return self.dbconfig.update(tablename, args, where, transaction=transaction)
+        if transaction:
+            return Registry.DBPOOL.executeOperationInTransaction(self._updateInTransaction,
+                                transaction, tablename, args, where)
+        return self.dbconfig.update(tablename, args, where)
 
 
 class HABTM(Relationship):
@@ -316,7 +332,12 @@ class HABTM(Relationship):
                 msg = "You must save all other instances before defining a relationship"
                 raise ReferenceNotSavedError, msg                
             args.append({self.thisname: self.inst.id, self.othername: other.id})
-        return defer.maybeDeferred(self.dbconfig.insertMany, self.tablename(), args, transaction=transaction)
+        if transaction:
+            def _manyInTransaction(transaction, tablename, args):
+                return self.dbconfig.insertMany(tablename, args, transaction)
+            return Registry.DBPOOL.executeOperationInTransaction(_manyInTransaction,
+                                transaction, self.tablename(), args)
+        return self.dbconfig.insertMany( self.tablename(), args)
     
     
     def set(self, others, transaction=None):
@@ -326,7 +347,7 @@ class HABTM(Relationship):
         @return: A C{Deferred}.
         """                        
         where = ["%s = ?" % self.thisname, self.inst.id]
-        d = defer.maybeDeferred(self.dbconfig.delete, self.tablename(), where=where, transaction=transaction)
+        d = self.dbconfig.delete(self.tablename(), where=where, transaction=transaction)
         if len(others) > 0:
             d.addCallback(self._set, others, transaction=transaction)
         return d
