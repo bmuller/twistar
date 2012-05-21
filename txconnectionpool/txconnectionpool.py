@@ -108,8 +108,8 @@ class TxConnectionPool(ConnectionPool):
         worker = self._removeWorkerFromDict(trans)
 
         conn = trans._connection
-        conn.commit()
         trans.close()
+        conn.commit()
 
         return worker
      
@@ -119,9 +119,11 @@ class TxConnectionPool(ConnectionPool):
 
         worker = self._removeWorkerFromDict(trans)
 
-        conn = trans._connection
-        conn.rollback()
-        trans.close()
+        try:
+            conn = trans._connection
+            conn.rollback()
+        except Exception, e:
+            log.err("Rollback error %s"%(e))
 
         return worker
 
