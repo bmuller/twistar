@@ -74,7 +74,7 @@ class BelongsTo(Relationship):
         def get_polymorphic(row):
             kid = getattr(row, "%s_id" % self.args['class_name'])
             kname = getattr(row, "%s_type" % self.args['class_name'])
-            return Registry.getClass(kname).find(kid)
+            return Registry.getClass(kname).find(kid, transaction=transaction)
 
         if self.args['polymorphic']:
             return self.inst.find(where=["id = ?", self.inst.id], limit=1, transaction=transaction).addCallback(get_polymorphic)
