@@ -8,7 +8,7 @@ from twisted.internet import defer
 from twistar.registry import Registry
 from twistar.relationships import Relationship
 from twistar.exceptions import InvalidRelationshipError, DBObjectSaveError, ReferenceNotSavedError
-from twistar.utils import createInstances, deferredDict
+from twistar.utils import createInstances, deferredDict, dictToWhere
 from twistar.validation import Validator, Errors
 
 from BermiInflector.Inflector import Inflector
@@ -362,6 +362,34 @@ class DBObject(Validator):
             inf = Inflector()
             klass.TABLENAME = inf.tableize(klass.__name__)
         return klass.TABLENAME
+
+
+    @classmethod
+    def findOrCreate(klass, **attrs):
+        """
+        Find all instances of a given class based on the attributes given (just like C{findBy}).
+
+        If a match isn't found, create a new instance and return that.
+        """
+        def handle(result):
+            if len(result) == 0:
+                return klass(**attrs).save()
+            return result[0]
+        return klass.findBy(**attrs).addCallback(handle)
+
+
+    @classmethod
+    def findBy(klass, **attrs):
+        """
+        Find all instances of the given class based on an exact match of attributes.
+
+        For instance:
+        C{User.find(first_name='Bob', last_name='Smith')}
+
+        Will return all matches.
+        """
+        where = dictToWhere(attrs)
+        return klass.find(where = where)
 
 
     @classmethod

@@ -23,6 +23,36 @@ class DBObjectTest(unittest.TestCase):
 
 
     @inlineCallbacks
+    def test_findBy(self):
+        r = yield User.findBy(first_name="Non", last_name="Existant")
+        self.assertEqual(r, [])
+
+        r = yield User.findBy(first_name="First", last_name="Last", age=11)
+        self.assertEqual(r, [])
+
+        r = yield User.findBy(first_name="First", last_name="Last", age=10)
+        self.assertEqual(r[0], self.user)
+
+        r = yield User.findBy(first_name="First", last_name="Last")
+        self.assertEqual(r[0], self.user)
+
+        u = yield User(first_name="Bob").save()
+        r = yield User.findBy()
+        self.assertEqual(len(r), 2)
+
+
+    @inlineCallbacks
+    def test_findOrCreate(self):
+        # make sure we didn't create a new user
+        r = yield User.findOrCreate(first_name="First")
+        self.assertEqual(r.id, self.user.id)
+
+        # make sure we do create a new user
+        r = yield User.findOrCreate(first_name="First", last_name="Non")
+        self.assertTrue(r.id != self.user.id)
+
+
+    @inlineCallbacks
     def test_creation(self):
         # test creating blank object 
         u = yield User().save()
