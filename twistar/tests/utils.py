@@ -47,4 +47,3 @@ class Nickname(DBObject):
 Registry.register(Picture, User, Avatar, FakeObject, FavoriteColor)
 Registry.register(Boy, Girl, Nickname)
 Registry.register(Blogpost, Category)
-
