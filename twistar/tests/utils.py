@@ -22,6 +22,12 @@ class Avatar(DBObject):
 class FavoriteColor(DBObject):
     HABTM = ['users']    
 
+class Blogpost(DBObject):
+    HABTM = [dict(name='categories', join_table='posts_categories')]
+
+class Category(DBObject):
+    HABTM = [dict(name='blogposts', join_table='posts_categories')]
+
 class FakeObject(DBObject):
     pass
 
@@ -40,3 +46,5 @@ class Nickname(DBObject):
 
 Registry.register(Picture, User, Avatar, FakeObject, FavoriteColor)
 Registry.register(Boy, Girl, Nickname)
+Registry.register(Blogpost, Category)
+
