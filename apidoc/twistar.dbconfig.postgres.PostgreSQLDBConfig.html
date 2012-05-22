@@ -22,12 +22,12 @@
     <div class="undocumented">Undocumented</div>
 
     <p>
-      <a href="#" class="jslink" onclick="showSplit()" id="showSplitLink">Split Table into Classes</a>
-      <a href="#" class="jslink" onclick="showBig()" id="showBigLink">Show Methods in One Table</a>
+      <a href="#" id="showSplitLink" onclick="showSplit()" class="jslink">Split Table into Classes</a>
+      <a href="#" id="showBigLink" onclick="showBig()" class="jslink">Show Methods in One Table</a>
     </p>
     
     <div id="splitTables">
-      <table class="children sortable" id="id10">
+      <table class="children sortable" id="id11">
   
   <tr>
     <th>Line #</th>
@@ -40,14 +40,25 @@
     <td class="lineno">7</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.postgres.PostgreSQLDBConfig.html#getLastInsertID">getLastInsertID</a></td>
-    <td><span>Using the given txn, get the id of the last inserted row.</span></td>
+    <td><tt>Using the given txn, get the id of the last inserted row.</tt></td>
   </tr><tr class="method">
     
     <td class="lineno">14</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.postgres.PostgreSQLDBConfig.html#insertArgsToString">insertArgsToString</a></td>
-    <td><span>Convert <code>{'name': value}</code> to an insert &quot;values&quot; 
-string like <code>&quot;(%s,%s,%s)&quot;</code>.</span></td>
+    <td><tt>Convert C{{'name': value}} to an insert "values" string like C{"(%s,%s,%s)"}.</tt></td>
+  </tr><tr class="method">
+    
+    <td class="lineno">20</td>
+    <td>Method</td>
+    <td><a href="twistar.dbconfig.postgres.PostgreSQLDBConfig.html#escapeColNames">escapeColNames</a></td>
+    <td><tt>Escape column names for insertion into SQL statement.</tt></td>
+  </tr><tr class="method">
+    
+    <td class="lineno">24</td>
+    <td>Method</td>
+    <td><a href="twistar.dbconfig.postgres.PostgreSQLDBConfig.html#count">count</a></td>
+    <td><tt>Get the number of rows in the given table (optionally, that meet the given where criteria).</tt></td>
   </tr>
   
 </table>
@@ -55,7 +66,7 @@ string like <code>&quot;(%s,%s,%s)&quot;</code>.</span></td>
         <p>
           Inherited from <a href="twistar.dbconfig.base.InteractionBase.html">InteractionBase</a>:
         </p>
-        <table class="children sortable" id="id11">
+        <table class="children sortable" id="id12">
   
   <tr>
     <th>Line #</th>
@@ -67,124 +78,110 @@ string like <code>&quot;(%s,%s,%s)&quot;</code>.</span></td>
     
     <td class="lineno">24</td>
     <td>Method</td>
-    <td><a href="twistar.dbconfig.base.InteractionBase.html#log">log</a></td>
-    <td><span>Log the query and any args or kwargs using 
-<code>twisted.python.log.msg</code> if</span></td>
+    <td><a href="twistar.dbconfig.base.InteractionBase.html#logEncode">logEncode</a></td>
+    <td><tt>Encode the given string if necessary for printing to logs.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">38</td>
+    <td class="lineno">33</td>
     <td>Method</td>
-    <td><a href="twistar.dbconfig.base.InteractionBase.html#executeOperation">executeOperation</a></td>
-    <td><span>Simply makes same 
-<code>twisted.enterprise.dbapi.ConnectionPool.runOperation</code> call, 
-but</span></td>
+    <td><a href="twistar.dbconfig.base.InteractionBase.html#log">log</a></td>
+    <td><tt>Log the query and any args or kwargs using C{twisted.python.log.msg} if C{InteractionBase.LOG} is True.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">47</td>
     <td>Method</td>
-    <td><a href="twistar.dbconfig.base.InteractionBase.html#execute">execute</a></td>
-    <td><span>Simply makes same 
-<code>twisted.enterprise.dbapi.ConnectionPool.runQuery</code> call, but</span></td>
+    <td><a href="twistar.dbconfig.base.InteractionBase.html#executeOperation">executeOperation</a></td>
+    <td><tt>Simply makes same C{twisted.enterprise.dbapi.ConnectionPool.runOperation} call, but with call to L{log} function.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">56</td>
     <td>Method</td>
-    <td><a href="twistar.dbconfig.base.InteractionBase.html#executeTxn">executeTxn</a></td>
-    <td><span>Execute given query within the given transaction.  Also, makes call</span></td>
+    <td><a href="twistar.dbconfig.base.InteractionBase.html#execute">execute</a></td>
+    <td><tt>Simply makes same C{twisted.enterprise.dbapi.ConnectionPool.runQuery} call, but with call to L{log} function.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">65</td>
     <td>Method</td>
-    <td><a href="twistar.dbconfig.base.InteractionBase.html#select">select</a></td>
-    <td><span>Select rows from a table.</span></td>
+    <td><a href="twistar.dbconfig.base.InteractionBase.html#executeTxn">executeTxn</a></td>
+    <td><tt>Execute given query within the given transaction.  Also, makes call to L{log} function.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">144</td>
+    <td class="lineno">74</td>
+    <td>Method</td>
+    <td><a href="twistar.dbconfig.base.InteractionBase.html#select">select</a></td>
+    <td><tt>Select rows from a table.</tt></td>
+  </tr><tr class="basemethod">
+    
+    <td class="lineno">153</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#insert">insert</a></td>
-    <td><span>Insert a row into the given table.</span></td>
+    <td><tt>Insert a row into the given table.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">170</td>
-    <td>Method</td>
-    <td><a href="twistar.dbconfig.base.InteractionBase.html#escapeColNames">escapeColNames</a></td>
-    <td><span>Escape column names for insertion into SQL statement.</span></td>
-  </tr><tr class="basemethod">
-    
-    <td class="lineno">181</td>
+    <td class="lineno">190</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#insertMany">insertMany</a></td>
-    <td><span>Insert many values into a table.</span></td>
+    <td><tt>Insert many values into a table.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">213</td>
+    <td class="lineno">222</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#delete">delete</a></td>
-    <td><span>Delete from the given tablename.</span></td>
+    <td><tt>Delete from the given tablename.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">230</td>
+    <td class="lineno">239</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#update">update</a></td>
-    <td><span>Update a row into the given table.</span></td>
+    <td><tt>Update a row into the given table.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">259</td>
+    <td class="lineno">268</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#valuesToHash">valuesToHash</a></td>
-    <td><span>Given a row from a database query (values), create</span></td>
+    <td><tt>Given a row from a database query (values), create a hash using keys from the table schema and values from the given values;</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">281</td>
+    <td class="lineno">290</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#getSchema">getSchema</a></td>
-    <td><span>Get the schema (in the form of a list of column names) for</span></td>
+    <td><tt>Get the schema (in the form of a list of column names) for a given tablename.  Use the given transaction if specified.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">295</td>
+    <td class="lineno">304</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#insertObj">insertObj</a></td>
-    <td><span>Insert the given object into its table.</span></td>
+    <td><tt>Insert the given object into its table.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">314</td>
+    <td class="lineno">323</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#updateObj">updateObj</a></td>
-    <td><span>Update the given object's row in the object's table.</span></td>
+    <td><tt>Update the given object's row in the object's table.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">331</td>
+    <td class="lineno">340</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#refreshObj">refreshObj</a></td>
-    <td><span>Update the given object based on the information in the object's 
-table.</span></td>
+    <td><tt>Update the given object based on the information in the object's table.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">345</td>
+    <td class="lineno">354</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#whereToString">whereToString</a></td>
-    <td><span>Convert a conditional to the form needed for a query using the DBAPI.  
-For instance,</span></td>
+    <td><tt>Convert a conditional to the form needed for a query using the DBAPI.  For instance, for most DB's question marks in the query string have to be converted to C{%s}.  This will vary by database.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">361</td>
+    <td class="lineno">370</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#updateArgsToString">updateArgsToString</a></td>
-    <td><span>Convert dictionary of arguments to form needed for DB update query.  
-This method will</span></td>
-  </tr><tr class="basemethod">
-    
-    <td class="lineno">376</td>
-    <td>Method</td>
-    <td><a href="twistar.dbconfig.base.InteractionBase.html#count">count</a></td>
-    <td><span>Get the number of rows in the given table (optionally, that meet the 
-given where criteria).</span></td>
+    <td><tt>Convert dictionary of arguments to form needed for DB update query.  This method will vary by database driver.</tt></td>
   </tr><tr class="basemethod private">
     
-    <td class="lineno">117</td>
+    <td class="lineno">126</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#_doselect">_doselect</a></td>
-    <td><span>Private callback for actual select query call.</span></td>
+    <td><tt>Private callback for actual select query call.</tt></td>
   </tr>
   
 </table>
@@ -192,7 +189,7 @@ given where criteria).</span></td>
       
     </div>
     <div id="bigTable">
-    <table class="children sortable" id="id12">
+    <table class="children sortable" id="id13">
   
   <tr>
     <th>Line #</th>
@@ -200,141 +197,138 @@ given where criteria).</span></td>
     <th>Name</th>
     <th>Docs</th>
   </tr>
-<tr class="basemethod">
+<tr class="method">
     
-    <td class="lineno">376</td>
+    <td class="lineno">24</td>
     <td>Method</td>
-    <td><a href="twistar.dbconfig.base.InteractionBase.html#count">count</a></td>
-    <td><span>Get the number of rows in the given table (optionally, that meet the 
-given where criteria).</span></td>
+    <td><a href="twistar.dbconfig.postgres.PostgreSQLDBConfig.html#count">count</a></td>
+    <td><tt>Get the number of rows in the given table (optionally, that meet the given where criteria).</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">213</td>
+    <td class="lineno">222</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#delete">delete</a></td>
-    <td><span>Delete from the given tablename.</span></td>
-  </tr><tr class="basemethod">
+    <td><tt>Delete from the given tablename.</tt></td>
+  </tr><tr class="method">
     
-    <td class="lineno">170</td>
+    <td class="lineno">20</td>
     <td>Method</td>
-    <td><a href="twistar.dbconfig.base.InteractionBase.html#escapeColNames">escapeColNames</a></td>
-    <td><span>Escape column names for insertion into SQL statement.</span></td>
-  </tr><tr class="basemethod">
-    
-    <td class="lineno">47</td>
-    <td>Method</td>
-    <td><a href="twistar.dbconfig.base.InteractionBase.html#execute">execute</a></td>
-    <td><span>Simply makes same 
-<code>twisted.enterprise.dbapi.ConnectionPool.runQuery</code> call, but</span></td>
-  </tr><tr class="basemethod">
-    
-    <td class="lineno">38</td>
-    <td>Method</td>
-    <td><a href="twistar.dbconfig.base.InteractionBase.html#executeOperation">executeOperation</a></td>
-    <td><span>Simply makes same 
-<code>twisted.enterprise.dbapi.ConnectionPool.runOperation</code> call, 
-but</span></td>
+    <td><a href="twistar.dbconfig.postgres.PostgreSQLDBConfig.html#escapeColNames">escapeColNames</a></td>
+    <td><tt>Escape column names for insertion into SQL statement.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">56</td>
     <td>Method</td>
+    <td><a href="twistar.dbconfig.base.InteractionBase.html#execute">execute</a></td>
+    <td><tt>Simply makes same C{twisted.enterprise.dbapi.ConnectionPool.runQuery} call, but with call to L{log} function.</tt></td>
+  </tr><tr class="basemethod">
+    
+    <td class="lineno">47</td>
+    <td>Method</td>
+    <td><a href="twistar.dbconfig.base.InteractionBase.html#executeOperation">executeOperation</a></td>
+    <td><tt>Simply makes same C{twisted.enterprise.dbapi.ConnectionPool.runOperation} call, but with call to L{log} function.</tt></td>
+  </tr><tr class="basemethod">
+    
+    <td class="lineno">65</td>
+    <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#executeTxn">executeTxn</a></td>
-    <td><span>Execute given query within the given transaction.  Also, makes call</span></td>
+    <td><tt>Execute given query within the given transaction.  Also, makes call to L{log} function.</tt></td>
   </tr><tr class="method">
     
     <td class="lineno">7</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.postgres.PostgreSQLDBConfig.html#getLastInsertID">getLastInsertID</a></td>
-    <td><span>Using the given txn, get the id of the last inserted row.</span></td>
+    <td><tt>Using the given txn, get the id of the last inserted row.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">281</td>
+    <td class="lineno">290</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#getSchema">getSchema</a></td>
-    <td><span>Get the schema (in the form of a list of column names) for</span></td>
+    <td><tt>Get the schema (in the form of a list of column names) for a given tablename.  Use the given transaction if specified.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">144</td>
+    <td class="lineno">153</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#insert">insert</a></td>
-    <td><span>Insert a row into the given table.</span></td>
+    <td><tt>Insert a row into the given table.</tt></td>
   </tr><tr class="method">
     
     <td class="lineno">14</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.postgres.PostgreSQLDBConfig.html#insertArgsToString">insertArgsToString</a></td>
-    <td><span>Convert <code>{'name': value}</code> to an insert &quot;values&quot; 
-string like <code>&quot;(%s,%s,%s)&quot;</code>.</span></td>
+    <td><tt>Convert C{{'name': value}} to an insert "values" string like C{"(%s,%s,%s)"}.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">181</td>
+    <td class="lineno">190</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#insertMany">insertMany</a></td>
-    <td><span>Insert many values into a table.</span></td>
+    <td><tt>Insert many values into a table.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">295</td>
+    <td class="lineno">304</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#insertObj">insertObj</a></td>
-    <td><span>Insert the given object into its table.</span></td>
+    <td><tt>Insert the given object into its table.</tt></td>
+  </tr><tr class="basemethod">
+    
+    <td class="lineno">33</td>
+    <td>Method</td>
+    <td><a href="twistar.dbconfig.base.InteractionBase.html#log">log</a></td>
+    <td><tt>Log the query and any args or kwargs using C{twisted.python.log.msg} if C{InteractionBase.LOG} is True.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">24</td>
     <td>Method</td>
-    <td><a href="twistar.dbconfig.base.InteractionBase.html#log">log</a></td>
-    <td><span>Log the query and any args or kwargs using 
-<code>twisted.python.log.msg</code> if</span></td>
+    <td><a href="twistar.dbconfig.base.InteractionBase.html#logEncode">logEncode</a></td>
+    <td><tt>Encode the given string if necessary for printing to logs.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">331</td>
+    <td class="lineno">340</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#refreshObj">refreshObj</a></td>
-    <td><span>Update the given object based on the information in the object's 
-table.</span></td>
+    <td><tt>Update the given object based on the information in the object's table.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">65</td>
+    <td class="lineno">74</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#select">select</a></td>
-    <td><span>Select rows from a table.</span></td>
+    <td><tt>Select rows from a table.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">230</td>
+    <td class="lineno">239</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#update">update</a></td>
-    <td><span>Update a row into the given table.</span></td>
+    <td><tt>Update a row into the given table.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">361</td>
+    <td class="lineno">370</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#updateArgsToString">updateArgsToString</a></td>
-    <td><span>Convert dictionary of arguments to form needed for DB update query.  
-This method will</span></td>
+    <td><tt>Convert dictionary of arguments to form needed for DB update query.  This method will vary by database driver.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">314</td>
+    <td class="lineno">323</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#updateObj">updateObj</a></td>
-    <td><span>Update the given object's row in the object's table.</span></td>
+    <td><tt>Update the given object's row in the object's table.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">259</td>
+    <td class="lineno">268</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#valuesToHash">valuesToHash</a></td>
-    <td><span>Given a row from a database query (values), create</span></td>
+    <td><tt>Given a row from a database query (values), create a hash using keys from the table schema and values from the given values;</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">345</td>
+    <td class="lineno">354</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#whereToString">whereToString</a></td>
-    <td><span>Convert a conditional to the form needed for a query using the DBAPI.  
-For instance,</span></td>
+    <td><tt>Convert a conditional to the form needed for a query using the DBAPI.  For instance, for most DB's question marks in the query string have to be converted to C{%s}.  This will vary by database.</tt></td>
   </tr><tr class="basemethod private">
     
-    <td class="lineno">117</td>
+    <td class="lineno">126</td>
     <td>Method</td>
     <td><a href="twistar.dbconfig.base.InteractionBase.html#_doselect">_doselect</a></td>
-    <td><span>Private callback for actual select query call.</span></td>
+    <td><tt>Private callback for actual select query call.</tt></td>
   </tr>
   
 </table></div>
@@ -356,8 +350,9 @@ For instance,</span></td>
   </div>
   <div class="functionBody">
     <div class="interfaceinfo">overrides <a href="twistar.dbconfig.base.InteractionBase.html#getLastInsertID">twistar.dbconfig.base.InteractionBase.getLastInsertID</a></div>
-    <div>Using the given txn, get the id of the last inserted row.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2">The integer id of the last inserted row.
-</td></tr></table></div>
+    <pre>Using the given txn, get the id of the last inserted row.
+
+@return: The integer id of the last inserted row.</pre>
   </div>
 </div><div class="function">
   <a name="twistar.dbconfig.postgres.PostgreSQLDBConfig.insertArgsToString">
@@ -374,12 +369,55 @@ For instance,</span></td>
   </div>
   <div class="functionBody">
     <div class="interfaceinfo">overrides <a href="twistar.dbconfig.base.InteractionBase.html#insertArgsToString">twistar.dbconfig.base.InteractionBase.insertArgsToString</a></div>
-    <div>Convert <code>{'name': value}</code> to an insert &quot;values&quot; 
-string like <code>&quot;(%s,%s,%s)&quot;</code>.<table class="fieldTable"></table></div>
+    <pre>Convert C{{'name': value}} to an insert "values" string like C{"(%s,%s,%s)"}.</pre>
+  </div>
+</div><div class="function">
+  <a name="twistar.dbconfig.postgres.PostgreSQLDBConfig.escapeColNames">
+    
+  </a>
+  <a name="escapeColNames">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    escapeColNames(self, colnames):
+    
+  </div>
+  <div class="functionBody">
+    <div class="interfaceinfo">overrides <a href="twistar.dbconfig.base.InteractionBase.html#escapeColNames">twistar.dbconfig.base.InteractionBase.escapeColNames</a></div>
+    <pre>Escape column names for insertion into SQL statement.
+
+@param colnames: A C{List} of string column names.
+
+@return: A C{List} of string escaped column names.</pre>
+  </div>
+</div><div class="function">
+  <a name="twistar.dbconfig.postgres.PostgreSQLDBConfig.count">
+    
+  </a>
+  <a name="count">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    count(self, tablename, where=None):
+    
+  </div>
+  <div class="functionBody">
+    <div class="interfaceinfo">overrides <a href="twistar.dbconfig.base.InteractionBase.html#count">twistar.dbconfig.base.InteractionBase.count</a></div>
+    <pre>Get the number of rows in the given table (optionally, that meet the given where criteria).
+
+@param tablename: The tablename to count rows from.
+
+@param where: Conditional of the same form as the C{where} parameter in L{DBObject.find}.
+
+@return: A C{Deferred} that returns the number of rows.</pre>
   </div>
 </div>
     <address>
-      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2011-06-18 14:10:55.
+      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2012-05-22 19:41:29.
     </address>
   </body>
 </html>

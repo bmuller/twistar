@@ -19,15 +19,15 @@
     <div>
       
     </div>
-    <div>A class representing the has many relationship.<table class="fieldTable"></table></div>
+    <pre>A class representing the has many relationship.</pre>
 
     <p>
-      <a href="#" class="jslink" onclick="showSplit()" id="showSplitLink">Split Table into Classes</a>
-      <a href="#" class="jslink" onclick="showBig()" id="showBigLink">Show Methods in One Table</a>
+      <a href="#" id="showSplitLink" onclick="showSplit()" class="jslink">Split Table into Classes</a>
+      <a href="#" id="showBigLink" onclick="showBig()" class="jslink">Show Methods in One Table</a>
     </p>
     
     <div id="splitTables">
-      <table class="children sortable" id="id35">
+      <table class="children sortable" id="id40">
   
   <tr>
     <th>Line #</th>
@@ -40,25 +40,25 @@
     <td class="lineno">108</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#get">get</a></td>
-    <td><span>Get the objects that caller has.</span></td>
+    <td><tt>Get the objects that caller has.</tt></td>
   </tr><tr class="method">
     
     <td class="lineno">122</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#count">count</a></td>
-    <td><span>Get the number of objects that caller has.</span></td>
+    <td><tt>Get the number of objects that caller has.</tt></td>
   </tr><tr class="method">
     
     <td class="lineno">176</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#set">set</a></td>
-    <td><span>Set the objects that caller has.</span></td>
+    <td><tt>Set the objects that caller has.</tt></td>
   </tr><tr class="method">
     
     <td class="lineno">194</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#clear">clear</a></td>
-    <td><span>Clear the list of all of the objects that this one has.</span></td>
+    <td><tt>Clear the list of all of the objects that this one has.</tt></td>
   </tr><tr class="method private">
     
     <td class="lineno">136</td>
@@ -84,7 +84,7 @@
         <p>
           Inherited from <a href="twistar.relationships.Relationship.html">Relationship</a>:
         </p>
-        <table class="children sortable" id="id36">
+        <table class="children sortable" id="id41">
   
   <tr>
     <th>Line #</th>
@@ -97,7 +97,7 @@
     <td class="lineno">21</td>
     <td>Method</td>
     <td><a href="twistar.relationships.Relationship.html#__init__">__init__</a></td>
-    <td><span>Constructor.</span></td>
+    <td><tt>Constructor.</tt></td>
   </tr>
   
 </table>
@@ -105,7 +105,7 @@
       
     </div>
     <div id="bigTable">
-    <table class="children sortable" id="id37">
+    <table class="children sortable" id="id42">
   
   <tr>
     <th>Line #</th>
@@ -118,31 +118,31 @@
     <td class="lineno">21</td>
     <td>Method</td>
     <td><a href="twistar.relationships.Relationship.html#__init__">__init__</a></td>
-    <td><span>Constructor.</span></td>
+    <td><tt>Constructor.</tt></td>
   </tr><tr class="method">
     
     <td class="lineno">194</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#clear">clear</a></td>
-    <td><span>Clear the list of all of the objects that this one has.</span></td>
+    <td><tt>Clear the list of all of the objects that this one has.</tt></td>
   </tr><tr class="method">
     
     <td class="lineno">122</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#count">count</a></td>
-    <td><span>Get the number of objects that caller has.</span></td>
+    <td><tt>Get the number of objects that caller has.</tt></td>
   </tr><tr class="method">
     
     <td class="lineno">108</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#get">get</a></td>
-    <td><span>Get the objects that caller has.</span></td>
+    <td><tt>Get the objects that caller has.</tt></td>
   </tr><tr class="method">
     
     <td class="lineno">176</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#set">set</a></td>
-    <td><span>Set the objects that caller has.</span></td>
+    <td><tt>Set the objects that caller has.</tt></td>
   </tr><tr class="method private">
     
     <td class="lineno">136</td>
@@ -182,12 +182,13 @@
   </div>
   <div class="functionBody">
     
-    <div>Get the objects that caller has.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">kwargs</td><td>These could include <code>limit</code>, <code>orderby</code>, or any others
-included in <code>DBObject.find</code>.  If a <code>where</code> parameter 
-is included, the conditions will be added to the ones already imposed by 
-default in this method.
-</td></tr><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2">A <code>Deferred</code> with a callback value of a list of objects.
-</td></tr></table></div>
+    <pre>Get the objects that caller has.
+
+@param kwargs: These could include C{limit}, C{orderby}, or any others included in
+C{DBObject.find}.  If a C{where} parameter is included, the conditions will
+be added to the ones already imposed by default in this method.
+
+@return: A C{Deferred} with a callback value of a list of objects.</pre>
   </div>
 </div><div class="function">
   <a name="twistar.relationships.HasMany.count">
@@ -204,12 +205,13 @@ default in this method.
   </div>
   <div class="functionBody">
     
-    <div>Get the number of objects that caller has.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">kwargs</td><td>These could include <code>limit</code>, <code>orderby</code>, or any others
-included in <code>DBObject.find</code>.  If a <code>where</code> parameter 
-is included, the conditions will be added to the ones already imposed by 
-default in this method.
-</td></tr><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2">A <code>Deferred</code> with the number of objects.
-</td></tr></table></div>
+    <pre>Get the number of objects that caller has.
+
+@param kwargs: These could include C{limit}, C{orderby}, or any others included in
+C{DBObject.find}.  If a C{where} parameter is included, the conditions will
+be added to the ones already imposed by default in this method.
+
+@return: A C{Deferred} with the number of objects.</pre>
   </div>
 </div><div class="function">
   <a name="twistar.relationships.HasMany._generateGetArgs">
@@ -277,8 +279,9 @@ default in this method.
   </div>
   <div class="functionBody">
     
-    <div>Set the objects that caller has.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2">A <code>Deferred</code>.
-</td></tr></table></div>
+    <pre>Set the objects that caller has.
+
+@return: A C{Deferred}.</pre>
   </div>
 </div><div class="function">
   <a name="twistar.relationships.HasMany.clear">
@@ -295,11 +298,11 @@ default in this method.
   </div>
   <div class="functionBody">
     
-    <div>Clear the list of all of the objects that this one has.<table class="fieldTable"></table></div>
+    <pre>Clear the list of all of the objects that this one has.</pre>
   </div>
 </div>
     <address>
-      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2011-06-18 14:10:55.
+      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2012-05-22 19:41:29.
     </address>
   </body>
 </html>

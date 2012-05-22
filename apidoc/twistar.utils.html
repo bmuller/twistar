@@ -19,12 +19,12 @@
     <div>
       
     </div>
-    <div>General catchall for functions that don't make sense as methods.<table class="fieldTable"></table></div>
+    <pre>General catchall for functions that don't make sense as methods.</pre>
 
     
     
     <div id="splitTables">
-      <table class="children sortable" id="id82">
+      <table class="children sortable" id="id95">
   
   <tr>
     <th>Line #</th>
@@ -37,22 +37,31 @@
     <td class="lineno">8</td>
     <td>Function</td>
     <td><a href="twistar.utils.html#createInstances">createInstances</a></td>
-    <td><span>Create an instance of <code>list</code> of instances of a given 
-class</span></td>
+    <td><tt>Create an instance of C{list} of instances of a given class using the given properties.</tt></td>
   </tr><tr class="function">
     
     <td class="lineno">31</td>
     <td>Function</td>
-    <td><a href="twistar.utils.html#joinWheres">joinWheres</a></td>
-    <td><span>Take two wheres (of the same format as the <code>where</code> parameter 
-in the function</span></td>
+    <td><a href="twistar.utils.html#dictToWhere">dictToWhere</a></td>
+    <td><tt>Convert a dictionary of attribute: value to a where statement.</tt></td>
   </tr><tr class="function">
     
-    <td class="lineno">49</td>
+    <td class="lineno">47</td>
+    <td>Function</td>
+    <td><a href="twistar.utils.html#joinWheres">joinWheres</a></td>
+    <td><tt>Take two wheres (of the same format as the C{where} parameter in the function L{DBObject.find}) and join them.</tt></td>
+  </tr><tr class="function">
+    
+    <td class="lineno">65</td>
+    <td>Function</td>
+    <td><a href="twistar.utils.html#joinMultipleWheres">joinMultipleWheres</a></td>
+    <td><tt>Take a list of wheres (of the same format as the C{where} parameter in the function L{DBObject.find}) and join them.</tt></td>
+  </tr><tr class="function">
+    
+    <td class="lineno">84</td>
     <td>Function</td>
     <td><a href="twistar.utils.html#deferredDict">deferredDict</a></td>
-    <td><span>Just like a <code>defer.DeferredList</code> but instead accepts and 
-returns a <code>dict</code>.</span></td>
+    <td><tt>Just like a C{defer.DeferredList} but instead accepts and returns a C{dict}.</tt></td>
   </tr>
   
 </table>
@@ -78,18 +87,36 @@ returns a <code>dict</code>.</span></td>
   </div>
   <div class="functionBody">
     
-    <div>Create an instance of <code>list</code> of instances of a given class 
-using the given properties.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">props</td><td>One of:
-<ol start="1">
-  <li>
-    A dict, in which case return an instance of klass
-  </li>
-  <li>
-    A list of dicts, in which case return a list of klass instances
-  </li>
-</ol>
-</td></tr><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2">A <code>Deferred</code> that will pass the result to a callback
-</td></tr></table></div>
+    <pre>Create an instance of C{list} of instances of a given class
+using the given properties.
+
+@param props: One of:
+  1. A dict, in which case return an instance of klass
+  2. A list of dicts, in which case return a list of klass instances
+
+@return: A C{Deferred} that will pass the result to a callback</pre>
+  </div>
+</div><div class="function">
+  <a name="twistar.utils.dictToWhere">
+    
+  </a>
+  <a name="dictToWhere">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    dictToWhere(attrs, joiner='AND'):
+    
+  </div>
+  <div class="functionBody">
+    
+    <pre>Convert a dictionary of attribute: value to a where statement.
+
+For instance, dictToWhere({'one': 'two', 'three': 'four'}) returns:
+['(one = ?) AND (three = ?)', 'two', 'four']
+
+@return: Expression above if len(attrs) &gt; 0, None otherwise</pre>
   </div>
 </div><div class="function">
   <a name="twistar.utils.joinWheres">
@@ -106,14 +133,40 @@ using the given properties.<table class="fieldTable"><tr class="fieldStart"><td 
   </div>
   <div class="functionBody">
     
-    <div>Take two wheres (of the same format as the <code>where</code> parameter 
-in the function <a 
-href="twistar.dbobject.DBObject.html#find"><code>DBObject.find</code></a>) 
-and join them.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">wone</td><td>First where <code>list</code>
-</td></tr><tr><td></td><td class="fieldArg">wone</td><td>Second where <code>list</code>
-</td></tr><tr><td></td><td class="fieldArg">joiner</td><td>Optional text for joining the two wheres.
-</td></tr><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2">A joined version of the two given wheres.
-</td></tr></table></div>
+    <pre>Take two wheres (of the same format as the C{where} parameter in the function
+L{DBObject.find}) and join them.
+
+@param wone: First where C{list}
+
+@param wone: Second where C{list}
+
+@param joiner: Optional text for joining the two wheres.
+
+@return: A joined version of the two given wheres.</pre>
+  </div>
+</div><div class="function">
+  <a name="twistar.utils.joinMultipleWheres">
+    
+  </a>
+  <a name="joinMultipleWheres">
+    
+  </a>
+  <div class="functionHeader">
+    
+    def
+    joinMultipleWheres(wheres, joiner='AND'):
+    
+  </div>
+  <div class="functionBody">
+    
+    <pre>Take a list of wheres (of the same format as the C{where} parameter in the
+function L{DBObject.find}) and join them.
+
+@param wheres: List of where clauses to join C{list}
+
+@param joiner: Optional text for joining the two wheres.
+
+@return: A joined version of the list of the given wheres.</pre>
   </div>
 </div><div class="function">
   <a name="twistar.utils.deferredDict">
@@ -130,16 +183,17 @@ and join them.<table class="fieldTable"><tr class="fieldStart"><td class="fieldN
   </div>
   <div class="functionBody">
     
-    <div>Just like a <code>defer.DeferredList</code> but instead accepts and 
-returns a <code>dict</code>.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">d</td><td>A <code>dict</code> whose values are all <code>Deferred</code> objects.
-</td></tr><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2">A <code>DeferredList</code> whose callback will be given a dictionary whose
-keys are the same as the parameter <code>d</code>'s and whose values are 
-the results of each individual deferred call.
-</td></tr></table></div>
+    <pre>Just like a C{defer.DeferredList} but instead accepts and returns a C{dict}.
+
+@param d: A C{dict} whose values are all C{Deferred} objects.
+
+@return: A C{DeferredList} whose callback will be given a dictionary whose
+keys are the same as the parameter C{d}'s and whose values are the results
+of each individual deferred call.</pre>
   </div>
 </div>
     <address>
-      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2011-06-18 14:10:55.
+      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2012-05-22 19:41:29.
     </address>
   </body>
 </html>

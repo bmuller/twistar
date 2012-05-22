@@ -19,13 +19,12 @@
     <div>
       
     </div>
-    <div>Package providing validation support for <a 
-href="twistar.dbobject.DBObject.html"><code>DBObject</code></a>s.<table class="fieldTable"></table></div>
+    <pre>Package providing validation support for L{DBObject}s.</pre>
 
     
     
     <div id="splitTables">
-      <table class="children sortable" id="id83">
+      <table class="children sortable" id="id96">
   
   <tr>
     <th>Line #</th>
@@ -38,32 +37,31 @@ href="twistar.dbobject.DBObject.html"><code>DBObject</code></a>s.<table class="f
     <td class="lineno">9</td>
     <td>Function</td>
     <td><a href="twistar.validation.html#presenceOf">presenceOf</a></td>
-    <td><span>A validator to test whether or not some named properties are set.</span></td>
+    <td><tt>A validator to test whether or not some named properties are set. For those named properties that are not set, an error will be recorded in C{obj.errors}.</tt></td>
   </tr><tr class="function">
     
     <td class="lineno">26</td>
     <td>Function</td>
     <td><a href="twistar.validation.html#lengthOf">lengthOf</a></td>
-    <td><span>A validator to test whether or not some named properties have a</span></td>
+    <td><span class="undocumented">No summary</span></td>
   </tr><tr class="function">
     
     <td class="lineno">57</td>
     <td>Function</td>
     <td><a href="twistar.validation.html#uniquenessOf">uniquenessOf</a></td>
-    <td><span>A validator to test whether or not some named properties are unique.</span></td>
+    <td><tt>A validator to test whether or not some named properties are unique. For those named properties that are not unique, an error will be recorded in C{obj.errors}.</tt></td>
   </tr><tr class="class">
     
     <td class="lineno">84</td>
     <td>Class</td>
     <td><a href="twistar.validation.Validator.html">Validator</a></td>
-    <td><span>A mixin class to handle validating objects before they are saved.</span></td>
+    <td><tt>A mixin class to handle validating objects before they are saved.</tt></td>
   </tr><tr class="class">
     
     <td class="lineno">190</td>
     <td>Class</td>
     <td><a href="twistar.validation.Errors.html">Errors</a></td>
-    <td><span>A class to hold errors found during validation of a <a 
-href="twistar.dbobject.DBObject.html"><code>DBObject</code></a>.</span></td>
+    <td><tt>A class to hold errors found during validation of a L{DBObject}.</tt></td>
   </tr>
   
 </table>
@@ -89,13 +87,14 @@ href="twistar.dbobject.DBObject.html"><code>DBObject</code></a>.</span></td>
   </div>
   <div class="functionBody">
     
-    <div>A validator to test whether or not some named properties are set. For 
-those named properties that are not set, an error will be recorded in 
-<code>obj.errors</code>.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">obj</td><td>The object whose properties need to be tested.
-</td></tr><tr><td></td><td class="fieldArg">names</td><td>The names of the properties to test.
-</td></tr><tr><td></td><td class="fieldArg">kwargs</td><td>Keyword arguments.  Right now, all but a <code>message</code> value are 
-ignored.
-</td></tr></table></div>
+    <pre>A validator to test whether or not some named properties are set.
+For those named properties that are not set, an error will
+be recorded in C{obj.errors}.
+
+@param obj: The object whose properties need to be tested.
+@param names: The names of the properties to test.
+@param kwargs: Keyword arguments.  Right now, all but a
+C{message} value are ignored.</pre>
   </div>
 </div><div class="function">
   <a name="twistar.validation.lengthOf">
@@ -112,17 +111,19 @@ ignored.
   </div>
   <div class="functionBody">
     
-    <div>A validator to test whether or not some named properties have a specific
-length.  The length is specified in one of two ways: either a 
-<code>range</code> keyword set with a <code>range</code> / 
-<code>xrange</code> / <code>list</code> object containing valid values, or 
-a <code>length</code> keyword with the exact length allowed.</p>
-<p>For those named properties that do not have the specified length, an 
-error will be recorded in <code>obj.errors</code>.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">obj</td><td>The object whose properties need to be tested.
-</td></tr><tr><td></td><td class="fieldArg">names</td><td>The names of the properties to test.
-</td></tr><tr><td></td><td class="fieldArg">kwargs</td><td>Keyword arguments.  Right now, all but <code>message</code>, 
-<code>range</code>, and <code>length</code> values are ignored.
-</td></tr></table></div>
+    <pre>A validator to test whether or not some named properties have a
+specific length.  The length is specified in one of two ways: either
+a C{range} keyword set with a C{range} / C{xrange} / C{list} object
+containing valid values, or a C{length} keyword with the exact length
+allowed.
+
+For those named properties that do not have
+the specified length, an error will be recorded in C{obj.errors}.
+
+@param obj: The object whose properties need to be tested.
+@param names: The names of the properties to test.
+@param kwargs: Keyword arguments.  Right now, all but 
+C{message}, C{range}, and C{length} values are ignored.</pre>
   </div>
 </div><div class="function">
   <a name="twistar.validation.uniquenessOf">
@@ -139,17 +140,18 @@ error will be recorded in <code>obj.errors</code>.<table class="fieldTable"><tr 
   </div>
   <div class="functionBody">
     
-    <div>A validator to test whether or not some named properties are unique. For
-those named properties that are not unique, an error will be recorded in 
-<code>obj.errors</code>.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">obj</td><td>The object whose properties need to be tested.
-</td></tr><tr><td></td><td class="fieldArg">names</td><td>The names of the properties to test.
-</td></tr><tr><td></td><td class="fieldArg">kwargs</td><td>Keyword arguments.  Right now, all but a <code>message</code> value are 
-ignored.
-</td></tr></table></div>
+    <pre>A validator to test whether or not some named properties are unique.
+For those named properties that are not unique, an error will
+be recorded in C{obj.errors}.
+
+@param obj: The object whose properties need to be tested.
+@param names: The names of the properties to test.
+@param kwargs: Keyword arguments.  Right now, all but a
+C{message} value are ignored.</pre>
   </div>
 </div>
     <address>
-      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2011-06-18 14:10:55.
+      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2012-05-22 19:41:29.
     </address>
   </body>
 </html>

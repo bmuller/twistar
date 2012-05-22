@@ -22,8 +22,8 @@
     <div class="undocumented">Undocumented</div>
 
     <p>
-      <a href="#" class="jslink" onclick="showSplit()" id="showSplitLink">Split Table into Classes</a>
-      <a href="#" class="jslink" onclick="showBig()" id="showBigLink">Show Methods in One Table</a>
+      <a href="#" id="showSplitLink" onclick="showSplit()" class="jslink">Split Table into Classes</a>
+      <a href="#" id="showBigLink" onclick="showBig()" class="jslink">Show Methods in One Table</a>
     </p>
     
     <div id="splitTables">
@@ -32,7 +32,7 @@
         <p>
           Inherited from <a href="twistar.dbobject.DBObject.html">DBObject</a>:
         </p>
-        <table class="children sortable" id="id64">
+        <table class="children sortable" id="id71">
   
   <tr>
     <th>Line #</th>
@@ -45,191 +45,181 @@
     <td class="lineno">61</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#__init__">__init__</a></td>
-    <td><span>Constructor.  DO NOT OVERWRITE.  Use the <a 
-href="twistar.dbobject.DBObject.html#afterInit"><code>DBObject.afterInit</code></a>
-method.</span></td>
+    <td><tt>Constructor.  DO NOT OVERWRITE.  Use the L{DBObject.afterInit} method.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">80</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#updateAttrs">updateAttrs</a></td>
-    <td><span>Set the attributes of this object based on the given 
-<code>dict</code>.</span></td>
+    <td><tt>Set the attributes of this object based on the given C{dict}.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">91</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#save">save</a></td>
-    <td><span>Save this object to the database.  Validation is performed first; if 
-the</span></td>
+    <td><tt>Save this object to the database.  Validation is performed first; if the validation fails (that is, if C{obj.errors.isEmpty()} is False) then the object will not be saved.  To test for errors, use C{obj.errors.isEmpty()}.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">114</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#validate">validate</a></td>
-    <td><span>Run all validations associated with this object's class.  This will 
-return a deferred</span></td>
+    <td><span class="undocumented">No summary</span></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">124</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#isValid">isValid</a></td>
-    <td><span>This method first calls <a 
-href="twistar.dbobject.DBObject.html#validate"><code>validate</code></a> 
-and then returns a deferred that returns True if</span></td>
+    <td><tt>This method first calls L{validate} and then returns a deferred that returns True if there were no errors and False otherwise.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">134</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#beforeCreate">beforeCreate</a></td>
-    <td><span>Method called before a new object is created.  Classes can overwrite 
-this method.</span></td>
+    <td><tt>Method called before a new object is created.  Classes can overwrite this method. If False is returned, then the object is not saved in the database.  This method may return a C{Deferred}.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">142</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#beforeUpdate">beforeUpdate</a></td>
-    <td><span>Method called before an existing object is updated.  Classes can 
-overwrite this method.</span></td>
+    <td><tt>Method called before an existing object is updated.  Classes can overwrite this method. If False is returned, then the object is not saved in the database.  This method may return a C{Deferred}.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">150</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#beforeSave">beforeSave</a></td>
-    <td><span>Method called before an object is saved.  Classes can overwrite this 
-method.</span></td>
+    <td><tt>Method called before an object is saved.  Classes can overwrite this method. If False is returned, then the object is not saved in the database.  This method may return a C{Deferred}.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">161</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#afterInit">afterInit</a></td>
-    <td><span>Method called when a new <a 
-href="twistar.dbobject.DBObject.html"><code>DBObject</code></a> is 
-instantiated.  Classes can overwrite this method.</span></td>
+    <td><tt>Method called when a new L{DBObject} is instantiated.  Classes can overwrite this method. This method may return a C{Deferred}.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">168</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#beforeDelete">beforeDelete</a></td>
-    <td><span>Method called before a <a 
-href="twistar.dbobject.DBObject.html"><code>DBObject</code></a> is deleted.
-Classes can overwrite this method.</span></td>
+    <td><tt>Method called before a L{DBObject} is deleted.  Classes can overwrite this method. If False is returned, then the L{DBObject} is not deleted from database. This method may return a C{Deferred}.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">222</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#refresh">refresh</a></td>
-    <td><span>Update the properties for this object from the database.</span></td>
+    <td><tt>Update the properties for this object from the database.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">231</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#toHash">toHash</a></td>
-    <td><span>Convert this object to a dictionary.</span></td>
+    <td><tt>Convert this object to a dictionary.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">260</td>
+    <td class="lineno">257</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#delete">delete</a></td>
-    <td><span>Delete this instance from the database.  Calls <a 
-href="twistar.dbobject.DBObject.html#beforeDelete"><code>beforeDelete</code></a>
-before deleting from</span></td>
+    <td><tt>Delete this instance from the database.  Calls L{beforeDelete} before deleting from the database.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">284</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#loadRelations">loadRelations</a></td>
-    <td><span>Preload a a list of relationships.  For instance, if you have an 
-instance of an</span></td>
+    <td><span class="undocumented">No summary</span></td>
   </tr><tr class="baseclassmethod">
     
     <td class="lineno">313</td>
     <td>Class Method</td>
     <td><a href="twistar.dbobject.DBObject.html#addRelation">addRelation</a></td>
-    <td><span>Add a relationship to the given Class.</span></td>
+    <td><tt>Add a relationship to the given Class.</tt></td>
   </tr><tr class="baseclassmethod">
     
     <td class="lineno">342</td>
     <td>Class Method</td>
     <td><a href="twistar.dbobject.DBObject.html#initRelationshipCache">initRelationshipCache</a></td>
-    <td><span>Initialize the cache of relationship objects for this class.</span></td>
+    <td><tt>Initialize the cache of relationship objects for this class.</tt></td>
   </tr><tr class="baseclassmethod">
     
     <td class="lineno">353</td>
     <td>Class Method</td>
     <td><a href="twistar.dbobject.DBObject.html#tablename">tablename</a></td>
-    <td><span>Get the tablename for the given class.  If the class has a 
-<code>TABLENAME</code></span></td>
+    <td><tt>Get the tablename for the given class.  If the class has a C{TABLENAME} variable then that will be used - otherwise, it is is inferred from the class name.</tt></td>
   </tr><tr class="baseclassmethod">
     
     <td class="lineno">368</td>
     <td>Class Method</td>
+    <td><a href="twistar.dbobject.DBObject.html#findOrCreate">findOrCreate</a></td>
+    <td><tt>Find all instances of a given class based on the attributes given (just like C{findBy}).</tt></td>
+  </tr><tr class="baseclassmethod">
+    
+    <td class="lineno">382</td>
+    <td>Class Method</td>
+    <td><a href="twistar.dbobject.DBObject.html#findBy">findBy</a></td>
+    <td><tt>Find all instances of the given class based on an exact match of attributes.</tt></td>
+  </tr><tr class="baseclassmethod">
+    
+    <td class="lineno">396</td>
+    <td>Class Method</td>
     <td><a href="twistar.dbobject.DBObject.html#find">find</a></td>
-    <td><span>Find instances of a given class.</span></td>
-  </tr><tr class="baseclassmethod">
-    
-    <td class="lineno">400</td>
-    <td>Class Method</td>
-    <td><a href="twistar.dbobject.DBObject.html#count">count</a></td>
-    <td><span>Count instances of a given class.</span></td>
-  </tr><tr class="baseclassmethod">
-    
-    <td class="lineno">416</td>
-    <td>Class Method</td>
-    <td><a href="twistar.dbobject.DBObject.html#all">all</a></td>
-    <td><span>Get all instances of the given class in the database.  Note that this is
-the</span></td>
+    <td><tt>Find instances of a given class.</tt></td>
   </tr><tr class="baseclassmethod">
     
     <td class="lineno">428</td>
     <td>Class Method</td>
-    <td><a href="twistar.dbobject.DBObject.html#deleteAll">deleteAll</a></td>
-    <td><span>Delete all instances of <code>klass</code> in the database.</span></td>
+    <td><a href="twistar.dbobject.DBObject.html#count">count</a></td>
+    <td><tt>Count instances of a given class.</tt></td>
   </tr><tr class="baseclassmethod">
     
-    <td class="lineno">443</td>
+    <td class="lineno">444</td>
     <td>Class Method</td>
-    <td><a href="twistar.dbobject.DBObject.html#exists">exists</a></td>
-    <td><span>Find whether or not at least one instance of the given 
-<code>klass</code> exists, optionally</span></td>
-  </tr><tr class="basemethod">
+    <td><a href="twistar.dbobject.DBObject.html#all">all</a></td>
+    <td><tt>Get all instances of the given class in the database.  Note that this is the equivalent of calling L{find} with no arguments.</tt></td>
+  </tr><tr class="baseclassmethod">
     
-    <td class="lineno">459</td>
-    <td>Method</td>
-    <td><a href="twistar.dbobject.DBObject.html#__str__">__str__</a></td>
-    <td><span>Get the string version of this object.</span></td>
-  </tr><tr class="basemethod">
+    <td class="lineno">456</td>
+    <td>Class Method</td>
+    <td><a href="twistar.dbobject.DBObject.html#deleteAll">deleteAll</a></td>
+    <td><tt>Delete all instances of C{klass} in the database.</tt></td>
+  </tr><tr class="baseclassmethod">
     
     <td class="lineno">471</td>
+    <td>Class Method</td>
+    <td><a href="twistar.dbobject.DBObject.html#exists">exists</a></td>
+    <td><tt>Find whether or not at least one instance of the given C{klass} exists, optionally with specific conditions specified in C{where}.</tt></td>
+  </tr><tr class="basemethod">
+    
+    <td class="lineno">487</td>
+    <td>Method</td>
+    <td><a href="twistar.dbobject.DBObject.html#__str__">__str__</a></td>
+    <td><tt>Get the string version of this object.</tt></td>
+  </tr><tr class="basemethod">
+    
+    <td class="lineno">499</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#__getattribute__">__getattribute__</a></td>
-    <td><span>Get the given attribute.</span></td>
+    <td><tt>Get the given attribute.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">490</td>
+    <td class="lineno">518</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#__eq__">__eq__</a></td>
-    <td><span>Determine if this object is the same as another (only taking</span></td>
+    <td><tt>Determine if this object is the same as another (only taking the type of the other class and it's C{id} into account).</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">504</td>
+    <td class="lineno">532</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#__neq__">__neq__</a></td>
-    <td><span>Determine if this object is not the same as another (only taking</span></td>
+    <td><tt>Determine if this object is not the same as another (only taking the type of the other class and it's C{id} into account).</tt></td>
   </tr><tr class="basemethod private">
     
     <td class="lineno">176</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#_create">_create</a></td>
-    <td><span>Method to actually create an object in the DB.  Handles calling this 
-class's</span></td>
+    <td><tt>Method to actually create an object in the DB.  Handles calling this class's L{beforeCreate} followed by it's L{beforeSave} method.</tt></td>
   </tr><tr class="basemethod private">
     
     <td class="lineno">199</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#_update">_update</a></td>
-    <td><span>Method to actually save an existing object in the DB.  Handles calling 
-this class's</span></td>
+    <td><tt>Method to actually save an existing object in the DB.  Handles calling this class's L{beforeUpdate} and L{beforeSave} methods.</tt></td>
   </tr>
   
 </table>
@@ -237,7 +227,7 @@ this class's</span></td>
         <p>
           Inherited from <a href="twistar.validation.Validator.html">Validator</a> (via <a href="twistar.dbobject.DBObject.html">DBObject</a>):
         </p>
-        <table class="children sortable" id="id65">
+        <table class="children sortable" id="id72">
   
   <tr>
     <th>Line #</th>
@@ -250,38 +240,37 @@ this class's</span></td>
     <td class="lineno">95</td>
     <td>Class Method</td>
     <td><a href="twistar.validation.Validator.html#clearValidations">clearValidations</a></td>
-    <td><span>Clear the given class's validations.</span></td>
+    <td><tt>Clear the given class's validations.</tt></td>
   </tr><tr class="baseclassmethod">
     
     <td class="lineno">103</td>
     <td>Class Method</td>
     <td><a href="twistar.validation.Validator.html#addValidator">addValidator</a></td>
-    <td><span>Add a function to the given classes validation list.</span></td>
+    <td><tt>Add a function to the given classes validation list.</tt></td>
   </tr><tr class="baseclassmethod">
     
     <td class="lineno">121</td>
     <td>Class Method</td>
     <td><a href="twistar.validation.Validator.html#validatesPresenceOf">validatesPresenceOf</a></td>
-    <td><span>A validator to test whether or not some named properties are set.</span></td>
+    <td><tt>A validator to test whether or not some named properties are set. For those named properties that are not set, an error will be recorded in C{obj.errors}.</tt></td>
   </tr><tr class="baseclassmethod">
     
     <td class="lineno">137</td>
     <td>Class Method</td>
     <td><a href="twistar.validation.Validator.html#validatesUniquenessOf">validatesUniquenessOf</a></td>
-    <td><span>A validator to test whether or not some named properties are unique.</span></td>
+    <td><tt>A validator to test whether or not some named properties are unique. For those named properties that are not unique, an error will be recorded in C{obj.errors}.</tt></td>
   </tr><tr class="baseclassmethod">
     
     <td class="lineno">153</td>
     <td>Class Method</td>
     <td><a href="twistar.validation.Validator.html#validatesLengthOf">validatesLengthOf</a></td>
-    <td><span>A validator to test whether or not some named properties have a</span></td>
+    <td><span class="undocumented">No summary</span></td>
   </tr><tr class="baseclassmethod private">
     
     <td class="lineno">175</td>
     <td>Class Method</td>
     <td><a href="twistar.validation.Validator.html#_validate">_validate</a></td>
-    <td><span>Validate a given object using all of the set validators for the objects 
-class.</span></td>
+    <td><tt>Validate a given object using all of the set validators for the objects class. If errors are found, they will be recorded in the objects C{errors} property.</tt></td>
   </tr>
   
 </table>
@@ -289,7 +278,7 @@ class.</span></td>
       
     </div>
     <div id="bigTable">
-    <table class="children sortable" id="id66">
+    <table class="children sortable" id="id73">
   
   <tr>
     <th>Line #</th>
@@ -299,231 +288,220 @@ class.</span></td>
   </tr>
 <tr class="basemethod">
     
-    <td class="lineno">490</td>
+    <td class="lineno">518</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#__eq__">__eq__</a></td>
-    <td><span>Determine if this object is the same as another (only taking</span></td>
+    <td><tt>Determine if this object is the same as another (only taking the type of the other class and it's C{id} into account).</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">471</td>
+    <td class="lineno">499</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#__getattribute__">__getattribute__</a></td>
-    <td><span>Get the given attribute.</span></td>
+    <td><tt>Get the given attribute.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">61</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#__init__">__init__</a></td>
-    <td><span>Constructor.  DO NOT OVERWRITE.  Use the <a 
-href="twistar.dbobject.DBObject.html#afterInit"><code>DBObject.afterInit</code></a>
-method.</span></td>
+    <td><tt>Constructor.  DO NOT OVERWRITE.  Use the L{DBObject.afterInit} method.</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">504</td>
+    <td class="lineno">532</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#__neq__">__neq__</a></td>
-    <td><span>Determine if this object is not the same as another (only taking</span></td>
+    <td><tt>Determine if this object is not the same as another (only taking the type of the other class and it's C{id} into account).</tt></td>
   </tr><tr class="basemethod">
     
-    <td class="lineno">459</td>
+    <td class="lineno">487</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#__str__">__str__</a></td>
-    <td><span>Get the string version of this object.</span></td>
+    <td><tt>Get the string version of this object.</tt></td>
   </tr><tr class="baseclassmethod">
     
     <td class="lineno">313</td>
     <td>Class Method</td>
     <td><a href="twistar.dbobject.DBObject.html#addRelation">addRelation</a></td>
-    <td><span>Add a relationship to the given Class.</span></td>
+    <td><tt>Add a relationship to the given Class.</tt></td>
   </tr><tr class="baseclassmethod">
     
     <td class="lineno">103</td>
     <td>Class Method</td>
     <td><a href="twistar.validation.Validator.html#addValidator">addValidator</a></td>
-    <td><span>Add a function to the given classes validation list.</span></td>
+    <td><tt>Add a function to the given classes validation list.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">161</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#afterInit">afterInit</a></td>
-    <td><span>Method called when a new <a 
-href="twistar.dbobject.DBObject.html"><code>DBObject</code></a> is 
-instantiated.  Classes can overwrite this method.</span></td>
+    <td><tt>Method called when a new L{DBObject} is instantiated.  Classes can overwrite this method. This method may return a C{Deferred}.</tt></td>
   </tr><tr class="baseclassmethod">
     
-    <td class="lineno">416</td>
+    <td class="lineno">444</td>
     <td>Class Method</td>
     <td><a href="twistar.dbobject.DBObject.html#all">all</a></td>
-    <td><span>Get all instances of the given class in the database.  Note that this is
-the</span></td>
+    <td><tt>Get all instances of the given class in the database.  Note that this is the equivalent of calling L{find} with no arguments.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">134</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#beforeCreate">beforeCreate</a></td>
-    <td><span>Method called before a new object is created.  Classes can overwrite 
-this method.</span></td>
+    <td><tt>Method called before a new object is created.  Classes can overwrite this method. If False is returned, then the object is not saved in the database.  This method may return a C{Deferred}.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">168</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#beforeDelete">beforeDelete</a></td>
-    <td><span>Method called before a <a 
-href="twistar.dbobject.DBObject.html"><code>DBObject</code></a> is deleted.
-Classes can overwrite this method.</span></td>
+    <td><tt>Method called before a L{DBObject} is deleted.  Classes can overwrite this method. If False is returned, then the L{DBObject} is not deleted from database. This method may return a C{Deferred}.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">150</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#beforeSave">beforeSave</a></td>
-    <td><span>Method called before an object is saved.  Classes can overwrite this 
-method.</span></td>
+    <td><tt>Method called before an object is saved.  Classes can overwrite this method. If False is returned, then the object is not saved in the database.  This method may return a C{Deferred}.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">142</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#beforeUpdate">beforeUpdate</a></td>
-    <td><span>Method called before an existing object is updated.  Classes can 
-overwrite this method.</span></td>
+    <td><tt>Method called before an existing object is updated.  Classes can overwrite this method. If False is returned, then the object is not saved in the database.  This method may return a C{Deferred}.</tt></td>
   </tr><tr class="baseclassmethod">
     
     <td class="lineno">95</td>
     <td>Class Method</td>
     <td><a href="twistar.validation.Validator.html#clearValidations">clearValidations</a></td>
-    <td><span>Clear the given class's validations.</span></td>
-  </tr><tr class="baseclassmethod">
-    
-    <td class="lineno">400</td>
-    <td>Class Method</td>
-    <td><a href="twistar.dbobject.DBObject.html#count">count</a></td>
-    <td><span>Count instances of a given class.</span></td>
-  </tr><tr class="basemethod">
-    
-    <td class="lineno">260</td>
-    <td>Method</td>
-    <td><a href="twistar.dbobject.DBObject.html#delete">delete</a></td>
-    <td><span>Delete this instance from the database.  Calls <a 
-href="twistar.dbobject.DBObject.html#beforeDelete"><code>beforeDelete</code></a>
-before deleting from</span></td>
+    <td><tt>Clear the given class's validations.</tt></td>
   </tr><tr class="baseclassmethod">
     
     <td class="lineno">428</td>
     <td>Class Method</td>
-    <td><a href="twistar.dbobject.DBObject.html#deleteAll">deleteAll</a></td>
-    <td><span>Delete all instances of <code>klass</code> in the database.</span></td>
+    <td><a href="twistar.dbobject.DBObject.html#count">count</a></td>
+    <td><tt>Count instances of a given class.</tt></td>
+  </tr><tr class="basemethod">
+    
+    <td class="lineno">257</td>
+    <td>Method</td>
+    <td><a href="twistar.dbobject.DBObject.html#delete">delete</a></td>
+    <td><tt>Delete this instance from the database.  Calls L{beforeDelete} before deleting from the database.</tt></td>
   </tr><tr class="baseclassmethod">
     
-    <td class="lineno">443</td>
+    <td class="lineno">456</td>
+    <td>Class Method</td>
+    <td><a href="twistar.dbobject.DBObject.html#deleteAll">deleteAll</a></td>
+    <td><tt>Delete all instances of C{klass} in the database.</tt></td>
+  </tr><tr class="baseclassmethod">
+    
+    <td class="lineno">471</td>
     <td>Class Method</td>
     <td><a href="twistar.dbobject.DBObject.html#exists">exists</a></td>
-    <td><span>Find whether or not at least one instance of the given 
-<code>klass</code> exists, optionally</span></td>
+    <td><tt>Find whether or not at least one instance of the given C{klass} exists, optionally with specific conditions specified in C{where}.</tt></td>
+  </tr><tr class="baseclassmethod">
+    
+    <td class="lineno">396</td>
+    <td>Class Method</td>
+    <td><a href="twistar.dbobject.DBObject.html#find">find</a></td>
+    <td><tt>Find instances of a given class.</tt></td>
+  </tr><tr class="baseclassmethod">
+    
+    <td class="lineno">382</td>
+    <td>Class Method</td>
+    <td><a href="twistar.dbobject.DBObject.html#findBy">findBy</a></td>
+    <td><tt>Find all instances of the given class based on an exact match of attributes.</tt></td>
   </tr><tr class="baseclassmethod">
     
     <td class="lineno">368</td>
     <td>Class Method</td>
-    <td><a href="twistar.dbobject.DBObject.html#find">find</a></td>
-    <td><span>Find instances of a given class.</span></td>
+    <td><a href="twistar.dbobject.DBObject.html#findOrCreate">findOrCreate</a></td>
+    <td><tt>Find all instances of a given class based on the attributes given (just like C{findBy}).</tt></td>
   </tr><tr class="baseclassmethod">
     
     <td class="lineno">342</td>
     <td>Class Method</td>
     <td><a href="twistar.dbobject.DBObject.html#initRelationshipCache">initRelationshipCache</a></td>
-    <td><span>Initialize the cache of relationship objects for this class.</span></td>
+    <td><tt>Initialize the cache of relationship objects for this class.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">124</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#isValid">isValid</a></td>
-    <td><span>This method first calls <a 
-href="twistar.dbobject.DBObject.html#validate"><code>validate</code></a> 
-and then returns a deferred that returns True if</span></td>
+    <td><tt>This method first calls L{validate} and then returns a deferred that returns True if there were no errors and False otherwise.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">284</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#loadRelations">loadRelations</a></td>
-    <td><span>Preload a a list of relationships.  For instance, if you have an 
-instance of an</span></td>
+    <td><span class="undocumented">No summary</span></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">222</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#refresh">refresh</a></td>
-    <td><span>Update the properties for this object from the database.</span></td>
+    <td><tt>Update the properties for this object from the database.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">91</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#save">save</a></td>
-    <td><span>Save this object to the database.  Validation is performed first; if 
-the</span></td>
+    <td><tt>Save this object to the database.  Validation is performed first; if the validation fails (that is, if C{obj.errors.isEmpty()} is False) then the object will not be saved.  To test for errors, use C{obj.errors.isEmpty()}.</tt></td>
   </tr><tr class="baseclassmethod">
     
     <td class="lineno">353</td>
     <td>Class Method</td>
     <td><a href="twistar.dbobject.DBObject.html#tablename">tablename</a></td>
-    <td><span>Get the tablename for the given class.  If the class has a 
-<code>TABLENAME</code></span></td>
+    <td><tt>Get the tablename for the given class.  If the class has a C{TABLENAME} variable then that will be used - otherwise, it is is inferred from the class name.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">231</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#toHash">toHash</a></td>
-    <td><span>Convert this object to a dictionary.</span></td>
+    <td><tt>Convert this object to a dictionary.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">80</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#updateAttrs">updateAttrs</a></td>
-    <td><span>Set the attributes of this object based on the given 
-<code>dict</code>.</span></td>
+    <td><tt>Set the attributes of this object based on the given C{dict}.</tt></td>
   </tr><tr class="basemethod">
     
     <td class="lineno">114</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#validate">validate</a></td>
-    <td><span>Run all validations associated with this object's class.  This will 
-return a deferred</span></td>
+    <td><span class="undocumented">No summary</span></td>
   </tr><tr class="baseclassmethod">
     
     <td class="lineno">153</td>
     <td>Class Method</td>
     <td><a href="twistar.validation.Validator.html#validatesLengthOf">validatesLengthOf</a></td>
-    <td><span>A validator to test whether or not some named properties have a</span></td>
+    <td><span class="undocumented">No summary</span></td>
   </tr><tr class="baseclassmethod">
     
     <td class="lineno">121</td>
     <td>Class Method</td>
     <td><a href="twistar.validation.Validator.html#validatesPresenceOf">validatesPresenceOf</a></td>
-    <td><span>A validator to test whether or not some named properties are set.</span></td>
+    <td><tt>A validator to test whether or not some named properties are set. For those named properties that are not set, an error will be recorded in C{obj.errors}.</tt></td>
   </tr><tr class="baseclassmethod">
     
     <td class="lineno">137</td>
     <td>Class Method</td>
     <td><a href="twistar.validation.Validator.html#validatesUniquenessOf">validatesUniquenessOf</a></td>
-    <td><span>A validator to test whether or not some named properties are unique.</span></td>
+    <td><tt>A validator to test whether or not some named properties are unique. For those named properties that are not unique, an error will be recorded in C{obj.errors}.</tt></td>
   </tr><tr class="basemethod private">
     
     <td class="lineno">176</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#_create">_create</a></td>
-    <td><span>Method to actually create an object in the DB.  Handles calling this 
-class's</span></td>
+    <td><tt>Method to actually create an object in the DB.  Handles calling this class's L{beforeCreate} followed by it's L{beforeSave} method.</tt></td>
   </tr><tr class="basemethod private">
     
     <td class="lineno">199</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#_update">_update</a></td>
-    <td><span>Method to actually save an existing object in the DB.  Handles calling 
-this class's</span></td>
+    <td><tt>Method to actually save an existing object in the DB.  Handles calling this class's L{beforeUpdate} and L{beforeSave} methods.</tt></td>
   </tr><tr class="baseclassmethod private">
     
     <td class="lineno">175</td>
     <td>Class Method</td>
     <td><a href="twistar.validation.Validator.html#_validate">_validate</a></td>
-    <td><span>Validate a given object using all of the set validators for the objects 
-class.</span></td>
+    <td><tt>Validate a given object using all of the set validators for the objects class. If errors are found, they will be recorded in the objects C{errors} property.</tt></td>
   </tr>
   
 </table></div>
@@ -532,7 +510,7 @@ class.</span></td>
 
     
     <address>
-      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2011-06-18 14:10:55.
+      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2012-05-22 19:41:29.
     </address>
   </body>
 </html>

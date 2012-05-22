@@ -19,15 +19,15 @@
     <div>
       
     </div>
-    <div>Class representing a belongs-to relationship.<table class="fieldTable"></table></div>
+    <pre>Class representing a belongs-to relationship.</pre>
 
     <p>
-      <a href="#" class="jslink" onclick="showSplit()" id="showSplitLink">Split Table into Classes</a>
-      <a href="#" class="jslink" onclick="showBig()" id="showBigLink">Show Methods in One Table</a>
+      <a href="#" id="showSplitLink" onclick="showSplit()" class="jslink">Split Table into Classes</a>
+      <a href="#" id="showBigLink" onclick="showBig()" class="jslink">Show Methods in One Table</a>
     </p>
     
     <div id="splitTables">
-      <table class="children sortable" id="id32">
+      <table class="children sortable" id="id37">
   
   <tr>
     <th>Line #</th>
@@ -40,20 +40,19 @@
     <td class="lineno">62</td>
     <td>Method</td>
     <td><a href="twistar.relationships.BelongsTo.html#get">get</a></td>
-    <td><span>Get the object that belong to the caller.</span></td>
+    <td><tt>Get the object that belong to the caller.</tt></td>
   </tr><tr class="method">
     
     <td class="lineno">80</td>
     <td>Method</td>
     <td><a href="twistar.relationships.BelongsTo.html#set">set</a></td>
-    <td><span>Set the object that belongs to the caller.</span></td>
+    <td><tt>Set the object that belongs to the caller.</tt></td>
   </tr><tr class="method">
     
     <td class="lineno">92</td>
     <td>Method</td>
     <td><a href="twistar.relationships.BelongsTo.html#clear">clear</a></td>
-    <td><span>Remove the relationship linking the object that belongs to the 
-caller.</span></td>
+    <td><tt>Remove the relationship linking the object that belongs to the caller.</tt></td>
   </tr>
   
 </table>
@@ -61,7 +60,7 @@ caller.</span></td>
         <p>
           Inherited from <a href="twistar.relationships.Relationship.html">Relationship</a>:
         </p>
-        <table class="children sortable" id="id33">
+        <table class="children sortable" id="id38">
   
   <tr>
     <th>Line #</th>
@@ -74,7 +73,7 @@ caller.</span></td>
     <td class="lineno">21</td>
     <td>Method</td>
     <td><a href="twistar.relationships.Relationship.html#__init__">__init__</a></td>
-    <td><span>Constructor.</span></td>
+    <td><tt>Constructor.</tt></td>
   </tr>
   
 </table>
@@ -82,7 +81,7 @@ caller.</span></td>
       
     </div>
     <div id="bigTable">
-    <table class="children sortable" id="id34">
+    <table class="children sortable" id="id39">
   
   <tr>
     <th>Line #</th>
@@ -95,26 +94,25 @@ caller.</span></td>
     <td class="lineno">21</td>
     <td>Method</td>
     <td><a href="twistar.relationships.Relationship.html#__init__">__init__</a></td>
-    <td><span>Constructor.</span></td>
+    <td><tt>Constructor.</tt></td>
   </tr><tr class="method">
     
     <td class="lineno">92</td>
     <td>Method</td>
     <td><a href="twistar.relationships.BelongsTo.html#clear">clear</a></td>
-    <td><span>Remove the relationship linking the object that belongs to the 
-caller.</span></td>
+    <td><tt>Remove the relationship linking the object that belongs to the caller.</tt></td>
   </tr><tr class="method">
     
     <td class="lineno">62</td>
     <td>Method</td>
     <td><a href="twistar.relationships.BelongsTo.html#get">get</a></td>
-    <td><span>Get the object that belong to the caller.</span></td>
+    <td><tt>Get the object that belong to the caller.</tt></td>
   </tr><tr class="method">
     
     <td class="lineno">80</td>
     <td>Method</td>
     <td><a href="twistar.relationships.BelongsTo.html#set">set</a></td>
-    <td><span>Set the object that belongs to the caller.</span></td>
+    <td><tt>Set the object that belongs to the caller.</tt></td>
   </tr>
   
 </table></div>
@@ -136,9 +134,10 @@ caller.</span></td>
   </div>
   <div class="functionBody">
     
-    <div>Get the object that belong to the caller.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2">A <code>Deferred</code> with a callback value of either the matching class 
-or None (if not set).
-</td></tr></table></div>
+    <pre>Get the object that belong to the caller.
+
+@return: A C{Deferred} with a callback value of either the matching class or
+None (if not set).</pre>
   </div>
 </div><div class="function">
   <a name="twistar.relationships.BelongsTo.set">
@@ -155,8 +154,9 @@ or None (if not set).
   </div>
   <div class="functionBody">
     
-    <div>Set the object that belongs to the caller.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2">A <code>Deferred</code> with a callback value of the caller.
-</td></tr></table></div>
+    <pre>Set the object that belongs to the caller.
+
+@return: A C{Deferred} with a callback value of the caller.</pre>
   </div>
 </div><div class="function">
   <a name="twistar.relationships.BelongsTo.clear">
@@ -173,13 +173,13 @@ or None (if not set).
   </div>
   <div class="functionBody">
     
-    <div>Remove the relationship linking the object that belongs to the 
-caller.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2">A <code>Deferred</code> with a callback value of the caller.
-</td></tr></table></div>
+    <pre>Remove the relationship linking the object that belongs to the caller.
+
+@return: A C{Deferred} with a callback value of the caller.</pre>
   </div>
 </div>
     <address>
-      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2011-06-18 14:10:55.
+      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2012-05-22 19:41:29.
     </address>
   </body>
 </html>
