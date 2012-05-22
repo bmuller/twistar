@@ -43,6 +43,15 @@ u.save().addCallback(done)
 u = User(first_name="John", last_name="Smith", age=25)
 u.save().addCallback(done)
 {% endhighlight %}
+
+Then, finding this user is easy:
+{% highlight python %}
+def found(user):
+    print "I found a user named %s %s" % (user.first_name, user.last_name)
+
+u = User.findBy(first_name="John", age=25).addCallback(found)
+{% endhighlight %}
+
 This is a very simple example - see the [Examples and User Documentation][examples] for more complicated examples and additional uses.
 
 # Installation 
