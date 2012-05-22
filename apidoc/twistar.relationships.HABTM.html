@@ -19,8 +19,10 @@
     <div>
       
     </div>
-    <pre>A class representing the "has and bleongs to many" relationship.  One additional argument
-this class uses in the L{Relationship.__init__} argument list is C{join_table}.</pre>
+    <div>A class representing the &quot;has and bleongs to many&quot; 
+relationship.  One additional argument this class uses in the <a 
+href="twistar.relationships.Relationship.html#__init__"><code>Relationship.__init__</code></a>
+argument list is <code>join_table</code>.<table class="fieldTable"></table></div>
 
     <p>
       <a href="#" id="showSplitLink" onclick="showSplit()" class="jslink">Split Table into Classes</a>
@@ -47,25 +49,25 @@ this class uses in the L{Relationship.__init__} argument list is C{join_table}.<
     <td class="lineno">255</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HABTM.html#get">get</a></td>
-    <td><tt>Get the objects that caller has.</tt></td>
+    <td><span>Get the objects that caller has.</span></td>
   </tr><tr class="method">
     
     <td class="lineno">282</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HABTM.html#count">count</a></td>
-    <td><tt>Get the number of objects that caller has.</tt></td>
+    <td><span>Get the number of objects that caller has.</span></td>
   </tr><tr class="method">
     
     <td class="lineno">318</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HABTM.html#set">set</a></td>
-    <td><tt>Set the objects that caller has.</tt></td>
+    <td><span>Set the objects that caller has.</span></td>
   </tr><tr class="method">
     
     <td class="lineno">331</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HABTM.html#clear">clear</a></td>
-    <td><tt>Clear the list of all of the objects that this one has.</tt></td>
+    <td><span>Clear the list of all of the objects that this one has.</span></td>
   </tr><tr class="method private">
     
     <td class="lineno">308</td>
@@ -92,7 +94,7 @@ this class uses in the L{Relationship.__init__} argument list is C{join_table}.<
     <td class="lineno">21</td>
     <td>Method</td>
     <td><a href="twistar.relationships.Relationship.html#__init__">__init__</a></td>
-    <td><tt>Constructor.</tt></td>
+    <td><span>Constructor.</span></td>
   </tr>
   
 </table>
@@ -113,31 +115,31 @@ this class uses in the L{Relationship.__init__} argument list is C{join_table}.<
     <td class="lineno">21</td>
     <td>Method</td>
     <td><a href="twistar.relationships.Relationship.html#__init__">__init__</a></td>
-    <td><tt>Constructor.</tt></td>
+    <td><span>Constructor.</span></td>
   </tr><tr class="method">
     
     <td class="lineno">331</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HABTM.html#clear">clear</a></td>
-    <td><tt>Clear the list of all of the objects that this one has.</tt></td>
+    <td><span>Clear the list of all of the objects that this one has.</span></td>
   </tr><tr class="method">
     
     <td class="lineno">282</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HABTM.html#count">count</a></td>
-    <td><tt>Get the number of objects that caller has.</tt></td>
+    <td><span>Get the number of objects that caller has.</span></td>
   </tr><tr class="method">
     
     <td class="lineno">255</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HABTM.html#get">get</a></td>
-    <td><tt>Get the objects that caller has.</tt></td>
+    <td><span>Get the objects that caller has.</span></td>
   </tr><tr class="method">
     
     <td class="lineno">318</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HABTM.html#set">set</a></td>
-    <td><tt>Set the objects that caller has.</tt></td>
+    <td><span>Set the objects that caller has.</span></td>
   </tr><tr class="method">
     
     <td class="lineno">233</td>
@@ -171,11 +173,12 @@ this class uses in the L{Relationship.__init__} argument list is C{join_table}.<
   </div>
   <div class="functionBody">
     
-    <pre>Get the tablename (specified either in the C{join_table} relationship property
-or by calculating the tablename).  If not specified, the table name is calculated
-by sorting the table name versions of the two class names and joining them with a '_').
-For instance, given the classes C{Teacher} and C{Student}, the resulting table name would
-be C{student_teacher}.</pre>
+    <div>Get the tablename (specified either in the <code>join_table</code> 
+relationship property or by calculating the tablename).  If not specified, 
+the table name is calculated by sorting the table name versions of the two 
+class names and joining them with a '_'). For instance, given the classes 
+<code>Teacher</code> and <code>Student</code>, the resulting table name 
+would be <code>student_teacher</code>.<table class="fieldTable"></table></div>
   </div>
 </div><div class="function">
   <a name="twistar.relationships.HABTM.get">
@@ -192,13 +195,10 @@ be C{student_teacher}.</pre>
   </div>
   <div class="functionBody">
     
-    <pre>Get the objects that caller has.
-
-@param kwargs: These could include C{limit}, C{orderby}, or any others included in
-C{InteractionBase.select}.  If a C{where} parameter is included, the conditions will
-be added to the ones already imposed by default in this method.
-
-@return: A C{Deferred} with a callback value of a list of objects.</pre>
+    <div>Get the objects that caller has.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">kwargs</td><td>These could include <code>limit</code>, <code>orderby</code>, or any others
+included in <code>InteractionBase.select</code>.  If a <code>where</code> 
+parameter is included, the conditions will be added to the ones already 
+imposed by default in this method.</td></tr><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2">A <code>Deferred</code> with a callback value of a list of objects.</td></tr></table></div>
   </div>
 </div><div class="function">
   <a name="twistar.relationships.HABTM.count">
@@ -215,13 +215,10 @@ be added to the ones already imposed by default in this method.
   </div>
   <div class="functionBody">
     
-    <pre>Get the number of objects that caller has.
-
-@param kwargs: These could include C{limit}, C{orderby}, or any others included in
-C{InteractionBase.select}.  If a C{where} parameter is included, the conditions will
-be added to the ones already imposed by default in this method.
-
-@return: A C{Deferred} with the number of objects.</pre>
+    <div>Get the number of objects that caller has.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">kwargs</td><td>These could include <code>limit</code>, <code>orderby</code>, or any others
+included in <code>InteractionBase.select</code>.  If a <code>where</code> 
+parameter is included, the conditions will be added to the ones already 
+imposed by default in this method.</td></tr><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2">A <code>Deferred</code> with the number of objects.</td></tr></table></div>
   </div>
 </div><div class="function">
   <a name="twistar.relationships.HABTM._set">
@@ -255,9 +252,7 @@ be added to the ones already imposed by default in this method.
   </div>
   <div class="functionBody">
     
-    <pre>Set the objects that caller has.
-
-@return: A C{Deferred}.</pre>
+    <div>Set the objects that caller has.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2">A <code>Deferred</code>.</td></tr></table></div>
   </div>
 </div><div class="function">
   <a name="twistar.relationships.HABTM.clear">
@@ -274,11 +269,11 @@ be added to the ones already imposed by default in this method.
   </div>
   <div class="functionBody">
     
-    <pre>Clear the list of all of the objects that this one has.</pre>
+    <div>Clear the list of all of the objects that this one has.<table class="fieldTable"></table></div>
   </div>
 </div>
     <address>
-      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2012-05-22 19:41:29.
+      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2012-05-22 19:45:05.
     </address>
   </body>
 </html>

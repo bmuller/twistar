@@ -19,10 +19,8 @@
     <div>
       
     </div>
-    <pre>A data store containing mostly class variables that act as constants.
-
-@cvar DBPOOL: This should be set to the C{twisted.enterprise.dbapi.ConnectionPool} to
-use for all database interaction.</pre>
+    <div>A data store containing mostly class variables that act as 
+constants.<table class="fieldTable"></table></div>
 
     
     
@@ -35,30 +33,46 @@ use for all database interaction.</pre>
     <th>Name</th>
     <th>Docs</th>
   </tr>
-<tr class="classmethod">
+<tr class="classvariable">
+    
+    <td class="lineno">0</td>
+    <td>Class Variable</td>
+    <td><a href="twistar.registry.Registry.html#DBPOOL">DBPOOL</a></td>
+    <td>This should be set to the 
+<code>twisted.enterprise.dbapi.ConnectionPool</code> to use for all 
+database interaction.</td>
+  </tr><tr class="classmethod">
     
     <td class="lineno">25</td>
     <td>Class Method</td>
     <td><a href="twistar.registry.Registry.html#register">register</a></td>
-    <td><tt>Register some number of classes in the registy.  This is necessary so that when objects are created on the fly (specifically, as a result of relationship C{get}s) the package knows how to find them.</tt></td>
+    <td><span>Register some number of classes in the registy.  This is necessary so 
+that when objects are created on the fly (specifically, as a result of 
+relationship <code>get</code>s) the package knows how to find them.</span></td>
   </tr><tr class="classmethod">
     
     <td class="lineno">38</td>
     <td>Class Method</td>
     <td><a href="twistar.registry.Registry.html#getClass">getClass</a></td>
-    <td><tt>Get a registered class by the given name.</tt></td>
+    <td><span>Get a registered class by the given name.</span></td>
   </tr><tr class="classmethod">
     
     <td class="lineno">48</td>
     <td>Class Method</td>
     <td><a href="twistar.registry.Registry.html#getDBAPIClass">getDBAPIClass</a></td>
-    <td><tt>Per U{http://www.python.org/dev/peps/pep-0249/} each DBAPI driver must implement it's own Date/Time/Timestamp/etc classes.  This method provides a generalized way to get them from whatever DB driver is being used.</tt></td>
+    <td><span>Per <a href="http://www.python.org/dev/peps/pep-0249/" 
+target="_top">http://www.python.org/dev/peps/pep-0249/</a> each DBAPI 
+driver must implement it's own Date/Time/Timestamp/etc classes.  This 
+method provides a generalized way to get them from whatever DB driver is 
+being used.</span></td>
   </tr><tr class="classmethod">
     
     <td class="lineno">60</td>
     <td>Class Method</td>
     <td><a href="twistar.registry.Registry.html#getConfig">getConfig</a></td>
-    <td><tt>Get the current DB config object being used for DB interaction.  This is one of the classes that extends L{base.InteractionBase}.</tt></td>
+    <td><span>Get the current DB config object being used for DB interaction.  This is
+one of the classes that extends <a 
+href="twistar.dbconfig.base.InteractionBase.html"><code>base.InteractionBase</code></a>.</span></td>
   </tr>
   
 </table>
@@ -70,6 +84,21 @@ use for all database interaction.</pre>
     
 
     <div class="function">
+  <a name="twistar.registry.Registry.DBPOOL">
+    
+  </a>
+  <a name="DBPOOL">
+    
+  </a>
+  <div class="functionHeader">
+    DBPOOL =
+  </div>
+  <div class="functionBody">
+    This should be set to the 
+<code>twisted.enterprise.dbapi.ConnectionPool</code> to use for all 
+database interaction.
+  </div>
+</div><div class="function">
   <a name="twistar.registry.Registry.register">
     
   </a>
@@ -84,11 +113,9 @@ use for all database interaction.</pre>
   </div>
   <div class="functionBody">
     
-    <pre>Register some number of classes in the registy.  This is necessary so that when objects
-are created on the fly (specifically, as a result of relationship C{get}s) the package
-knows how to find them.
-
-@param klasses: Any number of parameters, each of which is a class.</pre>
+    <div>Register some number of classes in the registy.  This is necessary so 
+that when objects are created on the fly (specifically, as a result of 
+relationship <code>get</code>s) the package knows how to find them.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">klasses</td><td>Any number of parameters, each of which is a class.</td></tr></table></div>
   </div>
 </div><div class="function">
   <a name="twistar.registry.Registry.getClass">
@@ -105,7 +132,7 @@ knows how to find them.
   </div>
   <div class="functionBody">
     
-    <pre>Get a registered class by the given name.</pre>
+    <div>Get a registered class by the given name.<table class="fieldTable"></table></div>
   </div>
 </div><div class="function">
   <a name="twistar.registry.Registry.getDBAPIClass">
@@ -122,9 +149,11 @@ knows how to find them.
   </div>
   <div class="functionBody">
     
-    <pre>Per U{http://www.python.org/dev/peps/pep-0249/} each DBAPI driver must implement it's
-own Date/Time/Timestamp/etc classes.  This method provides a generalized way to get them
-from whatever DB driver is being used.</pre>
+    <div>Per <a href="http://www.python.org/dev/peps/pep-0249/" 
+target="_top">http://www.python.org/dev/peps/pep-0249/</a> each DBAPI 
+driver must implement it's own Date/Time/Timestamp/etc classes.  This 
+method provides a generalized way to get them from whatever DB driver is 
+being used.<table class="fieldTable"></table></div>
   </div>
 </div><div class="function">
   <a name="twistar.registry.Registry.getConfig">
@@ -141,12 +170,13 @@ from whatever DB driver is being used.</pre>
   </div>
   <div class="functionBody">
     
-    <pre>Get the current DB config object being used for DB interaction.  This is one of the classes
-that extends L{base.InteractionBase}.</pre>
+    <div>Get the current DB config object being used for DB interaction.  This is
+one of the classes that extends <a 
+href="twistar.dbconfig.base.InteractionBase.html"><code>base.InteractionBase</code></a>.<table class="fieldTable"></table></div>
   </div>
 </div>
     <address>
-      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2012-05-22 19:41:29.
+      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2012-05-22 19:45:05.
     </address>
   </body>
 </html>

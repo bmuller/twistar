@@ -19,7 +19,7 @@
     <div>
       
     </div>
-    <pre>A class representing the has many relationship.</pre>
+    <div>A class representing the has many relationship.<table class="fieldTable"></table></div>
 
     <p>
       <a href="#" id="showSplitLink" onclick="showSplit()" class="jslink">Split Table into Classes</a>
@@ -40,25 +40,25 @@
     <td class="lineno">108</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#get">get</a></td>
-    <td><tt>Get the objects that caller has.</tt></td>
+    <td><span>Get the objects that caller has.</span></td>
   </tr><tr class="method">
     
     <td class="lineno">122</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#count">count</a></td>
-    <td><tt>Get the number of objects that caller has.</tt></td>
+    <td><span>Get the number of objects that caller has.</span></td>
   </tr><tr class="method">
     
     <td class="lineno">176</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#set">set</a></td>
-    <td><tt>Set the objects that caller has.</tt></td>
+    <td><span>Set the objects that caller has.</span></td>
   </tr><tr class="method">
     
     <td class="lineno">194</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#clear">clear</a></td>
-    <td><tt>Clear the list of all of the objects that this one has.</tt></td>
+    <td><span>Clear the list of all of the objects that this one has.</span></td>
   </tr><tr class="method private">
     
     <td class="lineno">136</td>
@@ -97,7 +97,7 @@
     <td class="lineno">21</td>
     <td>Method</td>
     <td><a href="twistar.relationships.Relationship.html#__init__">__init__</a></td>
-    <td><tt>Constructor.</tt></td>
+    <td><span>Constructor.</span></td>
   </tr>
   
 </table>
@@ -118,31 +118,31 @@
     <td class="lineno">21</td>
     <td>Method</td>
     <td><a href="twistar.relationships.Relationship.html#__init__">__init__</a></td>
-    <td><tt>Constructor.</tt></td>
+    <td><span>Constructor.</span></td>
   </tr><tr class="method">
     
     <td class="lineno">194</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#clear">clear</a></td>
-    <td><tt>Clear the list of all of the objects that this one has.</tt></td>
+    <td><span>Clear the list of all of the objects that this one has.</span></td>
   </tr><tr class="method">
     
     <td class="lineno">122</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#count">count</a></td>
-    <td><tt>Get the number of objects that caller has.</tt></td>
+    <td><span>Get the number of objects that caller has.</span></td>
   </tr><tr class="method">
     
     <td class="lineno">108</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#get">get</a></td>
-    <td><tt>Get the objects that caller has.</tt></td>
+    <td><span>Get the objects that caller has.</span></td>
   </tr><tr class="method">
     
     <td class="lineno">176</td>
     <td>Method</td>
     <td><a href="twistar.relationships.HasMany.html#set">set</a></td>
-    <td><tt>Set the objects that caller has.</tt></td>
+    <td><span>Set the objects that caller has.</span></td>
   </tr><tr class="method private">
     
     <td class="lineno">136</td>
@@ -182,13 +182,10 @@
   </div>
   <div class="functionBody">
     
-    <pre>Get the objects that caller has.
-
-@param kwargs: These could include C{limit}, C{orderby}, or any others included in
-C{DBObject.find}.  If a C{where} parameter is included, the conditions will
-be added to the ones already imposed by default in this method.
-
-@return: A C{Deferred} with a callback value of a list of objects.</pre>
+    <div>Get the objects that caller has.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">kwargs</td><td>These could include <code>limit</code>, <code>orderby</code>, or any others
+included in <code>DBObject.find</code>.  If a <code>where</code> parameter 
+is included, the conditions will be added to the ones already imposed by 
+default in this method.</td></tr><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2">A <code>Deferred</code> with a callback value of a list of objects.</td></tr></table></div>
   </div>
 </div><div class="function">
   <a name="twistar.relationships.HasMany.count">
@@ -205,13 +202,10 @@ be added to the ones already imposed by default in this method.
   </div>
   <div class="functionBody">
     
-    <pre>Get the number of objects that caller has.
-
-@param kwargs: These could include C{limit}, C{orderby}, or any others included in
-C{DBObject.find}.  If a C{where} parameter is included, the conditions will
-be added to the ones already imposed by default in this method.
-
-@return: A C{Deferred} with the number of objects.</pre>
+    <div>Get the number of objects that caller has.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">kwargs</td><td>These could include <code>limit</code>, <code>orderby</code>, or any others
+included in <code>DBObject.find</code>.  If a <code>where</code> parameter 
+is included, the conditions will be added to the ones already imposed by 
+default in this method.</td></tr><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2">A <code>Deferred</code> with the number of objects.</td></tr></table></div>
   </div>
 </div><div class="function">
   <a name="twistar.relationships.HasMany._generateGetArgs">
@@ -279,9 +273,7 @@ be added to the ones already imposed by default in this method.
   </div>
   <div class="functionBody">
     
-    <pre>Set the objects that caller has.
-
-@return: A C{Deferred}.</pre>
+    <div>Set the objects that caller has.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2">A <code>Deferred</code>.</td></tr></table></div>
   </div>
 </div><div class="function">
   <a name="twistar.relationships.HasMany.clear">
@@ -298,11 +290,11 @@ be added to the ones already imposed by default in this method.
   </div>
   <div class="functionBody">
     
-    <pre>Clear the list of all of the objects that this one has.</pre>
+    <div>Clear the list of all of the objects that this one has.<table class="fieldTable"></table></div>
   </div>
 </div>
     <address>
-      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2012-05-22 19:41:29.
+      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2012-05-22 19:45:05.
     </address>
   </body>
 </html>

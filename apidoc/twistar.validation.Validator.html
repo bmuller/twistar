@@ -19,10 +19,7 @@
     <div>
       <p>Known subclasses: <a href="twistar.dbobject.DBObject.html">twistar.dbobject.DBObject</a></p>
     </div>
-    <pre>A mixin class to handle validating objects before they are saved.
-
-@cvar VALIDATIONS: A C{list} of functions to call when testing whether or
-not a particular instance is valid.</pre>
+    <div>A mixin class to handle validating objects before they are saved.<table class="fieldTable"></table></div>
 
     
     
@@ -35,30 +32,41 @@ not a particular instance is valid.</pre>
     <th>Name</th>
     <th>Docs</th>
   </tr>
-<tr class="classmethod">
+<tr class="classvariable">
+    
+    <td class="lineno">0</td>
+    <td>Class Variable</td>
+    <td><a href="twistar.validation.Validator.html#VALIDATIONS">VALIDATIONS</a></td>
+    <td>A <code>list</code> of functions to call when testing whether or not a 
+particular instance is valid.</td>
+  </tr><tr class="classmethod">
     
     <td class="lineno">95</td>
     <td>Class Method</td>
     <td><a href="twistar.validation.Validator.html#clearValidations">clearValidations</a></td>
-    <td><tt>Clear the given class's validations.</tt></td>
+    <td><span>Clear the given class's validations.</span></td>
   </tr><tr class="classmethod">
     
     <td class="lineno">103</td>
     <td>Class Method</td>
     <td><a href="twistar.validation.Validator.html#addValidator">addValidator</a></td>
-    <td><tt>Add a function to the given classes validation list.</tt></td>
+    <td><span>Add a function to the given classes validation list.</span></td>
   </tr><tr class="classmethod">
     
     <td class="lineno">121</td>
     <td>Class Method</td>
     <td><a href="twistar.validation.Validator.html#validatesPresenceOf">validatesPresenceOf</a></td>
-    <td><tt>A validator to test whether or not some named properties are set. For those named properties that are not set, an error will be recorded in C{obj.errors}.</tt></td>
+    <td><span>A validator to test whether or not some named properties are set. For 
+those named properties that are not set, an error will be recorded in 
+<code>obj.errors</code>.</span></td>
   </tr><tr class="classmethod">
     
     <td class="lineno">137</td>
     <td>Class Method</td>
     <td><a href="twistar.validation.Validator.html#validatesUniquenessOf">validatesUniquenessOf</a></td>
-    <td><tt>A validator to test whether or not some named properties are unique. For those named properties that are not unique, an error will be recorded in C{obj.errors}.</tt></td>
+    <td><span>A validator to test whether or not some named properties are unique. For
+those named properties that are not unique, an error will be recorded in 
+<code>obj.errors</code>.</span></td>
   </tr><tr class="classmethod">
     
     <td class="lineno">153</td>
@@ -70,7 +78,9 @@ not a particular instance is valid.</pre>
     <td class="lineno">175</td>
     <td>Class Method</td>
     <td><a href="twistar.validation.Validator.html#_validate">_validate</a></td>
-    <td><tt>Validate a given object using all of the set validators for the objects class. If errors are found, they will be recorded in the objects C{errors} property.</tt></td>
+    <td><span>Validate a given object using all of the set validators for the objects 
+class. If errors are found, they will be recorded in the objects 
+<code>errors</code> property.</span></td>
   </tr>
   
 </table>
@@ -82,6 +92,20 @@ not a particular instance is valid.</pre>
     
 
     <div class="function">
+  <a name="twistar.validation.Validator.VALIDATIONS">
+    
+  </a>
+  <a name="VALIDATIONS">
+    
+  </a>
+  <div class="functionHeader">
+    VALIDATIONS =
+  </div>
+  <div class="functionBody">
+    A <code>list</code> of functions to call when testing whether or not a 
+particular instance is valid.
+  </div>
+</div><div class="function">
   <a name="twistar.validation.Validator.clearValidations">
     
   </a>
@@ -96,7 +120,7 @@ not a particular instance is valid.</pre>
   </div>
   <div class="functionBody">
     
-    <pre>Clear the given class's validations.</pre>
+    <div>Clear the given class's validations.<table class="fieldTable"></table></div>
   </div>
 </div><div class="function">
   <a name="twistar.validation.Validator.addValidator">
@@ -113,14 +137,9 @@ not a particular instance is valid.</pre>
   </div>
   <div class="functionBody">
     
-    <pre>Add a function to the given classes validation list.
-
-@param klass: The Class to add the validator to.
-@param func: A function that accepts a single parameter that is the object
-to test for validity.  If the object is invalid, then this function should
-add errors to it's C{errors} property.
-
-@see: L{Errors}</pre>
+    <div>Add a function to the given classes validation list.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">klass</td><td>The Class to add the validator to.</td></tr><tr><td></td><td class="fieldArg">func</td><td>A function that accepts a single parameter that is the object to test for 
+validity.  If the object is invalid, then this function should add errors 
+to it's <code>errors</code> property.</td></tr><tr class="fieldStart"><td class="fieldName">See Also</td><td colspan="2"><a href="twistar.validation.Errors.html"><code>Errors</code></a></td></tr></table></div>
   </div>
 </div><div class="function">
   <a name="twistar.validation.Validator.validatesPresenceOf">
@@ -137,14 +156,10 @@ add errors to it's C{errors} property.
   </div>
   <div class="functionBody">
     
-    <pre>A validator to test whether or not some named properties are set.
-For those named properties that are not set, an error will
-be recorded in C{obj.errors}.
-
-@param klass: The klass whose properties need to be tested.
-@param names: The names of the properties to test.
-@param kwargs: Keyword arguments.  Right now, all but a
-C{message} value are ignored.</pre>
+    <div>A validator to test whether or not some named properties are set. For 
+those named properties that are not set, an error will be recorded in 
+<code>obj.errors</code>.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">klass</td><td>The klass whose properties need to be tested.</td></tr><tr><td></td><td class="fieldArg">names</td><td>The names of the properties to test.</td></tr><tr><td></td><td class="fieldArg">kwargs</td><td>Keyword arguments.  Right now, all but a <code>message</code> value are 
+ignored.</td></tr></table></div>
   </div>
 </div><div class="function">
   <a name="twistar.validation.Validator.validatesUniquenessOf">
@@ -161,14 +176,10 @@ C{message} value are ignored.</pre>
   </div>
   <div class="functionBody">
     
-    <pre>A validator to test whether or not some named properties are unique.
-For those named properties that are not unique, an error will
-be recorded in C{obj.errors}.
-
-@param klass: The klass whose properties need to be tested.
-@param names: The names of the properties to test.
-@param kwargs: Keyword arguments.  Right now, all but a
-C{message} value are ignored.</pre>
+    <div>A validator to test whether or not some named properties are unique. For
+those named properties that are not unique, an error will be recorded in 
+<code>obj.errors</code>.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">klass</td><td>The klass whose properties need to be tested.</td></tr><tr><td></td><td class="fieldArg">names</td><td>The names of the properties to test.</td></tr><tr><td></td><td class="fieldArg">kwargs</td><td>Keyword arguments.  Right now, all but a <code>message</code> value are 
+ignored.</td></tr></table></div>
   </div>
 </div><div class="function">
   <a name="twistar.validation.Validator.validatesLengthOf">
@@ -185,20 +196,15 @@ C{message} value are ignored.</pre>
   </div>
   <div class="functionBody">
     
-    <pre>A validator to test whether or not some named properties have a
-specific length.  The length is specified in one of two ways: either
-a C{range} keyword set with a C{range} / C{xrange} / C{list} object
-containing valid values, or a C{length} keyword with the exact length
-allowed.
-
-For those named properties that do not have
-the specified length, an error will be recorded in the instance of C{klass}'s
-C{errors} parameter.
-
-@param klass: The klass whose properties need to be tested.
-@param names: The names of the properties to test.
-@param kwargs: Keyword arguments.  Right now, all but 
-C{message}, C{range}, and C{length} values are ignored.</pre>
+    <div>A validator to test whether or not some named properties have a specific
+length.  The length is specified in one of two ways: either a 
+<code>range</code> keyword set with a <code>range</code> / 
+<code>xrange</code> / <code>list</code> object containing valid values, or 
+a <code>length</code> keyword with the exact length allowed.</p>
+<p>For those named properties that do not have the specified length, an 
+error will be recorded in the instance of <code>klass</code>'s 
+<code>errors</code> parameter.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">klass</td><td>The klass whose properties need to be tested.</td></tr><tr><td></td><td class="fieldArg">names</td><td>The names of the properties to test.</td></tr><tr><td></td><td class="fieldArg">kwargs</td><td>Keyword arguments.  Right now, all but <code>message</code>, 
+<code>range</code>, and <code>length</code> values are ignored.</td></tr></table></div>
   </div>
 </div><div class="function">
   <a name="twistar.validation.Validator._validate">
@@ -215,16 +221,13 @@ C{message}, C{range}, and C{length} values are ignored.</pre>
   </div>
   <div class="functionBody">
     
-    <pre>Validate a given object using all of the set validators for the objects class.
-If errors are found, they will be recorded in the objects C{errors} property.
-
-@return: A C{Deferred} whose callback will receive the given object.
-
-@see: L{Errors}</pre>
+    <div>Validate a given object using all of the set validators for the objects 
+class. If errors are found, they will be recorded in the objects 
+<code>errors</code> property.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2">A <code>Deferred</code> whose callback will receive the given object.</td></tr><tr class="fieldStart"><td class="fieldName">See Also</td><td colspan="2"><a href="twistar.validation.Errors.html"><code>Errors</code></a></td></tr></table></div>
   </div>
 </div>
     <address>
-      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2012-05-22 19:41:29.
+      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2012-05-22 19:45:05.
     </address>
   </body>
 </html>
