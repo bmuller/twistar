@@ -21,6 +21,11 @@ def initDB(testKlass):
         txn.execute("""CREATE TABLE girls (id INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT)""")        
         txn.execute("""CREATE TABLE nicknames (id INTEGER PRIMARY KEY AUTOINCREMENT, `value` TEXT, `nicknameable_id` INTEGER,
                        `nicknameable_type` TEXT)""")
+        txn.execute("""CREATE TABLE blogposts (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                       title TEXT, text TEXT)""")
+        txn.execute("""CREATE TABLE categories (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                       name TEXT)""")
+        txn.execute("""CREATE TABLE posts_categories (category_id INTEGER, blogpost_id INTEGER)""")
         
     return Registry.DBPOOL.runInteraction(runInitTxn)
 

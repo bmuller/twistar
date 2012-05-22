@@ -261,6 +261,16 @@ class DBObject(Validator):
 
         @return: A C{Deferred}.        
         """        
+        def clearHabtmRelations():
+            deferreds = []
+            for relation in self.HABTM:
+                if isinstance(relation, dict):
+                    name = relation['name']
+                else:
+                    name = relation
+                d = getattr(self, name).clear()
+                deferreds.append(d)
+            return deferreds
 
         def _delete(result):
             oldid = self.id
@@ -272,7 +282,7 @@ class DBObject(Validator):
             if result == False:
                 return defer.succeed(self)
             else:
-                ds = [getattr(self, relation).clear() for relation in self.HABTM]
+                ds = clearHabtmRelations()
                 return defer.DeferredList(ds).addCallback(_delete)
 
         return defer.maybeDeferred(self.beforeDelete).addCallback(_deleteOnSuccess)
