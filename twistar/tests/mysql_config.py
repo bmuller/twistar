@@ -41,5 +41,8 @@ def tearDownDB(self):
         txn.execute("DROP TABLE boys")
         txn.execute("DROP TABLE girls")
         txn.execute("DROP TABLE nicknames")
+        txn.execute("DROP TABLE blogposts")
+        txn.execute("DROP TABLE categories")
+        txn.execute("DROP TABLE posts_categories")
     return CONNECTION.runInteraction(runTearDownDB)
                 
