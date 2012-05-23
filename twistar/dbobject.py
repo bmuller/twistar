@@ -9,7 +9,7 @@ from twistar.registry import Registry
 from twistar.relationships import Relationship
 from twistar.exceptions import InvalidRelationshipError, DBObjectSaveError, ReferenceNotSavedError
 from twistar.exceptions import TransactionNotStartedError, TransactionAlreadyStartedError
-from twistar.utils import createInstances, deferredDict
+from twistar.utils import createInstances, deferredDict, dictToWhere
 from twistar.validation import Validator, Errors
 
 from BermiInflector.Inflector import Inflector
@@ -268,7 +268,7 @@ class DBObject(Validator):
         the database.
 
         @return: A C{Deferred}.        
-        """        
+        """
 
         def _delete(result):
             oldid = self.id
@@ -283,10 +283,10 @@ class DBObject(Validator):
             if result == False:
                 return defer.succeed(self)
             else:
-                if self._transaction:
-                    ds = [getattr(self, relation).clear(transaction=self._transaction) for relation in self.HABTM]
-                else:
-                    ds = [getattr(self, relation).clear() for relation in self.HABTM]
+                ds = []
+                for relation in self.HABTM:
+                    name = relation['name'] if isinstance(relation, dict) else relation
+                    ds.append(getattr(self, name).clear(transaction=self._transaction))
                 return defer.DeferredList(ds).addCallback(_delete)
 
         return defer.maybeDeferred(self.beforeDelete).addCallback(_deleteOnSuccess)
@@ -373,6 +373,34 @@ class DBObject(Validator):
             inf = Inflector()
             klass.TABLENAME = inf.tableize(klass.__name__)
         return klass.TABLENAME
+
+
+    @classmethod
+    def findOrCreate(klass, **attrs):
+        """
+        Find all instances of a given class based on the attributes given (just like C{findBy}).
+
+        If a match isn't found, create a new instance and return that.
+        """
+        def handle(result):
+            if len(result) == 0:
+                return klass(**attrs).save()
+            return result[0]
+        return klass.findBy(**attrs).addCallback(handle)
+
+
+    @classmethod
+    def findBy(klass, **attrs):
+        """
+        Find all instances of the given class based on an exact match of attributes.
+
+        For instance:
+        C{User.find(first_name='Bob', last_name='Smith')}
+
+        Will return all matches.
+        """
+        where = dictToWhere(attrs)
+        return klass.find(where = where)
 
 
     @classmethod

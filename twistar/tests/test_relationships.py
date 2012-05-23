@@ -380,6 +380,19 @@ class RelationshipTest(unittest.TestCase):
 
 
     @inlineCallbacks
+    def test_clear_jointable_on_delete_habtm_with_custom_args(self):
+        join_tablename = 'posts_categories'
+        post = yield Blogpost(title='headline').save()
+        category = yield Category(name="personal").save()
+
+        yield post.categories.set([category])
+        cat_id = category.id
+        yield category.delete()
+        res = yield self.config.select(join_tablename, where=['category_id = ?', cat_id], limit=1)
+        self.assertIsNone(res)
+
+
+    @inlineCallbacks
     def test_set_habtm_blank(self):
         user = yield User().save()
         color = yield FavoriteColor(name="red").save()

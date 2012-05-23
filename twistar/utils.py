@@ -27,7 +27,23 @@ def createInstances(props, klass):
 
     return defer.succeed(None)
 
-                            
+
+def dictToWhere(attrs, joiner="AND"):
+    """
+    Convert a dictionary of attribute: value to a where statement.
+
+    For instance, dictToWhere({'one': 'two', 'three': 'four'}) returns:
+    ['(one = ?) AND (three = ?)', 'two', 'four']
+
+    @return: Expression above if len(attrs) > 0, None otherwise
+    """
+    if len(attrs) == 0:
+        return None
+
+    wheres = map(lambda name: "(%s = ?)" % name, attrs.keys())
+    return [(" %s " % joiner).join(wheres)] + attrs.values()
+
+
 def joinWheres(wone, wtwo, joiner="AND"):
     """
     Take two wheres (of the same format as the C{where} parameter in the function

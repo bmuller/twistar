@@ -24,6 +24,11 @@ def initDB(testKlass):
         txn.execute("""CREATE TABLE girls (id INT AUTO_INCREMENT, `name` VARCHAR(255), PRIMARY KEY (id)) ENGINE=INNODB""")
         txn.execute("""CREATE TABLE nicknames (id INT AUTO_INCREMENT, `value` VARCHAR(255), `nicknameable_id` INT,
                        `nicknameable_type` VARCHAR(255), PRIMARY KEY(id)) ENGINE=INNODB""")
+        txn.execute("""CREATE TABLE blogposts (id INT AUTO_INCREMENT,
+                       title VARCHAR(255), text VARCHAR(255), PRIMARY KEY (id))""")
+        txn.execute("""CREATE TABLE categories (id INT AUTO_INCREMENT,
+                       name VARCHAR(255), PRIMARY KEY (id))""")
+        txn.execute("""CREATE TABLE posts_categories (category_id INT, blogpost_id INT)""")
 
         txn.execute("""CREATE TABLE pens (id INT AUTO_INCREMENT,
                        color VARCHAR(255), len INT, PRIMARY KEY (id), UNIQUE(color)) ENGINE=INNODB""")

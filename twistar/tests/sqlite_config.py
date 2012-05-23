@@ -24,11 +24,17 @@ def initDB(testKlass):
         txn.execute("""CREATE TABLE girls (id INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT)""")        
         txn.execute("""CREATE TABLE nicknames (id INTEGER PRIMARY KEY AUTOINCREMENT, `value` TEXT, `nicknameable_id` INTEGER,
                        `nicknameable_type` TEXT)""")
+        txn.execute("""CREATE TABLE blogposts (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                       title TEXT, text TEXT)""")
+        txn.execute("""CREATE TABLE categories (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                       name TEXT)""")
+        txn.execute("""CREATE TABLE posts_categories (category_id INTEGER, blogpost_id INTEGER)""")
 
         txn.execute("""CREATE TABLE pens (id INTEGER PRIMARY KEY AUTOINCREMENT, color TEXT UNIQUE, len INTEGER)""");
         txn.execute("""CREATE TABLE tables (id INTEGER PRIMARY KEY AUTOINCREMENT, color TEXT UNIQUE, weight INTEGER)""");
         txn.execute("""CREATE TABLE pens_tables (pen_id INT, table_id INT)""")
         txn.execute("""CREATE TABLE rubbers (id INTEGER PRIMARY KEY AUTOINCREMENT, color TEXT, table_id INTEGER)""")
+        
     return Registry.DBPOOL.runInteraction(runInitTxn)
 
 
