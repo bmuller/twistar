@@ -389,7 +389,7 @@ class RelationshipTest(unittest.TestCase):
         cat_id = category.id
         yield category.delete()
         res = yield self.config.select(join_tablename, where=['category_id = ?', cat_id], limit=1)
-        self.assertIsNone(res)
+        self.assertTrue(res is None)
 
 
     @inlineCallbacks
