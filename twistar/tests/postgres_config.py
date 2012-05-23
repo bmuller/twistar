@@ -71,6 +71,14 @@ def tearDownDB(self):
         txn.execute("DROP SEQUENCE nicknames_id_seq CASCADE")
         txn.execute("DROP TABLE nicknames")
         
+        txn.execute("DROP SEQUENCE blogposts_id_seq CASCADE")
+        txn.execute("DROP TABLE blogposts")
+        
+        txn.execute("DROP SEQUENCE categories_id_seq CASCADE")
+        txn.execute("DROP TABLE categories")
+        
+        txn.execute("DROP TABLE posts_categories")
+        
         txn.execute("DROP SEQUENCE pens_id_seq CASCADE")
         txn.execute("DROP TABLE pens")
         
