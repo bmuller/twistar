@@ -456,3 +456,81 @@ class TransactionTest(unittest.TestCase):
         new_user = yield User.find(id=1)
         self.assertEqual(user, new_user)
 
+    @inlineCallbacks
+    def test_findBy(self):
+        r = yield User.findBy(first_name="Some", last_name="User", age=20)
+        self.assertEqual(r, [])
+
+        user = User(first_name="Some", last_name="User", age=20)
+        txn = yield user.startTransaction()
+        yield user.save()
+
+        r = yield User.findBy(first_name="Some", last_name="User", age=20, transaction=txn)
+        self.assertEqual(r[0], user)
+
+        yield user.commit()
+
+        r = yield User.findBy(first_name="Some", last_name="User", age=20)
+        self.assertEqual(r[0], user)
+
+    @inlineCallbacks
+    def test_findBy_rollback(self):
+        r = yield User.findBy(first_name="Some", last_name="User", age=20)
+        self.assertEqual(r, [])
+
+        user = User(first_name="Some", last_name="User", age=20)
+        txn = yield user.startTransaction()
+        yield user.save()
+
+        r = yield User.findBy(first_name="Some", last_name="User", age=20, transaction=txn)
+        self.assertEqual(r[0], user)
+
+        yield user.rollback()
+
+        r = yield User.findBy(first_name="Some", last_name="User", age=20)
+        self.assertEqual(r, [])
+
+    @inlineCallbacks
+    def test_findOrCreate(self):
+        user = User(first_name="First", last_name="Last", age=10)
+        txn = yield user.startTransaction()
+        yield user.save()
+
+        # make sure we didn't create a new user
+        r = yield User.findOrCreate(first_name="First", transaction=txn)
+        self.assertEqual(r.id, user.id)
+
+        # make sure we do create a new user
+        r = yield User.findOrCreate(first_name="First", last_name="Non", transaction=txn)
+        txn_id = r.id
+        self.assertTrue(r.id != user.id)
+
+        yield user.commit()
+
+        # make sure we do create a new user
+        r = yield User.findOrCreate(first_name="First", last_name="Non")
+        self.assertTrue(r.id != user.id)
+        self.assertTrue(r.id == txn_id)
+
+    @inlineCallbacks
+    def test_findOrCreate_rollback(self):
+        user = User(first_name="First", last_name="Last", age=10)
+        txn = yield user.startTransaction()
+        yield user.save()
+
+        # make sure we didn't create a new user
+        r = yield User.findOrCreate(first_name="First", transaction=txn)
+        self.assertEqual(r.id, user.id)
+
+        # make sure we do create a new user
+        r = yield User.findOrCreate(first_name="First", last_name="Non", transaction=txn)
+        txn_id = r.id
+        self.assertTrue(r.id != user.id)
+
+        yield user.rollback()
+
+        # make sure we do create a new user
+        r = yield User.findOrCreate(first_name="First", last_name="Non")
+        self.assertTrue(r.id == user.id)
+        self.assertTrue(r.id != txn_id)
+

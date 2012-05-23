@@ -399,8 +399,12 @@ class DBObject(Validator):
 
         Will return all matches.
         """
+        transaction = None
+        if 'transaction' in attrs:
+            transaction = attrs['transaction']
+            del(attrs['transaction'])
         where = dictToWhere(attrs)
-        return klass.find(where = where)
+        return klass.find(where = where, transaction=transaction)
 
 
     @classmethod
