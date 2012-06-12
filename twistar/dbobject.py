@@ -455,7 +455,9 @@ class DBObject(Validator):
     @classmethod
     def deleteAll(klass, where=None):
         """
-        Delete all instances of C{klass} in the database.
+        Delete all instances of C{klass} in the database without instantiating the records
+        first or invoking callbacks (L{beforeDelete} is not called). This will run a single
+        SQL DELETE statement in the database.
 
         @param where: Conditionally delete instances.  This parameter is of the same form
         found in L{find}.
