@@ -279,10 +279,14 @@ arguments.</span></td>
     <td class="lineno">456</td>
     <td>Class Method</td>
     <td><a href="twistar.dbobject.DBObject.html#deleteAll">deleteAll</a></td>
-    <td><span>Delete all instances of <code>klass</code> in the database.</span></td>
+    <td><span>Delete all instances of <code>klass</code> in the database without 
+instantiating the records first or invoking callbacks (<a 
+href="twistar.dbobject.DBObject.html#beforeDelete"><code>beforeDelete</code></a>
+is not called). This will run a single SQL DELETE statement in the 
+database.</span></td>
   </tr><tr class="classmethod">
     
-    <td class="lineno">471</td>
+    <td class="lineno">473</td>
     <td>Class Method</td>
     <td><a href="twistar.dbobject.DBObject.html#exists">exists</a></td>
     <td><span>Find whether or not at least one instance of the given 
@@ -290,26 +294,26 @@ arguments.</span></td>
 <code>where</code>.</span></td>
   </tr><tr class="method">
     
-    <td class="lineno">487</td>
+    <td class="lineno">489</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#__str__">__str__</a></td>
     <td><span>Get the string version of this object.</span></td>
   </tr><tr class="method">
     
-    <td class="lineno">499</td>
+    <td class="lineno">501</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#__getattribute__">__getattribute__</a></td>
     <td><span>Get the given attribute.</span></td>
   </tr><tr class="method">
     
-    <td class="lineno">518</td>
+    <td class="lineno">520</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#__eq__">__eq__</a></td>
     <td><span>Determine if this object is the same as another (only taking the type of
 the other class and it's <code>id</code> into account).</span></td>
   </tr><tr class="method">
     
-    <td class="lineno">532</td>
+    <td class="lineno">534</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#__neq__">__neq__</a></td>
     <td><span>Determine if this object is not the same as another (only taking the 
@@ -417,14 +421,14 @@ class. If errors are found, they will be recorded in the objects
   </tr>
 <tr class="method">
     
-    <td class="lineno">518</td>
+    <td class="lineno">520</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#__eq__">__eq__</a></td>
     <td><span>Determine if this object is the same as another (only taking the type of
 the other class and it's <code>id</code> into account).</span></td>
   </tr><tr class="method">
     
-    <td class="lineno">499</td>
+    <td class="lineno">501</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#__getattribute__">__getattribute__</a></td>
     <td><span>Get the given attribute.</span></td>
@@ -438,14 +442,14 @@ href="twistar.dbobject.DBObject.html#afterInit"><code>DBObject.afterInit</code><
 method.</span></td>
   </tr><tr class="method">
     
-    <td class="lineno">532</td>
+    <td class="lineno">534</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#__neq__">__neq__</a></td>
     <td><span>Determine if this object is not the same as another (only taking the 
 type of the other class and it's <code>id</code> into account).</span></td>
   </tr><tr class="method">
     
-    <td class="lineno">487</td>
+    <td class="lineno">489</td>
     <td>Method</td>
     <td><a href="twistar.dbobject.DBObject.html#__str__">__str__</a></td>
     <td><span>Get the string version of this object.</span></td>
@@ -553,10 +557,14 @@ before deleting from the database.</span></td>
     <td class="lineno">456</td>
     <td>Class Method</td>
     <td><a href="twistar.dbobject.DBObject.html#deleteAll">deleteAll</a></td>
-    <td><span>Delete all instances of <code>klass</code> in the database.</span></td>
+    <td><span>Delete all instances of <code>klass</code> in the database without 
+instantiating the records first or invoking callbacks (<a 
+href="twistar.dbobject.DBObject.html#beforeDelete"><code>beforeDelete</code></a>
+is not called). This will run a single SQL DELETE statement in the 
+database.</span></td>
   </tr><tr class="classmethod">
     
-    <td class="lineno">471</td>
+    <td class="lineno">473</td>
     <td>Class Method</td>
     <td><a href="twistar.dbobject.DBObject.html#exists">exists</a></td>
     <td><span>Find whether or not at least one instance of the given 
@@ -1412,7 +1420,11 @@ arguments.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName"
   </div>
   <div class="functionBody">
     
-    <div>Delete all instances of <code>klass</code> in the database.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">where</td><td>Conditionally delete instances.  This parameter is of the same form found 
+    <div>Delete all instances of <code>klass</code> in the database without 
+instantiating the records first or invoking callbacks (<a 
+href="twistar.dbobject.DBObject.html#beforeDelete"><code>beforeDelete</code></a>
+is not called). This will run a single SQL DELETE statement in the 
+database.<table class="fieldTable"><tr class="fieldStart"><td class="fieldName">Parameters</td><td class="fieldArg">where</td><td>Conditionally delete instances.  This parameter is of the same form found 
 in <a href="twistar.dbobject.DBObject.html#find"><code>find</code></a>.</td></tr><tr class="fieldStart"><td class="fieldName">Returns</td><td colspan="2">A <code>Deferred</code>.</td></tr></table></div>
   </div>
 </div><div class="function">
@@ -1511,7 +1523,7 @@ type of the other class and it's <code>id</code> into account).<table class="fie
   </div>
 </div>
     <address>
-      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2012-05-22 19:45:05.
+      <a href="index.html">API Documentation</a> for <a href="http://findingscience.com/twistar">twistar</a>, generated by <a href="http://codespeak.net/~mwh/pydoctor/">pydoctor</a> at 2012-06-12 10:00:49.
     </address>
   </body>
 </html>
