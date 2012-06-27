@@ -5,4 +5,4 @@ python:
 install:
     - pip install -q Twisted --use-mirrors
 script:
-    - trial tests
+    - trial twistar
