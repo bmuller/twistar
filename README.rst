@@ -1,7 +1,7 @@
 Twistar
 =======
 
-.. image:: https://secure.travis-ci.org/mbrancaleoni/twistar.png?branch=master
+.. image:: https://secure.travis-ci.org/xadhoom/twistar.png?branch=master
 
 The Twistar Project provides an ActiveRecord (ORM) pattern interface to 
 the Twisted Project's RDBMS library.
