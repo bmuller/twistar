@@ -4,10 +4,10 @@ from twistar.dbconfig.base import InteractionBase
 class PostgreSQLDBConfig(InteractionBase):
     includeBlankInInsert = False
 
-    def getLastInsertID(self, txn):
+    def getLastInsertID(self, transaction):
         q = "SELECT lastval()"
-        self.executeTxn(txn, q)
-        result = txn.fetchall()
+        self.executeTxn(transaction, q)
+        result = transaction.fetchall()
         return result[0][0]
 
 
@@ -20,8 +20,3 @@ class PostgreSQLDBConfig(InteractionBase):
     def escapeColNames(self, colnames):
         return map(lambda x: '"%s"' % x, colnames)
 
-
-    def count(self, tablename, where=None):
-        d = self.select(tablename, where=where, select='count(*)')
-        d.addCallback(lambda res: res[0]['count'])
-        return d

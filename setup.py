@@ -12,6 +12,7 @@ setup(
     author_email="bamuller@gmail.com",
     license="GPLv3",
     url="http://findingscience.com/twistar",
-    packages=["twistar", "twistar.dbconfig", "twistar.tests", 'BermiInflector', 'BermiInflector.Rules'],
+    packages=["twistar", "twistar.dbconfig", "twistar.tests", 'BermiInflector', 'BermiInflector.Rules',
+              'txconnectionpool', 'txthreadworker' ],
     requires=["twisted.enterprise.adbapi"]
 )

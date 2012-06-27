@@ -10,10 +10,10 @@ class SQLiteDBConfig(InteractionBase):
         return (query, args)
 
 
-    def getLastInsertID(self, txn):
+    def getLastInsertID(self, transaction):
         q = "SELECT last_insert_rowid()"
-        self.executeTxn(txn, q)
-        result = txn.fetchall()
+        self.executeTxn(transaction, q)
+        result = transaction.fetchall()
         return result[0][0]
                             
 
@@ -28,12 +28,14 @@ class SQLiteDBConfig(InteractionBase):
 
     
     ## retarded sqlite can't handle multiple row inserts
-    def insertMany(self, tablename, vals):
-        def _insertMany(txn):
+    def insertMany(self, tablename, vals, transaction=None):
+        def _insertMany(transaction):
             for val in vals:
-                self.insert(tablename, val, txn)
-        return Registry.DBPOOL.runInteraction(_insertMany)
-
+                self.insert(tablename, val, transaction)
+        if transaction:
+            return _insertMany(transaction)
+        else:
+            return Registry.DBPOOL.runInteraction(_insertMany)
 
 
 

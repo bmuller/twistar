@@ -4,4 +4,3 @@ doc/*.html
 _trial_temp
 build
 dist
-twistar.egg-info

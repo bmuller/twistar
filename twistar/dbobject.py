@@ -8,6 +8,7 @@ from twisted.internet import defer
 from twistar.registry import Registry
 from twistar.relationships import Relationship
 from twistar.exceptions import InvalidRelationshipError, DBObjectSaveError, ReferenceNotSavedError
+from twistar.exceptions import TransactionNotStartedError, TransactionAlreadyStartedError
 from twistar.utils import createInstances, deferredDict, dictToWhere
 from twistar.validation import Validator, Errors
 
@@ -58,10 +59,16 @@ class DBObject(Validator):
     # it will be of the form {'othername': <BelongsTo instance>, 'anothername': <HasMany instance>}
     RELATIONSHIP_CACHE = None
 
-    def __init__(self, **kwargs):
+    # this will hold an optional t.e.a.Transaction instance that can be used to put many
+    # ORM operation into a single transaction.
+    _transaction = None
+
+    def __init__(self, transaction=None, **kwargs):
         """
         Constructor.  DO NOT OVERWRITE.  Use the L{DBObject.afterInit} method.
-        
+
+        @param transaction: An optional t.e.a.Transaction object       
+ 
         @param kwargs: An optional dictionary containing the properties that
         should be initially set for this object.
 
@@ -70,6 +77,7 @@ class DBObject(Validator):
         self.id = None
         self._deleted = False
         self.errors = Errors()
+        self._transaction = transaction
         self.updateAttrs(kwargs)
         self._config = Registry.getConfig()
 
@@ -266,7 +274,10 @@ class DBObject(Validator):
             oldid = self.id
             self.id = None
             self._deleted = True
-            return self.__class__.deleteAll(where=["id = ?", oldid])
+            if self._transaction:
+                return self.__class__.deleteAll(where=["id = ?", oldid], transaction=self._transaction)
+            else:
+                return self.__class__.deleteAll(where=["id = ?", oldid])
 
         def _deleteOnSuccess(result):
             if result == False:
@@ -275,7 +286,7 @@ class DBObject(Validator):
                 ds = []
                 for relation in self.HABTM:
                     name = relation['name'] if isinstance(relation, dict) else relation
-                    ds.append(getattr(self, name).clear())
+                    ds.append(getattr(self, name).clear(transaction=self._transaction))
                 return defer.DeferredList(ds).addCallback(_delete)
 
         return defer.maybeDeferred(self.beforeDelete).addCallback(_deleteOnSuccess)
@@ -388,12 +399,16 @@ class DBObject(Validator):
 
         Will return all matches.
         """
+        transaction = None
+        if 'transaction' in attrs:
+            transaction = attrs['transaction']
+            del(attrs['transaction'])
         where = dictToWhere(attrs)
-        return klass.find(where = where)
+        return klass.find(where = where, transaction=transaction)
 
 
     @classmethod
-    def find(klass, id=None, where=None, group=None, limit=None, orderby=None):
+    def find(klass, id=None, where=None, group=None, limit=None, orderby=None, transaction=None):
         """
         Find instances of a given class.
 
@@ -413,6 +428,8 @@ class DBObject(Validator):
 
         @param orderby: A C{str} describing the ordering, like C{orderby='first_name DESC'}.        
 
+        @param orderby: A C{t.e.a.Transaction} to use for this query.
+
         @return: A C{Deferred} which returns the following to a callback:
         If id is specified (or C{limit} is 1) then a single
         instance of C{klass} will be returned if one is found that fits the criteria, C{None}
@@ -420,7 +437,7 @@ class DBObject(Validator):
         be returned with all matching results.
         """
         config = Registry.getConfig()
-        d = config.select(klass.tablename(), id, where, group, limit, orderby)
+        d = config.select(klass.tablename(), id, where, group, limit, orderby, transaction=transaction)
         return d.addCallback(createInstances, klass)
 
 
@@ -453,7 +470,7 @@ class DBObject(Validator):
 
 
     @classmethod
-    def deleteAll(klass, where=None):
+    def deleteAll(klass, where=None, transaction=None):
         """
         Delete all instances of C{klass} in the database without instantiating the records
         first or invoking callbacks (L{beforeDelete} is not called). This will run a single
@@ -466,7 +483,7 @@ class DBObject(Validator):
         """
         config = Registry.getConfig()
         tablename = klass.tablename()
-        return config.delete(tablename, where)
+        return config.delete(tablename, where, transaction)
 
 
     @classmethod
@@ -484,6 +501,71 @@ class DBObject(Validator):
         def _exists(result):
             return result is not None
         return klass.find(where=where, limit=1).addCallback(_exists)
+
+
+    def transaction(self, transaction=None):
+        """
+        Read current database transaction. If already set, returns the one active.
+
+        @return: A C{dict} containing a {t.e.a.Connection} and C{t.e.a.Transaction}
+        """
+        if self._transaction is None:
+                if transaction:
+                    self._transaction = transaction
+                    return self._transaction
+                else:
+                    raise TransactionNotStartedError("Transaction not yet started!")
+        else:
+                if transaction and transaction != self._transaction:
+                    raise TransactionAlreadyStartedError("Transaction already started, cannot set!")
+                return self._transaction
+
+
+    def startTransaction(self):
+        """
+        Init a new database transaction. If already set, raises {TransactionAlreadyStartedError}
+
+        @return: A C{dict} containing a {t.e.a.Connection} and C{t.e.a.Transaction}
+        """
+        if self._transaction is None:
+                d = self._config.startTxn()
+
+                def processTxn(result):
+                    self._transaction = result
+                    return self._transaction
+
+                d.addCallback(processTxn)
+                return d
+        else:
+                raise TransactionAlreadyStartedError("Transaction already started. Call commit or rollback to close it")
+
+
+    def rollback(self):
+        """
+        Rollback current object transaction(s). Clean up transaction once finished.
+        """
+        if self._transaction is None:
+                raise TransactionNotStartedError("Cannot call commit without a transaction")
+        else:
+                def _resetTxn(result):
+                        self._transaction = None
+                d = self._config.rollback(self._transaction)
+                d.addCallback(_resetTxn)
+                return d
+
+
+    def commit(self):
+        """
+        Commits current object transaction(s). Clean up transaction once finished.
+        """
+        if self._transaction is None:
+                raise TransactionNotStartedError("Cannot call commit without a transaction")
+        else:
+                def _resetTxn(result):
+                        self._transaction = None
+                d = self._config.commit(self._transaction)
+                d.addCallback(_resetTxn)
+                return d
 
 
     def __str__(self):

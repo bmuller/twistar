@@ -54,12 +54,17 @@ class Relationship:
         self.thisname = self.args['foreign_key']
 
 
+    def _updateInTransaction(self, transaction, tablename, args, where):
+        return self.dbconfig.update(tablename, args, where, transaction)
+
+
+
 class BelongsTo(Relationship):
     """
     Class representing a belongs-to relationship.
     """
     
-    def get(self):
+    def get(self, transaction=None):
         """
         Get the object that belong to the caller.
 
@@ -69,15 +74,15 @@ class BelongsTo(Relationship):
         def get_polymorphic(row):
             kid = getattr(row, "%s_id" % self.args['class_name'])
             kname = getattr(row, "%s_type" % self.args['class_name'])
-            return Registry.getClass(kname).find(kid)
+            return Registry.getClass(kname).find(kid, transaction=transaction)
 
         if self.args['polymorphic']:
-            return self.inst.find(where=["id = ?", self.inst.id], limit=1).addCallback(get_polymorphic)
+            return self.inst.find(where=["id = ?", self.inst.id], limit=1, transaction=transaction).addCallback(get_polymorphic)
 
-        return self.otherklass.find(where=["id = ?", getattr(self.inst, self.othername)], limit=1)
+        return self.otherklass.find(where=["id = ?", getattr(self.inst, self.othername)], limit=1, transaction=transaction)
 
 
-    def set(self, other):
+    def set(self, other, transaction=None):
         """
         Set the object that belongs to the caller.
 
@@ -86,16 +91,20 @@ class BelongsTo(Relationship):
         if self.args['polymorphic']:
             setattr(self.inst, "%s_type" % self.args['class_name'], other.__class__.__name__)
         setattr(self.inst, self.othername, other.id)
+        if transaction:
+            self.inst.transaction(transaction)
         return self.inst.save()
 
 
-    def clear(self):
+    def clear(self, transaction=None):
         """
         Remove the relationship linking the object that belongs to the caller.
 
         @return: A C{Deferred} with a callback value of the caller.
         """                
         setattr(self.inst, self.othername, None)
+        if transaction:
+            self.inst.transaction(transaction)
         return self.inst.save()
 
 
@@ -140,7 +149,7 @@ class HasMany(Relationship):
         else:
             where = ["%s = ?" % self.thisname, self.inst.id]
 
-        if kwargs.has_key('where'):
+        if kwargs.has_key('where') and kwargs['where']:
             kwargs['where'] = joinWheres(where, kwargs['where'])
         else:
             kwargs['where'] = where
@@ -160,7 +169,7 @@ class HasMany(Relationship):
         return defer.DeferredList(ds)        
 
 
-    def _update(self, _, others):
+    def _update(self, _, others, transaction):
         tablename = self.otherklass.tablename()
         args = {self.thisname: self.inst.id}
         ids = []
@@ -170,10 +179,13 @@ class HasMany(Relationship):
                 raise ReferenceNotSavedError, msg
             ids.append(str(other.id))
         where = ["id IN (%s)" % ",".join(ids)]                
+        if transaction:
+            return Registry.DBPOOL.executeOperationInTransaction(self._updateInTransaction,
+                                transaction, tablename, args, where)
         return self.dbconfig.update(tablename, args, where)
 
 
-    def set(self, others):
+    def set(self, others, transaction=None):
         """
         Set the objects that caller has.
 
@@ -184,18 +196,22 @@ class HasMany(Relationship):
         
         tablename = self.otherklass.tablename()
         args = {self.thisname: None}
-        where = ["%s = ?" % self.thisname, self.inst.id]        
-        d = self.dbconfig.update(tablename, args, where)
+        where = ["%s = ?" % self.thisname, self.inst.id] 
+        if transaction:
+            d = Registry.DBPOOL.executeOperationInTransaction(self._updateInTransaction,
+                            transaction, tablename, args, where)
+        else:
+            d = self.dbconfig.update(tablename, args, where)
         if len(others) > 0:
-            d.addCallback(self._update, others)
+            d.addCallback(self._update, others, transaction=transaction)
         return d
 
 
-    def clear(self):
+    def clear(self, transaction=None):
         """
         Clear the list of all of the objects that this one has.
         """
-        return self.set([])
+        return self.set([], transaction)
         
 
 class HasOne(Relationship):
@@ -203,16 +219,17 @@ class HasOne(Relationship):
     A class representing the has one relationship.
     """
     
-    def get(self):
+    def get(self, transaction=None):
         """
         Get the object that caller has.
 
         @return: A C{Deferred} with a callback value of the object this one has (or c{None}).
         """                
-        return self.otherklass.find(where=["%s = ?" % self.thisname, self.inst.id], limit=1)
+        return self.otherklass.find(where=["%s = ?" % self.thisname, self.inst.id], limit=1, 
+                                    transaction=transaction)
 
 
-    def set(self, other):
+    def set(self, other, transaction=None):
         """
         Set the object that caller has.
 
@@ -221,6 +238,9 @@ class HasOne(Relationship):
         tablename = self.otherklass.tablename()
         args = {self.thisname: self.inst.id}
         where = ["id = ?", other.id]        
+        if transaction:
+            return Registry.DBPOOL.executeOperationInTransaction(self._updateInTransaction,
+                                transaction, tablename, args, where)
         return self.dbconfig.update(tablename, args, where)
 
 
@@ -267,7 +287,7 @@ class HABTM(Relationship):
                 return defer.succeed([])
             ids = [str(row[self.othername]) for row in rows]
             where = ["id IN (%s)" % ",".join(ids)]
-            if kwargs.has_key('where'):
+            if kwargs.has_key('where') and kwargs['where']:
                 kwargs['where'] = joinWheres(where, kwargs['where'])
             else:
                 kwargs['where'] = where
@@ -276,6 +296,9 @@ class HABTM(Relationship):
 
         tablename = self.tablename()
         where = ["%s = ?" % self.thisname, self.inst.id]
+        if 'transaction' in kwargs:
+            return self.dbconfig.select(tablename, where=where, 
+                    transaction=kwargs['transaction']).addCallback(_get)
         return self.dbconfig.select(tablename, where=where).addCallback(_get)
 
 
@@ -292,7 +315,7 @@ class HABTM(Relationship):
         def _get(rows):
             if len(rows) == 0:
                 return defer.succeed(0)
-            if not kwargs.has_key('where'):
+            if not kwargs.has_key('where') or not kwargs['where']:
                 return defer.succeed(len(rows))
             ids = [str(row[self.othername]) for row in rows]
             where = ["id IN (%s)" % ",".join(ids)]
@@ -305,34 +328,39 @@ class HABTM(Relationship):
         return self.dbconfig.select(tablename, where=where).addCallback(_get)
 
 
-    def _set(self, _, others):
+    def _set(self, _, others, transaction=None):
         args = []
         for other in others:
             if other.id is None:
                 msg = "You must save all other instances before defining a relationship"
                 raise ReferenceNotSavedError, msg                
             args.append({self.thisname: self.inst.id, self.othername: other.id})
-        return self.dbconfig.insertMany(self.tablename(), args)
-        
-
-    def set(self, others):
+        if transaction:
+            def _manyInTransaction(transaction, tablename, args):
+                return self.dbconfig.insertMany(tablename, args, transaction)
+            return Registry.DBPOOL.executeOperationInTransaction(_manyInTransaction,
+                                transaction, self.tablename(), args)
+        return self.dbconfig.insertMany( self.tablename(), args)
+    
+    
+    def set(self, others, transaction=None):
         """
         Set the objects that caller has.
 
         @return: A C{Deferred}.
         """                        
         where = ["%s = ?" % self.thisname, self.inst.id]
-        d = self.dbconfig.delete(self.tablename(), where=where)
+        d = self.dbconfig.delete(self.tablename(), where=where, transaction=transaction)
         if len(others) > 0:
-            d.addCallback(self._set, others)
+            d.addCallback(self._set, others, transaction=transaction)
         return d
 
 
-    def clear(self):
+    def clear(self, transaction=None):
         """
         Clear the list of all of the objects that this one has.
         """        
-        return self.set([])
+        return self.set([], transaction=transaction)
 
 
 Relationship.TYPES = {'HASMANY': HasMany, 'HASONE': HasOne, 'BELONGSTO': BelongsTo, 'HABTM': HABTM}
