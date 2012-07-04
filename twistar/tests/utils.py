@@ -34,6 +34,9 @@ class FakeObject(DBObject):
 class Coltest(DBObject):
     pass
 
+class Transaction(DBObject):
+    pass
+
 class Boy(DBObject):
     HASMANY = [{'name': 'nicknames', 'as': 'nicknameable'}]
 

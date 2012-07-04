@@ -26,6 +26,7 @@ def initDB(testKlass):
         txn.execute("""CREATE TABLE categories (id INT AUTO_INCREMENT,
                        name VARCHAR(255), PRIMARY KEY (id))""")
         txn.execute("""CREATE TABLE posts_categories (category_id INT, blogpost_id INT)""")
+        txn.execute("""CREATE TABLE transactions (id INT AUTO_INCREMENT, name VARCHAR(255), PRIMARY KEY (id), UNIQUE(name))""")
 
     return CONNECTION.runInteraction(runInitTxn)
 
@@ -44,5 +45,6 @@ def tearDownDB(self):
         txn.execute("DROP TABLE blogposts")
         txn.execute("DROP TABLE categories")
         txn.execute("DROP TABLE posts_categories")
+        txn.execute("DROP TABLE transactions")
     return CONNECTION.runInteraction(runTearDownDB)
                 

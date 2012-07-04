@@ -26,10 +26,9 @@ def initDB(testKlass):
         txn.execute("""CREATE TABLE categories (id INTEGER PRIMARY KEY AUTOINCREMENT,
                        name TEXT)""")
         txn.execute("""CREATE TABLE posts_categories (category_id INTEGER, blogpost_id INTEGER)""")
-        
+        txn.execute("""CREATE TABLE transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, UNIQUE (name))""")
     return Registry.DBPOOL.runInteraction(runInitTxn)
 
 
 def tearDownDB(self):
     return defer.succeed(True)
-                                                               

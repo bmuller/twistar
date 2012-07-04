@@ -3,6 +3,7 @@ Base module for interfacing with databases.
 """
 
 from twisted.python import log
+from twisted.internet import defer
 
 from twistar.registry import Registry        
 from twistar.exceptions import ImaginaryTableError, CannotRefreshError
@@ -19,6 +20,10 @@ class InteractionBase:
     
     LOG = False
     includeBlankInInsert = True
+
+
+    def __init__(self):
+        self.txn = None
 
 
     def logEncode(self, s, encoding='utf-8'):
@@ -120,7 +125,7 @@ class InteractionBase:
         elif limit is not None:
             q += " LIMIT " + str(limit)
             
-        return Registry.DBPOOL.runInteraction(self._doselect, q, args, tablename, one)
+        return self.runInteraction(self._doselect, q, args, tablename, one)
 
 
     def _doselect(self, txn, q, args, tablename, one=False):
@@ -299,7 +304,13 @@ class InteractionBase:
                 raise ImaginaryTableError, "Table %s does not exist." % tablename
             Registry.SCHEMAS[tablename] = [row[0] for row in txn.description]
         return Registry.SCHEMAS.get(tablename, [])
-            
+
+
+    def runInteraction(self, interaction, *args, **kwargs):
+        if self.txn is not None:
+            return defer.succeed(interaction(self.txn, *args, **kwargs))
+        return Registry.DBPOOL.runInteraction(interaction, *args, **kwargs)
+
 
     def insertObj(self, obj):
         """
@@ -317,7 +328,8 @@ class InteractionBase:
             self.insert(tablename, vals, txn)
             obj.id = self.getLastInsertID(txn)
             return obj
-        return Registry.DBPOOL.runInteraction(_doinsert)
+
+        return self.runInteraction(_doinsert)
 
 
     def updateObj(self, obj):
@@ -334,7 +346,7 @@ class InteractionBase:
             vals = obj.toHash(cols, includeBlank=True, exclude=['id'])
             return self.update(tablename, vals, where=['id = ?', obj.id], txn=txn)
         # We don't want to return the cursor - so add a blank callback returning the obj
-        return Registry.DBPOOL.runInteraction(_doupdate).addCallback(lambda _: obj)    
+        return self.runInteraction(_doupdate).addCallback(lambda _: obj)
 
 
     def refreshObj(self, obj):

@@ -8,7 +8,7 @@ from twisted.internet import defer
 from twistar.registry import Registry
 from twistar.relationships import Relationship
 from twistar.exceptions import InvalidRelationshipError, DBObjectSaveError, ReferenceNotSavedError
-from twistar.utils import createInstances, deferredDict, dictToWhere
+from twistar.utils import createInstances, deferredDict, dictToWhere, transaction
 from twistar.validation import Validator, Errors
 
 from BermiInflector.Inflector import Inflector
@@ -371,11 +371,14 @@ class DBObject(Validator):
 
         If a match isn't found, create a new instance and return that.
         """
-        def handle(result):
-            if len(result) == 0:
-                return klass(**attrs).save()
-            return result[0]
-        return klass.findBy(**attrs).addCallback(handle)
+        @transaction
+        def _findOrCreate(trans):
+            def handle(result):
+                if len(result) == 0:
+                    return klass(**attrs).save()
+                return result[0]
+            return klass.findBy(**attrs).addCallback(handle)
+        return _findOrCreate()
 
 
     @classmethod

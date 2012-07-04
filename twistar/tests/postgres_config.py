@@ -26,6 +26,7 @@ def initDB(testKlass):
         txn.execute("""CREATE TABLE categories (id SERIAL PRIMARY KEY,
                        name VARCHAR(255))""")
         txn.execute("""CREATE TABLE posts_categories (category_id INT, blogpost_id INT)""")
+        txn.execute("""CREATE TABLE transactions (id SERIAL PRIMARY KEY, name VARCHAR(255) UNIQUE""")
 
     return CONNECTION.runInteraction(runInitTxn)
 
@@ -65,6 +66,9 @@ def tearDownDB(self):
         txn.execute("DROP TABLE categories")
 
         txn.execute("DROP TABLE posts_categories")
+
+        txn.execute("DROP SEQUENCE transactions_id_seq CASCADE")
+        txn.execute("DROP TABLE transactions")
         
     return CONNECTION.runInteraction(runTearDownDB)
                 

@@ -3,6 +3,12 @@ All C{Exception} classes.
 """
 
 
+class TransactionError(Exception):
+    """
+    Error while running a transaction.
+    """
+
+
 class ClassNotRegisteredError(Exception):
     """
     Error resulting from the attempted fetching of a class from the L{Registry} that was
