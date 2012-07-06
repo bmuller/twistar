@@ -1,6 +1,6 @@
 from twisted.trial import unittest
 from twisted.enterprise import adbapi
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import inlineCallbacks, DeferredList
 
 from twistar.exceptions import ReferenceNotSavedError
 from twistar.utils import transaction
@@ -18,6 +18,20 @@ class TransactionTest(unittest.TestCase):
     @inlineCallbacks
     def tearDown(self):
         yield tearDownDB(self)            
+
+
+    @inlineCallbacks
+    def test_findOrCreate(self):
+        @transaction
+        def interaction(txn):
+            ds = []
+            ds.append(Transaction.findOrCreate(name="a name"))
+            ds.append(Transaction.findOrCreate(name="a name"))
+            return DeferredList(ds)
+
+        yield interaction()
+        count = yield Transaction.count()
+        self.assertEqual(count, 1)
 
 
     @inlineCallbacks
