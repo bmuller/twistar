@@ -140,7 +140,10 @@ class TxConnectionPool(ConnectionPool):
         Push f onto the transaction's work queue.
         """
         self.txWorkersLock.acquire()
-        worker = self.txWorkers[trans]
+        worker = self.txWorkers.get(trans)
+        if not worker:
+            err = "Cannot execute operation in the given transaction"
+            raise TransactionNotStartedError(err)
         d = worker.submit(f, trans, *args, **kwargs)
         self.txWorkersLock.release()
         
