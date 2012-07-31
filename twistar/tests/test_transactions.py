@@ -534,3 +534,14 @@ class TransactionTest(unittest.TestCase):
         self.assertTrue(r.id == user.id)
         self.assertTrue(r.id != txn_id)
 
+    @inlineCallbacks
+    def test_transacted_operation_after_commit_raises(self):
+        pen = Pen(color="red", len=10)
+        transaction = yield pen.startTransaction()
+        yield pen.save()
+        yield pen.commit()
+
+        new_pen = Pen(color="yellow", len=10)
+        new_pen.transaction(transaction)
+
+        yield self.assertFailure(new_pen.save(), TransactionNotStartedError)
