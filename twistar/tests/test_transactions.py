@@ -315,8 +315,35 @@ class TransactionTest(unittest.TestCase):
         yield table.rubbers.set(rubbers, transaction)
         results = yield table.rubbers.get()
         self.assertEqual(results, [])
-        #Need for pgsql
+        # Needed for pgsql
         yield table.rollback()
+
+    @inlineCallbacks
+    def test_count_habtm(self):
+        try:
+            table = Table(color="blue")
+            transaction = yield table.startTransaction()
+            table = yield table.save()
+
+            pen = yield Pen(color="red", transaction=transaction).save()
+            another_pen = yield Pen(color="green", transaction=transaction).save()
+
+            pensid = [pen.id, another_pen.id]
+            pens = [pen, another_pen]
+            yield table.pens.set(pens, transaction)
+
+            cnt = yield table.pens.count(transaction=transaction)
+            self.assertEqual(cnt, 2)
+
+            cnt = yield table.pens.count()
+            self.assertEqual(cnt, 0)
+
+            yield table.commit()
+
+            cnt = yield table.pens.count()
+            self.assertEqual(cnt, 2)
+        except Exception as e:
+            print e
 
     @inlineCallbacks
     def test_set_habtm(self):

@@ -325,6 +325,9 @@ class HABTM(Relationship):
 
         tablename = self.tablename()
         where = ["%s = ?" % self.thisname, self.inst.id]
+        if 'transaction' in kwargs:
+            return self.dbconfig.select(tablename, where=where, 
+                    transaction=kwargs['transaction']).addCallback(_get)
         return self.dbconfig.select(tablename, where=where).addCallback(_get)
 
 
