@@ -50,7 +50,8 @@ def lengthOf(obj, names, kwargs):
     else:
         message = kwargs.get('message', "must have a length between %s and %s (inclusive)." % minmax)
     for name in names:
-        if not len(getattr(obj, name, "")) in xr:
+        val = getattr(obj, name, None)
+        if val is not None and len(val) not in xr:
             obj.errors.add(name, message)
 
 
