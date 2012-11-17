@@ -76,6 +76,8 @@ class DBObject(Validator):
         if self.__class__.RELATIONSHIP_CACHE is None:
             self.__class__.initRelationshipCache()
 
+        self.afterInit()
+
 
     def updateAttrs(self, kwargs):
         """
