@@ -14,6 +14,18 @@ from twistar.validation import Validator, Errors
 from BermiInflector.Inflector import Inflector
 
 
+class DBObjectMeta(type):
+    def __call__(cls, *args, **kwargs):
+        try:
+            ret = super(DBObject, cls).__new__(cls, *args, **kwargs)
+            ret.__init__(*args, **kwargs)
+        except:
+            return defer.fail()
+        else:
+            d = ret.afterInit()
+            return d.addCallback(lambda _: ret) if isinstance(d, defer.Deferred) else ret
+
+
 class DBObject(Validator):
     """
     A base class for representing objects stored in a RDBMS.
@@ -47,7 +59,8 @@ class DBObject(Validator):
 
     @see: L{Relationship}, L{HasMany}, L{HasOne}, L{HABTM}, L{BelongsTo}
     """
-    
+    __metaclass__ = DBObjectMeta
+
     HASMANY = []
     HASONE = []
     HABTM = []
@@ -57,20 +70,6 @@ class DBObject(Validator):
     # the keys are the name and the values are classes representing the relationship
     # it will be of the form {'othername': <BelongsTo instance>, 'anothername': <HasMany instance>}
     RELATIONSHIP_CACHE = None
-
-    def __new__(cls, *args, **kwargs):
-        try:
-            ret = super(DBObject, cls).__new__(cls, *args, **kwargs)
-        except:
-            return defer.fail()
-        else:
-            d = ret.afterInit()
-            if isinstance(d, defer.Deferred):
-                ret.__init__(*args, **kwargs)
-                return d.addCallback(lambda _: ret)
-            else:
-                return ret
-
 
     def __init__(self, **kwargs):
         """
