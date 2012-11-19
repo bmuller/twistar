@@ -45,7 +45,7 @@ def createInstances(props, klass):
     """
     if type(props) is list:
         return defer.DeferredList(
-            [klass(**prop) for prop in props], fireOnOneErrback=True, consumeErrors=True
+            [defer.maybeDeferred(klass, **prop) for prop in props], fireOnOneErrback=True, consumeErrors=True
         ).addCallback(lambda result: [x[1] for x in result])
     elif props is not None:
         return klass(**props)

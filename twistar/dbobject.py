@@ -61,11 +61,15 @@ class DBObject(Validator):
     def __new__(cls, *args, **kwargs):
         try:
             ret = super(DBObject, cls).__new__(cls, *args, **kwargs)
-            ret.__init__(*args, **kwargs)
         except:
             return defer.fail()
         else:
-            return defer.maybeDeferred(ret.afterInit).addCallback(lambda _: ret)
+            d = ret.afterInit()
+            if isinstance(d, defer.Deferred):
+                ret.__init__(*args, **kwargs)
+                return d.addCallback(lambda _: ret)
+            else:
+                return ret
 
 
     def __init__(self, **kwargs):
@@ -387,7 +391,7 @@ class DBObject(Validator):
         def _findOrCreate(trans):
             def handle(result):
                 if len(result) == 0:
-                    return klass(**attrs).addCallback(lambda inst: inst.save())
+                    return defer.maybeDeferred(klass, **attrs).addCallback(lambda inst: inst.save())
                 return result[0]
             return klass.findBy(**attrs).addCallback(handle)
         return _findOrCreate()
