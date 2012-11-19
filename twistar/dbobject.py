@@ -58,6 +58,16 @@ class DBObject(Validator):
     # it will be of the form {'othername': <BelongsTo instance>, 'anothername': <HasMany instance>}
     RELATIONSHIP_CACHE = None
 
+    def __new__(cls, *args, **kwargs):
+        try:
+            ret = super(DBObject, cls).__new__(cls, *args, **kwargs)
+            ret.__init__(*args, **kwargs)
+        except:
+            return defer.fail()
+        else:
+            return defer.maybeDeferred(ret.afterInit).addCallback(lambda _: ret)
+
+
     def __init__(self, **kwargs):
         """
         Constructor.  DO NOT OVERWRITE.  Use the L{DBObject.afterInit} method.
@@ -377,7 +387,7 @@ class DBObject(Validator):
         def _findOrCreate(trans):
             def handle(result):
                 if len(result) == 0:
-                    return klass(**attrs).save()
+                    return klass(**attrs).addCallback(lambda inst: inst.save())
                 return result[0]
             return klass.findBy(**attrs).addCallback(handle)
         return _findOrCreate()

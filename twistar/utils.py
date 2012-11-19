@@ -44,15 +44,13 @@ def createInstances(props, klass):
     @return: A C{Deferred} that will pass the result to a callback
     """
     if type(props) is list:
-        ks = [klass(**prop) for prop in props]
-        ds = [defer.maybeDeferred(k.afterInit) for k in ks]
-        return defer.DeferredList(ds).addCallback(lambda _: ks)
-    
-    if props is not None:
-        k = klass(**props)
-        return defer.maybeDeferred(k.afterInit).addCallback(lambda _: k)
-
-    return defer.succeed(None)
+        return defer.DeferredList(
+            [klass(**prop) for prop in props], fireOnOneErrback=True, consumeErrors=True
+        ).addCallback(lambda result: [x[1] for x in result])
+    elif props is not None:
+        return klass(**props)
+    else:
+        return defer.succeed(None)
 
 
 def dictToWhere(attrs, joiner="AND"):
