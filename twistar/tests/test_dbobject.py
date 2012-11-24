@@ -1,6 +1,6 @@
 from twisted.trial import unittest
 from twisted.enterprise import adbapi
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import inlineCallbacks, Deferred
 
 from twistar.exceptions import ImaginaryTableError
 from twistar.registry import Registry
@@ -222,6 +222,28 @@ class DBObjectTest(unittest.TestCase):
 
         # restore user's afterInit
         User.afterInit = DBObject.afterInit
+
+
+    def test_deferred_afterInit(self):
+        ctrl_d = Deferred()
+        afterInit_called = [False]
+
+        def afterInit(user):
+            afterInit_called[0] = True
+            return ctrl_d
+        User.afterInit = afterInit
+        try:
+            user_d = User()
+
+            self.assertTrue(isinstance(user_d, Deferred))
+            self.assertTrue(afterInit_called[0])
+            self.assertFalse(user_d.called)
+
+            ctrl_d.callback(None)
+            self.assertTrue(user_d.called)
+            self.assertTrue(isinstance(user_d.result, User))
+        finally:
+            User.afterInit = DBObject.afterInit
 
 
     @inlineCallbacks
