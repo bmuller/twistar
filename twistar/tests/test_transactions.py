@@ -1,6 +1,6 @@
 from twisted.trial import unittest
 from twisted.enterprise import adbapi
-from twisted.internet.defer import inlineCallbacks, DeferredList
+from twisted.internet.defer import inlineCallbacks
 
 from twistar.exceptions import ReferenceNotSavedError
 from twistar.utils import transaction
@@ -23,11 +23,10 @@ class TransactionTest(unittest.TestCase):
     @inlineCallbacks
     def test_findOrCreate(self):
         @transaction
+        @inlineCallbacks
         def interaction(txn):
-            ds = []
-            ds.append(Transaction.findOrCreate(name="a name"))
-            ds.append(Transaction.findOrCreate(name="a name"))
-            return DeferredList(ds)
+            yield Transaction.findOrCreate(name="a name")
+            yield Transaction.findOrCreate(name="a name")
 
         yield interaction()
         count = yield Transaction.count()
