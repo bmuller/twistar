@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-try:
-    from setuptools import setup, Extension
-except ImportError:
-    from distutils.core import setup, Extension
+from setuptools import setup, find_packages
 
 setup(
     name="twistar",
@@ -12,6 +9,7 @@ setup(
     author_email="bamuller@gmail.com",
     license="GPLv3",
     url="http://findingscience.com/twistar",
-    packages=["twistar", "twistar.dbconfig", "twistar.tests", 'BermiInflector', 'BermiInflector.Rules'],
-    requires=["twisted.enterprise.adbapi"]
+    packages=find_packages(),
+    requires=["twisted.enterprise.adbapi"],
+    install_requires=['twisted>=12.0']
 )
