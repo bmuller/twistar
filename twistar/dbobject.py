@@ -292,7 +292,7 @@ class DBObject(Validator):
         return defer.maybeDeferred(self.beforeDelete).addCallback(_deleteOnSuccess)
 
 
-    def loadRelations(self, *relations):
+    def loadRelations(self, *relations, **kwargs):
         """
         Preload a a list of relationships.  For instance, if you have an instance of an
         object C{User} (named C{user}) that has many C{Address}es and has one C{Avatar},
@@ -307,16 +307,18 @@ class DBObject(Validator):
 
         @return: A C{Deferred}.
         """
+        transaction = kwargs.get('transaction', None)
+
         if len(relations) == 0:
             klass = object.__getattribute__(self, "__class__")
             allrelations = klass.RELATIONSHIP_CACHE.keys()
             if len(allrelations) == 0:
                 return defer.succeed({})
-            return self.loadRelations(*allrelations)
+            return self.loadRelations(*allrelations, transaction=transaction)
 
         ds = {}
         for relation in relations:
-            ds[relation] = getattr(self, relation).get()
+            ds[relation] = getattr(self, relation).get(transaction=transaction)
         return deferredDict(ds)
 
 

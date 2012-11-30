@@ -572,3 +572,19 @@ class TransactionTest(unittest.TestCase):
         new_pen.transaction(transaction)
 
         yield self.assertFailure(new_pen.save(), TransactionNotStartedError)
+
+    @inlineCallbacks
+    def test_loadRelations_inside_transactions(self):
+        user = User(first_name="First", last_name="Last", age=10)
+        txn = yield user.startTransaction()
+        yield user.save()
+    
+        picture = Picture(name="a pic", size=10, user_id=user.id, transaction=txn)
+        yield picture.save()
+
+        relations = yield user.loadRelations(transaction=txn)
+        user_pictures = yield user.pictures.get(transaction=txn)
+
+        self.assertEqual(user_pictures, relations['pictures'])
+
+        yield user.rollback()
