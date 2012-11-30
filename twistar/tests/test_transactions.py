@@ -588,3 +588,18 @@ class TransactionTest(unittest.TestCase):
         self.assertEqual(user_pictures, relations['pictures'])
 
         yield user.rollback()
+
+    @inlineCallbacks
+    def test_loadRelations_outside_transactions(self):
+        user = User(first_name="First", last_name="Last", age=10)
+        txn = yield user.startTransaction()
+        yield user.save()
+    
+        picture = Picture(name="a pic", size=10, user_id=user.id, transaction=txn)
+        yield picture.save()
+
+        relations = yield user.loadRelations()
+
+        self.assertEqual([], relations['pictures'])
+
+        yield user.rollback()
