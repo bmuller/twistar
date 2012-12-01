@@ -19,7 +19,7 @@ def presenceOf(obj, names, kwargs):
     """
     message = kwargs.get('message', "cannot be blank.")
     for name in names:
-        if getattr(obj, name, "") == "":
+        if getattr(obj, name, "") in ("", None):
             obj.errors.add(name, message)
 
 
