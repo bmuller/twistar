@@ -31,8 +31,8 @@ def lengthOf(obj, names, kwargs):
     containing valid values, or a C{length} keyword with the exact length
     allowed.
 
-    For those named properties that do not have
-    the specified length, an error will be recorded in C{obj.errors}.
+    For those named properties that do not have the specified length
+    (or that are C{None}), an error will be recorded in C{obj.errors}.
 
     @param obj: The object whose properties need to be tested.
     @param names: The names of the properties to test.
@@ -50,7 +50,8 @@ def lengthOf(obj, names, kwargs):
     else:
         message = kwargs.get('message', "must have a length between %s and %s (inclusive)." % minmax)
     for name in names:
-        if not len(getattr(obj, name, "")) in xr:
+        val = getattr(obj, name, "")
+        if val is None or not len(val) in xr:
             obj.errors.add(name, message)
 
 
