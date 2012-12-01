@@ -101,6 +101,7 @@ class InteractionBase:
         Otherwise, an array of dictionaries are returned.
         """
         one = False
+        cacheTableStructure = select is None
         select = select or "*"
         
         if id is not None:
@@ -125,12 +126,15 @@ class InteractionBase:
         elif limit is not None:
             q += " LIMIT " + str(limit)
             
-        return self.runInteraction(self._doselect, q, args, tablename, one)
+        return self.runInteraction(self._doselect, q, args, tablename, one, cacheTableStructure)
 
 
-    def _doselect(self, txn, q, args, tablename, one=False):
+    def _doselect(self, txn, q, args, tablename, one=False, cacheable=True):
         """
         Private callback for actual select query call.
+
+        @param cacheable Denotes whether or not we can use the results of this
+        query to keep the structure of a table on hand.
         """
         self.executeTxn(txn, q, args)
 
@@ -138,12 +142,12 @@ class InteractionBase:
             result = txn.fetchone()
             if not result:
                 return None
-            vals = self.valuesToHash(txn, result, tablename)
+            vals = self.valuesToHash(txn, result, tablename, cacheable)
             return vals
 
         results = []
         for result in txn.fetchall():
-            vals = self.valuesToHash(txn, result, tablename)
+            vals = self.valuesToHash(txn, result, tablename, cacheable)
             results.append(vals)            
         return results
     
@@ -270,7 +274,7 @@ class InteractionBase:
         return self.executeOperation(q, args)
 
 
-    def valuesToHash(self, txn, values, tablename):
+    def valuesToHash(self, txn, values, tablename, cacheable=True):
         """
         Given a row from a database query (values), create
         a hash using keys from the table schema and values from
@@ -281,9 +285,12 @@ class InteractionBase:
         @param values: A row from a db (as a C{list}).
 
         @param tablename: Name of the table to fetch the schema for.
+
+        @param cacheable: Can the resulting table structure be cached for
+        future reference?
         """
         cols = [row[0] for row in txn.description]
-        if not Registry.SCHEMAS.has_key(tablename):
+        if cacheable and not Registry.SCHEMAS.has_key(tablename):
             Registry.SCHEMAS[tablename] = cols
         h = {}
         for index in range(len(values)):
