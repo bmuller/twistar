@@ -547,6 +547,10 @@ class DBObject(Validator):
         return not self == other
 
 
+    def __hash__(self):
+        return hash('%s.%d' % (type(self).__name__, self.id))
+
+
     __repr__ = __str__
 
 
