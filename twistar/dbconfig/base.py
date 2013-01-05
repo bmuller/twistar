@@ -184,18 +184,6 @@ class InteractionBase:
             return self.executeTxn(txn, q, vals.values())
         return self.executeOperation(q, vals.values())
 
-
-    def escapeColNames(self, colnames):
-        """
-        Escape column names for insertion into SQL statement.
-
-        @param colnames: A C{List} of string column names.
-
-        @return: A C{List} of string escaped column names.
-        """
-        return map(lambda x: "`%s`" % x, colnames)
-
-
     def insertMany(self, tablename, vals):
         """
         Insert many values into a table.
