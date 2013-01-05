@@ -34,7 +34,12 @@ class SQLiteDBConfig(InteractionBase):
                 self.insert(tablename, val, txn)
         return Registry.DBPOOL.runInteraction(_insertMany)
 
+    def escapeColNames(self, colnames):
+        """
+        Escape column names for insertion into SQL statement.
 
+        @param colnames: A C{List} of string column names.
 
-
-        
+        @return: A C{List} of string escaped column names.
+        """
+        return map(lambda x: '`%s`' % x, colnames)

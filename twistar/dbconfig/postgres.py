@@ -25,3 +25,13 @@ class PostgreSQLDBConfig(InteractionBase):
         d = self.select(tablename, where=where, select='count(*)')
         d.addCallback(lambda res: res[0]['count'])
         return d
+
+    def escapeColNames(self, colnames):
+        """
+        Escape column names for insertion into SQL statement.
+
+        @param colnames: A C{List} of string column names.
+
+        @return: A C{List} of string escaped column names.
+        """
+        return map(lambda x: '"%s"' % x, colnames)

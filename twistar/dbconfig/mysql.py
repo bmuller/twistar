@@ -30,3 +30,13 @@ class ReconnectingMySQLConnectionPool(adbapi.ConnectionPool):
             conn = self.connections.get(self.threadID())
             self.disconnect(conn)
             return adbapi.ConnectionPool._runInteraction(self, interaction, *args, **kw)
+
+    def escapeColNames(self, colnames):
+        """
+        Escape column names for insertion into SQL statement.
+
+        @param colnames: A C{List} of string column names.
+
+        @return: A C{List} of string escaped column names.
+        """
+        return map(lambda x: '`%s`' % x, colnames)
