@@ -1,8 +1,8 @@
-from twisted.enterprise import adbapi
 from twisted.internet import defer
 
 from twistar.registry import Registry
 from txconnectionpool.txconnectionpool import TxConnectionPool
+
 
 def initDB(testKlass):
     location = testKlass.mktemp()
