@@ -5,8 +5,6 @@ import sys
 
 from twisted.python import log
 
-from twisted.internet import reactor, threads
-
 from twistar.registry import Registry        
 from twistar.exceptions import ImaginaryTableError, CannotRefreshError
 from twistar.exceptions import TransactionNotStartedError
@@ -129,7 +127,7 @@ class InteractionBase:
         q, args = self._build_select( tablename, id, where, group, limit, orderby, select )
 
         if transaction:
-                return Registry.DBPOOL.executeOperationInTransaction(self._doselect, transaction, q, args, tablename, one)
+            return Registry.DBPOOL.executeOperationInTransaction(self._doselect, transaction, q, args, tablename, one)
         else:
             return Registry.DBPOOL.runInteraction(self._doselect, q, args, tablename, one)
 
@@ -277,7 +275,7 @@ class InteractionBase:
             wherestr, args = self.whereToString(where)
             q += " WHERE " + wherestr
         if transaction is not None:
-            return Registry.DBPOOL.runOperationInTransaction(transaction, q, args)
+            return self.executeOperationInTransaction(q, transaction, args)
         return self.executeOperation(q, args)
 
 
@@ -363,9 +361,9 @@ class InteractionBase:
             obj.id = self.getLastInsertID(transaction)
             return obj
         if obj._transaction:
-                return Registry.DBPOOL.executeOperationInTransaction(_doinsert, obj._transaction)
+            return Registry.DBPOOL.executeOperationInTransaction(_doinsert, obj._transaction)
         else:
-                return Registry.DBPOOL.runInteraction(_doinsert)
+            return Registry.DBPOOL.runInteraction(_doinsert)
 
 
     def updateObj(self, obj):
@@ -383,9 +381,9 @@ class InteractionBase:
             return self.update(tablename, vals, where=['id = ?', obj.id], transaction=transaction)
         # We don't want to return the cursor - so add a blank callback returning the obj
         if obj._transaction:
-                return Registry.DBPOOL.executeOperationInTransaction(_doupdate, obj._transaction).addCallback(lambda _: obj)
+            return Registry.DBPOOL.executeOperationInTransaction(_doupdate, obj._transaction).addCallback(lambda _: obj)
         else:
-                return Registry.DBPOOL.runInteraction(_doupdate).addCallback(lambda _: obj)    
+            return Registry.DBPOOL.runInteraction(_doupdate).addCallback(lambda _: obj)    
 
 
     def refreshObj(self, obj):
