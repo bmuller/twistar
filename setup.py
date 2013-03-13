@@ -7,7 +7,7 @@ setup(
     description="An implementation of the Active Record pattern for Twisted",
     author="Brian Muller",
     author_email="bamuller@gmail.com",
-    license="GPLv3",
+    license="MIT",
     url="http://findingscience.com/twistar",
     packages=find_packages(),
     requires=["twisted.enterprise.adbapi"],
