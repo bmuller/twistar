@@ -10,7 +10,7 @@ setup(
     description="An implementation of the Active Record pattern for Twisted",
     author="Brian Muller",
     author_email="bamuller@gmail.com",
-    license="GPLv3",
+    license="MIT",
     url="http://findingscience.com/twistar",
     packages=["twistar", "twistar.dbconfig", "twistar.tests", 'BermiInflector', 'BermiInflector.Rules',
               'txconnectionpool', 'txthreadworker' ],
