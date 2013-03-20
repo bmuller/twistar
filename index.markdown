@@ -61,20 +61,14 @@ One or more of the following Python database interfaces that implement the [DBAP
  * [psycopg2](http://initd.org/psycopg/) (PostgreSQL interface)
  * [sqlite3](http://docs.python.org/library/sqlite3.html) (SQLite interface)
 
-## Get The Source 
-You can look on the [releases](releases.html) page or use git to get a development release:
-{% highlight bash %}
-git clone git://github.com/bmuller/twistar.git
-{% endhighlight %}
-
 ## Install 
-In the twistar directory, simply run:
+Simply run:
 {% highlight bash %}
-python setup.py install
+pip install twistar
 {% endhighlight %}
 
 ## Unit Tests 
-In the twistar directory, simply run:
+Simply run:
 {% highlight bash %}
 trial twistar
 {% endhighlight %}
