@@ -1,5 +1,3 @@
-import MySQLdb
-
 from twisted.enterprise import adbapi
 from twisted.python import log
 
@@ -21,6 +19,7 @@ class ReconnectingMySQLConnectionPool(adbapi.ConnectionPool):
     http://www.gelens.org/2009/09/13/twisted-connectionpool-revisited/
     """
     def _runInteraction(self, interaction, *args, **kw):
+        import MySQLdb
         try:
             return adbapi.ConnectionPool._runInteraction(self, interaction, *args, **kw)
         except MySQLdb.OperationalError, e:
