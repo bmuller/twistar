@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="twistar",
-    version="1.1",
+    version="1.1-chevah2",
     description="An implementation of the Active Record pattern for Twisted",
     author="Brian Muller",
     author_email="bamuller@gmail.com",
