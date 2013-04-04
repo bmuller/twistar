@@ -310,7 +310,8 @@ class InteractionBase:
             except Exception, e:
                 raise ImaginaryTableError, "Table %s does not exist." % tablename
             Registry.SCHEMAS[tablename] = [row[0] for row in txn.description]
-        return Registry.SCHEMAS.get(tablename, [])
+            txn.fetchall()
+	return Registry.SCHEMAS.get(tablename, [])
 
 
     def runInteraction(self, interaction, *args, **kwargs):
