@@ -22,13 +22,13 @@
     <div class="content">
     <span/>
 <p>
-  Since Twistar uses Twisted, most methodand function calls willreturn a <code class="python">twisted.internet.defer.Deferred</code>
-  object. You must understand the propper use of these objects before most of this documentationwill make sense.
+  Since Twistar uses Twisted, most methods and function calls will return a <code class="python">twisted.internet.defer.Deferred</code>
+  object. You must understand the proper use of these objects before most of this documentation will make sense.
 </p>
 
     <h2>Initialization<a name="auto0"/></h2>
-    <p>Before using Twistar a connection to the DB must first be made.  The method of connecting to the database
-is to use Twisted's <code class="python">twisted.enterprise.adapi</code> module and the <code class="python">ConnectionPool</code>
+    <p>Before using Twistar a connection to the DB must be made.  To connect to the database
+use Twisted's <code class="python">twisted.enterprise.adapi</code> module and the <code class="python">ConnectionPool</code>
 object.  The <code class="python">Registry</code> class is used to keep track of that pool.  For instance, this is the 
 method to specify a connection to a MySQL database:
 </p>
@@ -70,7 +70,7 @@ an auto-incrementing integer column named <q>id</q>.
 
 <h2>Defining and Interacting With Objects<a name="auto2"/></h2>
 <p>
-Object's representing rows in a database need only extend the 
+Objects representing rows in a database need only extend the 
 <code class="python">DBObject</code> class.
 </p>
 <pre class="python"><p class="py-linenumber">1
@@ -190,13 +190,13 @@ any particular objects exist (using the <code class="python">exists()</code> met
 
 <h2>Validations<a name="auto5"/></h2>
 <p>
-Twistar also supports validations.  Validations describe constraints on an objects
+Twistar also supports validations.  Validations describe constraints on an object's
 parameters.  If those constraints are violated, then an object will not be saved (this
 includes both creating and updating).  In such a case a special parameter in the object
 keeps track of the errors and the messages.
 </p>
 <p>
-As an example, let's say that we want all users to always have a first name set and a last
+As an example, let's say that we want all users to have a first name set and a last
 name that has a length between 1 and 256 characters.  First, we describe the class 
 <code class="python">User</code> as above and then add restrictions on it.
 </p>

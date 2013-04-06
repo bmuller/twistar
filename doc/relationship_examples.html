@@ -227,12 +227,12 @@ A good example of the &quot;belongs to&quot; property is the reverse of the &quo
 Assuming the DB structure is the same as in the &quot;has many&quot; example, you can now get and set the user that 
 a particular picture belongs to (using <code class="python">get()</code> and <code class="python">set()</code>
 methods on <code class="python">picture.user</code>).  Additionally, there is a <code>clear()</code> method that will clear all
-objects in a given belongs to relationship.
+objects in a given &quot;belongs to&quot; relationship.
 </p>
   <h2>Has and Belongs To Many<a name="auto3"/></h2>
 <p>
-In a has and belongs to many relationship two objects have a many to many relationship.  For instance, users and favorite colors.  
-A user can have many favorite colors and a favorite color could belong to many users.  In this example, there should be three tables -
+In a &quot;has and belongs to many&quot; relationship two objects have a many to many relationship.  For instance, users and favorite colors.  
+A user can have many favorite colors and a favorite color could belong to many users.  In this example, there should be three tables —
 a <code>users</code> table, a <code>favorite_colors</code> table, and a <code>favorite_colors_users</code> table.  The last on the list 
 is a special table that stores the relationships between the colors and users.  It has no primary key, and two columns: one for 
 <code>user_id</code>s and one for <code>favorite_color_id</code>s.  The table's name by convention should be the combination of the other
