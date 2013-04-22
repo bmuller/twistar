@@ -22,26 +22,31 @@ For this example, assume that there is a table named "users" with varchar column
 from twisted.enterprise import adbapi
 from twistar.registry import Registry
 from twistar.dbobject import DBObject
+from twisted.internet import reactor
 
 class User(DBObject):
      pass
 
 def done(user):
      print "A user was just created with the name %s" % user.first_name
+     reactor.stop()
 
 # Connect to the DB
 Registry.DBPOOL = adbapi.ConnectionPool('MySQLdb', user="twistar", passwd="apass", db="twistar")
 
-# make and save a user
+# make a user
 u = User()
 u.first_name = "John"
 u.last_name = "Smith"
 u.age = 25
+
+# Or, use this shorter version:
+u = User(first_name="John", last_name="Smith", age=25)
+
+# save the user
 u.save().addCallback(done)
 
-# The following is equivalent
-u = User(first_name="John", last_name="Smith", age=25)
-u.save().addCallback(done)
+reactor.run()
 {% endhighlight %}
 
 Then, finding this user is easy:
