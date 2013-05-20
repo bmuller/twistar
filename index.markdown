@@ -51,8 +51,10 @@ reactor.run()
 
 Then, finding this user is easy:
 {% highlight python %}
-def found(user):
-    print "I found a user named %s %s" % (user.first_name, user.last_name)
+def found(users):
+    print "I found %i users!" % len(users)
+    for user in users:
+        print "User: %s %s" % (user.first_name, user.last_name)
 
 u = User.findBy(first_name="John", age=25).addCallback(found)
 {% endhighlight %}
