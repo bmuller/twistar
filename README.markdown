@@ -1,7 +1,7 @@
 # twistar: Asynchronous Python ORM
 [![Build Status](https://secure.travis-ci.org/bmuller/twistar.png?branch=master)](https://travis-ci.org/bmuller/twistar)
 
-The Twistar Project provides an ActiveRecord (ORM) pattern interface to the Twisted Project's RDBMS library.  This README contains minimal documentation - see the project home page at http://findingscience.com/twistar for more information.
+The Twistar Project provides an ActiveRecord (ORM) pattern interface to the Twisted Project's RDBMS library.  This file contains minimal documentation - see the project home page at http://findingscience.com/twistar for more information.
 
 ## Installation
 
