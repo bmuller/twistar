@@ -6,5 +6,5 @@ relational databases.
 
 @author: Brian Muller U{bamuller@gmail.com}
 """
-version_info = (1, 1)
+version_info = (1, 2)
 version = '.'.join(map(str, version_info))
