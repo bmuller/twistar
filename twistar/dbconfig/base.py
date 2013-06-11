@@ -431,7 +431,7 @@ class InteractionBase:
         return (setstring, args.values())
 
 
-    def count(self, tablename, where=None):
+    def count(self, tablename, where=None, transaction=None):
         """
         Get the number of rows in the given table (optionally, that meet the given where criteria).
 
@@ -442,10 +442,15 @@ class InteractionBase:
         @return: A C{Deferred} that returns the number of rows.
         """
         q, args = self._build_select(tablename, where=where, select='count(*)')
-        d = self.execute(q, args)
+        if transaction is not None:
+            d = Registry.DBPOOL.runQueryInTransaction(transaction, q, args)
+        else:
+            d = self.execute(q, args)
+
         def _parse_count_result(result):
                 val = result[0]
                 return val[0]
+
         d.addCallback(_parse_count_result)
         return d
 

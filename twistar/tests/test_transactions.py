@@ -319,6 +319,34 @@ class TransactionTest(unittest.TestCase):
         yield table.rollback()
 
     @inlineCallbacks
+    def test_count_outside_transaction(self):
+        table = Table(color="blue")
+        transaction = yield table.startTransaction()
+        table = yield table.save()
+
+        cnt = yield Table.count()
+        self.assertEqual(cnt, 0)
+
+        yield table.commit()
+
+        cnt = yield Table.count()
+        self.assertEqual(cnt, 1)
+
+    @inlineCallbacks
+    def test_count_inside_transaction(self):
+        table = Table(color="blue")
+        transaction = yield table.startTransaction()
+        table = yield table.save()
+
+        cnt = yield Table.count(transaction=transaction)
+        self.assertEqual(cnt, 1)    
+
+        yield table.rollback()
+
+        cnt = yield Table.count()
+        self.assertEqual(cnt, 0)
+
+    @inlineCallbacks
     def test_count_habtm(self):
         try:
             table = Table(color="blue")

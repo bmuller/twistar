@@ -445,7 +445,7 @@ class DBObject(Validator):
 
 
     @classmethod
-    def count(klass, where=None):
+    def count(klass, where=None, transaction=None):
         """
         Count instances of a given class.
 
@@ -457,7 +457,7 @@ class DBObject(Validator):
         @return: A C{Deferred} which returns the total number of db records to a callback.
         """
         config = Registry.getConfig()
-        return config.count(klass.tablename(), where=where)
+        return config.count(klass.tablename(), where=where, transaction=transaction)
 
 
     @classmethod
