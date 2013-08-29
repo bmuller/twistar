@@ -129,9 +129,14 @@ class TxConnectionPool(ConnectionPool):
 
     def _removeWorkerFromDict(self, trans):
         self.txWorkersLock.acquire()
-        worker = self.txWorkers[trans]
-        del self.txWorkers[trans]
-        self.txWorkersLock.release()
+        try:
+            worker = self.txWorkers[trans]
+            del self.txWorkers[trans]
+        except Exception as e:
+            raise e
+        finally:
+            self.txWorkersLock.release()
+
         return worker
  
     def _deferToTrans(self, f, trans, *args, **kwargs):
@@ -139,13 +144,19 @@ class TxConnectionPool(ConnectionPool):
 
         Push f onto the transaction's work queue.
         """
+        d = None
         self.txWorkersLock.acquire()
-        worker = self.txWorkers.get(trans)
-        if not worker:
-            err = "Cannot execute operation in the given transaction"
-            raise TransactionNotStartedError(err)
-        d = worker.submit(f, trans, *args, **kwargs)
-        self.txWorkersLock.release()
+
+        try:
+            worker = self.txWorkers.get(trans)
+            if not worker:
+                err = "Cannot execute operation in the given transaction"
+                raise TransactionNotStartedError(err)
+            d = worker.submit(f, trans, *args, **kwargs)
+        except Exception as e:
+            raise e
+        finally:
+            self.txWorkersLock.release()
         
         return d
 
