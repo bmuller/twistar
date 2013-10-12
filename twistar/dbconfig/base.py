@@ -279,7 +279,7 @@ class InteractionBase:
         return self.executeOperation(q, args)
 
 
-    def update(self, tablename, args, where=None, transaction=None):
+    def update(self, tablename, args, where=None, transaction=None, limit=None):
         """
         Update a row into the given table.
 
@@ -294,6 +294,8 @@ class InteractionBase:
         @param transaction: If transaction is given it will be used for the query,
         otherwise a typical runQuery will be used
 
+        @param limit: If limit is given it will limit the number of rows that are updated.
+
         @return: A C{Deferred}
         """
         setstring, args = self.updateArgsToString(args)
@@ -302,6 +304,8 @@ class InteractionBase:
             wherestr, whereargs = self.whereToString(where)
             q += " WHERE " + wherestr
             args += whereargs
+        if limit is not None:
+            q += " LIMIT " + str(limit)
             
         if transaction is not None:
             return self.executeTxn(transaction, q, args)
