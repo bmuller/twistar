@@ -16,7 +16,7 @@ def initDB(testKlass):
         txn.execute("""CREATE TABLE comments (id INTEGER PRIMARY KEY AUTOINCREMENT, subject TEXT,
                        body TEXT, user_id INTEGER)""") 
         txn.execute("""CREATE TABLE favorite_colors (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)""")
-        txn.execute("""CREATE TABLE favorite_colors_users (favorite_color_id INTEGER, user_id INTEGER)""")
+        txn.execute("""CREATE TABLE favorite_colors_users (favorite_color_id INTEGER, user_id INTEGER, palette_id INTEGER)""")
         txn.execute("""CREATE TABLE coltests (id INTEGER PRIMARY KEY AUTOINCREMENT, `select` TEXT, `where` TEXT)""")
 
         txn.execute("""CREATE TABLE boys (id INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT)""")

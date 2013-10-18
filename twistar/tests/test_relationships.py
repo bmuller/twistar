@@ -249,6 +249,23 @@ class RelationshipTest(unittest.TestCase):
 
 
     @inlineCallbacks
+    def test_habtm_with_joinwhere(self):
+        color = yield FavoriteColor(name="red").save()
+        colors = [self.favcolor, color]
+        colorids = [color.id for color in colors]
+        yield FavoriteColor(name="green").save()
+
+        args = {'user_id': self.user.id, 'favorite_color_id': colors[0].id, 'palette_id': 1}
+        yield self.config.insert('favorite_colors_users', args)
+        args = {'user_id': self.user.id, 'favorite_color_id': colors[1].id, 'palette_id': 2}
+        yield self.config.insert('favorite_colors_users', args)
+
+        newcolors = yield self.user.favorite_colors.get(join_where=['palette_id = ?', 2])
+        newcolorids = [color.id for color in newcolors]
+        self.assertEqual(newcolorids, [colors[1].id])
+
+
+    @inlineCallbacks
     def test_habtm_count(self):
         color = yield FavoriteColor(name="red").save()
         colors = [self.favcolor, color]

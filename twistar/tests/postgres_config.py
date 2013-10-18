@@ -16,7 +16,7 @@ def initDB(testKlass):
         txn.execute("""CREATE TABLE comments (id SERIAL PRIMARY KEY, subject VARCHAR(255),
                        body TEXT, user_id INT)""") 
         txn.execute("""CREATE TABLE favorite_colors (id SERIAL PRIMARY KEY, name VARCHAR(255))""")
-        txn.execute("""CREATE TABLE favorite_colors_users (favorite_color_id INT, user_id INT)""")
+        txn.execute("""CREATE TABLE favorite_colors_users (favorite_color_id INT, user_id INT, palette_id INT)""")
         txn.execute("""CREATE TABLE coltests (id SERIAL PRIMARY KEY, "select" VARCHAR(255), "where" VARCHAR(255))""")
 
         txn.execute("""CREATE TABLE boys (id SERIAL PRIMARY KEY, "name" VARCHAR(255))""")

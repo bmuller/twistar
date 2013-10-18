@@ -258,7 +258,8 @@ class HABTM(Relationship):
 
         @param kwargs: These could include C{limit}, C{orderby}, or any others included in
         C{InteractionBase.select}.  If a C{where} parameter is included, the conditions will
-        be added to the ones already imposed by default in this method.
+        be added to the ones already imposed by default in this method.  The argument
+        C{join_where} will be applied to the join table, if provided.
 
         @return: A C{Deferred} with a callback value of a list of objects.
         """
@@ -276,6 +277,8 @@ class HABTM(Relationship):
 
         tablename = self.tablename()
         where = ["%s = ?" % self.thisname, self.inst.id]
+        if kwargs.has_key('join_where'):
+            where = joinWheres(where, kwargs.pop('join_where'))
         return self.dbconfig.select(tablename, where=where).addCallback(_get)
 
 
