@@ -22,6 +22,15 @@ class TxConnectionPool(ConnectionPool):
         the self.transLock dictionary. 
         """        
 
+        warning_limit = self.threadpool.max / 10
+        if len(self.threadpool.working) >= self.threadpool.max:
+            log.msg('Warning! asking for a new thread, but all slots are busy')
+            log.msg(self.dumpThreadPoolStats())
+        elif ( len(self.threadpool.working)
+               >= self.threadpool.max - warning_limit ):
+            log.msg('Warning! threadpool is quite full')
+            log.msg(self.dumpThreadPoolStats())
+
         worker = TxThreadWorker(self.threadpool)
         worker.start()
         if not self.txWorkersLock:
@@ -76,6 +85,13 @@ class TxConnectionPool(ConnectionPool):
         d = self._deferToTrans(self._rollbackTransaction, trans)
         d.addCallback(self._stopTxWorker)
         return d
+
+    def dumpThreadPoolStats(self):
+        return '\t'.join([ 'queue: %s'   % len(self.threadpool.q.queue),
+                           'waiters: %s' % len(self.threadpool.waiters),
+                           'workers: %s' % len(self.threadpool.working),
+                           'total: %s'   % len(self.threadpool.threads),
+                         ])
  
     def _stopTxWorker(self, worker):
         return worker.stop()
@@ -159,4 +175,3 @@ class TxConnectionPool(ConnectionPool):
             self.txWorkersLock.release()
         
         return d
-
