@@ -586,8 +586,10 @@ class TransactionTest(unittest.TestCase):
 
         # make sure we do create a new user
         r = yield User.findOrCreate(first_name="First", last_name="Non")
-        self.assertTrue(r.id == user.id)
         self.assertTrue(r.id != txn_id)
+
+        cnt = yield User.count()
+        self.assertEqual(cnt, 1)
 
     @inlineCallbacks
     def test_transacted_operation_after_commit_raises(self):
