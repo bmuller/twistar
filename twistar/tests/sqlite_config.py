@@ -35,6 +35,10 @@ def initDB(testKlass):
         txn.execute("""CREATE TABLE pens_tables (pen_id INT, table_id INT)""")
         txn.execute("""CREATE TABLE rubbers (id INTEGER PRIMARY KEY AUTOINCREMENT, color TEXT, table_id INTEGER)""")
         
+        txn.execute("""CREATE TABLE roles (id INTEGER PRIMARY KEY AUTOINCREMENT, serviceclass_id INTEGER, description TEXT)""")
+        txn.execute("""CREATE TABLE serviceclasses (id INTEGER PRIMARY KEY AUTOINCREMENT, superclass_id INTEGER, description TEXT)""")
+        txn.execute("""CREATE TABLE superclasses (id INTEGER PRIMARY KEY AUTOINCREMENT, description TEXT)""")
+
     return Registry.DBPOOL.runInteraction(runInitTxn)
 
 

@@ -263,3 +263,17 @@ class DBObjectTest(unittest.TestCase):
         suball = yield user.loadRelations('pictures')
         self.assertTrue(not suball.has_key('avatar'))
         self.assertEqual(pictures, suball['pictures'])
+
+
+    @inlineCallbacks
+    def test_loadRelations_plural(self):
+        superclass = yield Superclass().save()
+        serviceclass = yield Serviceclass(superclass_id=superclass.id).save()
+
+        superclass = yield Superclass.find(limit=1)
+        all = yield superclass.loadRelations()
+
+        serviceclass = yield superclass.serviceclass.get()
+        self.assertTrue(all.has_key('serviceclass'))
+        self.assertEqual(serviceclass, all['serviceclass'])
+

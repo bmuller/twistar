@@ -4,9 +4,9 @@ from twisted.internet import defer
 from twistar.dbobject import DBObject
 from twistar.registry import Registry
 
-from sqlite_config import initDB, tearDownDB
+#from sqlite_config import initDB, tearDownDB
 #from mysql_config import initDB, tearDownDB
-#from postgres_config import initDB, tearDownDB
+from postgres_config import initDB, tearDownDB
 
 class User(DBObject):
     HASMANY = ['pictures', 'comments']
@@ -56,7 +56,18 @@ class Table(DBObject):
 class Rubber(DBObject):
     pass
 
+class Role(DBObject):
+	BELONGSTO = ['serviceclass']
+
+class Serviceclass(DBObject):
+	HASMANY = ['roles']
+	BELONGSTO = ['superclass']
+
+class Superclass(DBObject):
+	HASONE = ['serviceclass']
+
 Registry.register(Picture, User, Comment, Avatar, FakeObject, FavoriteColor)
 Registry.register(Boy, Girl, Nickname)
 Registry.register(Blogpost, Category)
 Registry.register(Pen, Table, Rubber)
+Registry.register(Role, Serviceclass, Superclass)

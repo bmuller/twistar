@@ -36,6 +36,9 @@ def initDB(testKlass):
         txn.execute("""CREATE TABLE pens_tables (pen_id INT, table_id INT)""")
         txn.execute("""CREATE TABLE rubbers (id SERIAL PRIMARY KEY, color VARCHAR(255), table_id INT)""");
 
+        txn.execute("""CREATE TABLE roles (id SERIAL PRIMARY KEY, description VARCHAR(255), serviceclass_id INT)""");
+        txn.execute("""CREATE TABLE serviceclasses (id SERIAL PRIMARY KEY, description VARCHAR(255), superclass_id INT)""");
+        txn.execute("""CREATE TABLE superclasses (id SERIAL PRIMARY KEY, description VARCHAR(255))""");
 
     return CONNECTION.runInteraction(runInitTxn)
 
@@ -79,14 +82,6 @@ def tearDownDB(self):
 
         txn.execute("DROP TABLE posts_categories")
         
-        txn.execute("DROP SEQUENCE blogposts_id_seq CASCADE")
-        txn.execute("DROP TABLE blogposts")
-        
-        txn.execute("DROP SEQUENCE categories_id_seq CASCADE")
-        txn.execute("DROP TABLE categories")
-        
-        txn.execute("DROP TABLE posts_categories")
-        
         txn.execute("DROP SEQUENCE pens_id_seq CASCADE")
         txn.execute("DROP TABLE pens")
         
@@ -97,6 +92,13 @@ def tearDownDB(self):
         txn.execute("DROP TABLE rubbers")
         
         txn.execute("DROP TABLE pens_tables")
+
+        txn.execute("DROP SEQUENCE roles_id_seq CASCADE")
+        txn.execute("DROP TABLE roles")
+        txn.execute("DROP SEQUENCE serviceclasses_id_seq CASCADE")
+        txn.execute("DROP TABLE serviceclasses")
+        txn.execute("DROP SEQUENCE superclasses_id_seq CASCADE")
+        txn.execute("DROP TABLE superclasses")
         
     return CONNECTION.runInteraction(runTearDownDB)
                 

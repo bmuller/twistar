@@ -11,14 +11,14 @@ from twistar.utils import createInstances, joinWheres
 from twistar.exceptions import ReferenceNotSavedError
 
 
-class Relationship:
+class Relationship(object):
     """
     Base class that all specific relationship type classes extend.
 
     @see: L{HABTM}, L{HasOne}, L{HasMany}, L{BelongsTo}
     """
     
-    def __init__(self, inst, propname, givenargs):
+    def __init__(self, inst, propname, givenargs, singular=False):
         """
         Constructor.
 
@@ -38,17 +38,27 @@ class Relationship:
         self.dbconfig = Registry.getConfig()
 
         ## Set args
+        if singular:
+            association_foreign_key = self.infl.foreignKey(propname)
+        else:
+            association_foreign_key = self.infl.foreignKey(self.infl.singularize(propname))
+
         self.args = {
             'class_name': propname,
-            'association_foreign_key': self.infl.foreignKey(self.infl.singularize(propname)),
+            'association_foreign_key': association_foreign_key,
             'foreign_key': self.infl.foreignKey(self.inst.__class__.__name__),
             'polymorphic': False
         }
         self.args.update(givenargs)
 
-        otherklassname = self.infl.classify(self.args['class_name'])
+        if singular:
+            otherklassname = self.infl.camelize(self.args['class_name'])
+        else:
+            otherklassname = self.infl.classify(self.args['class_name'])
+
         if not self.args['polymorphic']:
             self.otherklass = Registry.getClass(otherklassname)
+
         self.othername = self.args['association_foreign_key']
         self.thisclass = self.inst.__class__
         self.thisname = self.args['foreign_key']
@@ -64,6 +74,10 @@ class BelongsTo(Relationship):
     Class representing a belongs-to relationship.
     """
     
+    def __init__(self, *args, **kwargs):
+        kwargs['singular'] = True
+        super(BelongsTo, self).__init__(*args, **kwargs)
+
     def get(self, transaction=None):
         """
         Get the object that belong to the caller.
@@ -219,6 +233,10 @@ class HasOne(Relationship):
     A class representing the has one relationship.
     """
     
+    def __init__(self, *args, **kwargs):
+        kwargs['singular'] = True
+        super(HasOne, self).__init__(*args, **kwargs)
+
     def get(self, transaction=None):
         """
         Get the object that caller has.

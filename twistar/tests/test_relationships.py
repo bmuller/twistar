@@ -421,3 +421,11 @@ class RelationshipTest(unittest.TestCase):
         yield user.favorite_colors.set([])
         newcolors = yield user.favorite_colors.get()
         self.assertEqual(len(newcolors), 0)
+
+
+    @inlineCallbacks
+    def test_belongs_to_plural(self):
+        serviceclass = yield Serviceclass().save()
+        role = yield Role(description="Anything", serviceclass_id=serviceclass.id).save()
+        tmp = yield role.serviceclass.get()
+        self.assertEqual(serviceclass, tmp)
