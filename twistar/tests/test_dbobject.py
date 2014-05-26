@@ -126,6 +126,7 @@ class DBObjectTest(unittest.TestCase):
         self.assertEqual(result, None)
 
 
+    @inlineCallbacks
     def test_delete_all(self):
         users = yield User.all()
         ids = [user.id for user in users]
