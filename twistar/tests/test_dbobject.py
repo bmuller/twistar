@@ -31,6 +31,7 @@ class DBObjectTest(unittest.TestCase):
         self.assertEqual(user.first_name, "something else")
 
 
+    @inlineCallbacks
     def test_findBy(self):
         r = yield User.findBy(first_name="Non", last_name="Existant")
         self.assertEqual(r, [])
