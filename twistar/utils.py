@@ -67,7 +67,11 @@ def dictToWhere(attrs, joiner="AND"):
     if len(attrs) == 0:
         return None
 
-    wheres = map(lambda name: "(%s = ?)" % name, attrs.keys())
+    wheres = []
+    for key, value in attrs.iteritems():
+        comparator = 'is' if value is None else '='
+        wheres.append("(%s %s ?)" % (key, comparator))
+
     return [(" %s " % joiner).join(wheres)] + attrs.values()
 
 

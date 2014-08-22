@@ -9,3 +9,7 @@ test:
 
 install:
 	python setup.py install
+
+lint:
+	pep8 --ignore=E303 --max-line-length=120 ./twistar
+	find ./twistar -name '*.py' | xargs pyflakes

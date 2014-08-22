@@ -55,6 +55,25 @@ class UtilsTest(unittest.TestCase):
         self.assertEqual(1, results)
 
 
+    def test_dictToWhere(self):
+        self.assertEqual(utils.dictToWhere({}), None)
+
+        result = utils.dictToWhere({ 'one': 'two' }, "BLAH")
+        self.assertEqual(result, ["(one = ?)", "two"])
+
+        result = utils.dictToWhere({ 'one': None }, "BLAH")
+        self.assertEqual(result, ["(one is ?)", None])
+
+        result = utils.dictToWhere({ 'one': 'two', 'three': 'four' })
+        self.assertEqual(result, ["(three = ?) AND (one = ?)", "four", "two"])
+
+        result = utils.dictToWhere({ 'one': 'two', 'three': 'four', 'five': 'six' }, "BLAH")
+        self.assertEqual(result, ["(five = ?) BLAH (three = ?) BLAH (one = ?)", "six", "four", "two"])
+
+        result = utils.dictToWhere({ 'one': 'two', 'three': None })
+        self.assertEqual(result, ["(three is ?) AND (one = ?)", None, "two"])
+
+
     @inlineCallbacks
     def tearDown(self):
         yield tearDownDB(self)

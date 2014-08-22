@@ -40,6 +40,10 @@ class DBObjectTest(unittest.TestCase):
         r = yield User.findBy()
         self.assertEqual(len(r), 2)
 
+        u = yield User(first_name=None).save()
+        r = yield User.findBy(first_name=None)
+        self.assertEqual(len(r), 1)
+
 
     @inlineCallbacks
     def test_findOrCreate(self):
