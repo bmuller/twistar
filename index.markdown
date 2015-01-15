@@ -91,7 +91,7 @@ InteractionBase.LOG = True
  * [Examples and User Documentation][examples]
  * [API Docs][apidocs]
 
-Questions and complaints Send questions to [bmuller@butterfat.net](bmuller@butterfat.net).
+Questions and complaints can be added to https://github.com/bmuller/twistar
 
 [examples]: doc
 [apidocs]: apidoc
