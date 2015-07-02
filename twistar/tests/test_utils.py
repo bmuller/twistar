@@ -65,13 +65,13 @@ class UtilsTest(unittest.TestCase):
         self.assertEqual(result, ["(one is ?)", None])
 
         result = utils.dictToWhere({ 'one': 'two', 'three': 'four' })
-        self.assertEqual(result, ["(three = ?) AND (one = ?)", "four", "two"])
+        self.assertEqual(result, ["(one = ?) AND (three = ?)", "two", "four"])
 
         result = utils.dictToWhere({ 'one': 'two', 'three': 'four', 'five': 'six' }, "BLAH")
-        self.assertEqual(result, ["(five = ?) BLAH (three = ?) BLAH (one = ?)", "six", "four", "two"])
+        self.assertEqual(result, ["(one = ?) BLAH (three = ?) BLAH (five = ?)", "two", "four", "six"])
 
         result = utils.dictToWhere({ 'one': 'two', 'three': None })
-        self.assertEqual(result, ["(three is ?) AND (one = ?)", None, "two"])
+        self.assertEqual(result, ["(one = ?) AND (three is ?)", "two", None])
 
 
     @inlineCallbacks
