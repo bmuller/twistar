@@ -222,10 +222,7 @@ class InteractionBase:
 
         @return: The integer id of the last inserted row.
         """
-        q = "SELECT LAST_INSERT_ID()"
-        self.executeTxn(txn, q)            
-        result = txn.fetchall()
-        return result[0][0]
+        return txn.lastrowid
     
 
     def delete(self, tablename, where=None):
