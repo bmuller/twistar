@@ -180,10 +180,12 @@ class InteractionBase:
             colnames = "(" + ",".join(ecolnames) + ")"
             params = "VALUES %s" % params
         q = "INSERT INTO %s %s %s" % (tablename, colnames, params)
+        def _doinsert(txn, q, vals):
+            self.executeTxn(txn, q, vals)
+            return self.getLastInsertID(txn)
         if not txn is None:
-            return self.executeTxn(txn, q, vals.values())
-        return self.executeOperation(q, vals.values())
-
+            return _doinsert(txn, q, vals.values())
+        return self.runInteraction(_doinsert, q, vals.values())
 
     def escapeColNames(self, colnames):
         """
@@ -222,10 +224,7 @@ class InteractionBase:
 
         @return: The integer id of the last inserted row.
         """
-        q = "SELECT LAST_INSERT_ID()"
-        self.executeTxn(txn, q)            
-        result = txn.fetchall()
-        return result[0][0]
+        return txn.lastrowid
     
 
     def delete(self, tablename, where=None):
