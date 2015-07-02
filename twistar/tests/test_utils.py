@@ -7,6 +7,8 @@ from twistar.registry import Registry
 
 from utils import *
 
+from collections import OrderedDict
+
 class UtilsTest(unittest.TestCase):
     
     @inlineCallbacks
@@ -64,13 +66,16 @@ class UtilsTest(unittest.TestCase):
         result = utils.dictToWhere({ 'one': None }, "BLAH")
         self.assertEqual(result, ["(one is ?)", None])
 
-        result = utils.dictToWhere({ 'one': 'two', 'three': 'four' })
+        result = utils.dictToWhere(OrderedDict([
+            ('one', 'two'), ('three', 'four')]))
         self.assertEqual(result, ["(one = ?) AND (three = ?)", "two", "four"])
 
-        result = utils.dictToWhere({ 'one': 'two', 'three': 'four', 'five': 'six' }, "BLAH")
+        result = utils.dictToWhere(OrderedDict([
+            ('one', 'two'), ('three', 'four'), ('five', 'six')]), "BLAH")
         self.assertEqual(result, ["(one = ?) BLAH (three = ?) BLAH (five = ?)", "two", "four", "six"])
 
-        result = utils.dictToWhere({ 'one': 'two', 'three': None })
+        result = utils.dictToWhere(OrderedDict([
+            ('one', 'two'), ('three', None)]))
         self.assertEqual(result, ["(one = ?) AND (three is ?)", "two", None])
 
 
