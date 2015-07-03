@@ -180,9 +180,12 @@ class InteractionBase:
             colnames = "(" + ",".join(ecolnames) + ")"
             params = "VALUES %s" % params
         q = "INSERT INTO %s %s %s" % (tablename, colnames, params)
+        def _doinsert(txn, q, vals):
+            self.executeTxn(txn, q, vals)
+            return self.getLastInsertID(txn)
         if not txn is None:
-            return self.executeTxn(txn, q, vals.values())
-        return self.executeOperation(q, vals.values())
+            return _doinsert(txn, q, vals.values())
+        return self.runInteraction(_doinsert, q, vals.values())
 
 
     def escapeColNames(self, colnames):
