@@ -11,9 +11,9 @@ class MySQLDBConfig(InteractionBase):
 
     def insertArgsToString(self, vals):
         if len(vals) > 0:
-            return "(" + ",".join(["%s" for _ in vals.items()]) + ")"            
+            return "(" + ",".join(["%s" for _ in vals.items()]) + ")"
         return "VALUES ()"
-    
+
 
 class ReconnectingMySQLConnectionPool(adbapi.ConnectionPool):
     """

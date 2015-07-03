@@ -1,8 +1,6 @@
 """
 Code relating to the base L{DBObject} object.
 """
-
-from twisted.python import log
 from twisted.internet import defer
 
 from twistar.registry import Registry
@@ -34,7 +32,7 @@ class DBObject(Validator):
     should have a class variable that is C{HABTM = ['teachers']} and C{HABTM = ['students']}, respectively.
     If an element is a C{dict}, then
     it should minimally have a C{name} attribute (with a value the same as if the element were a string)
-    and then any additional options.  See L{Relationship} and L{HABTM} for more information.    
+    and then any additional options.  See L{Relationship} and L{HABTM} for more information.
 
     @cvar BELONGSTO: A C{list} made up of some number of strings and C{dict}s.  If an element is a string,
     it represents what the class belongs to, for instance C{'user'}.  If an element is a C{dict}, then
@@ -47,12 +45,12 @@ class DBObject(Validator):
 
     @see: L{Relationship}, L{HasMany}, L{HasOne}, L{HABTM}, L{BelongsTo}
     """
-    
+
     HASMANY = []
     HASONE = []
     HABTM = []
     BELONGSTO = []
-    
+
     # this will just be a hash of relationships for faster property resolution
     # the keys are the name and the values are classes representing the relationship
     # it will be of the form {'othername': <BelongsTo instance>, 'anothername': <HasMany instance>}
@@ -61,7 +59,7 @@ class DBObject(Validator):
     def __init__(self, **kwargs):
         """
         Constructor.  DO NOT OVERWRITE.  Use the L{DBObject.afterInit} method.
-        
+
         @param kwargs: An optional dictionary containing the properties that
         should be initially set for this object.
 
@@ -100,7 +98,7 @@ class DBObject(Validator):
         @see: L{Validator}, L{Errors}
         """
         if self._deleted:
-            raise DBObjectSaveError, "Cannot save a previously deleted object."
+            raise DBObjectSaveError("Cannot save a previously deleted object.")
 
         def _save(isValid):
             if self.id is None and isValid:
@@ -156,7 +154,7 @@ class DBObject(Validator):
         This method is called after L{beforeCreate} when an object is being created, and after
         L{beforeUpdate} when an existing object (whose C{id} is not C{None}) is being saved.
         """
-        
+
 
     def afterInit(self):
         """
@@ -185,12 +183,12 @@ class DBObject(Validator):
         will be returned).
         """
         def _createOnSuccess(result):
-            if result == False:
+            if result is False:
                 return defer.succeed(self)
             return self._config.insertObj(self)
 
         def _beforeSave(result):
-            if result == False:
+            if result is False:
                 return defer.succeed(self)
             return defer.maybeDeferred(self.beforeSave).addCallback(_createOnSuccess)
 
@@ -206,17 +204,17 @@ class DBObject(Validator):
         the value of the saved object will be returned (unless the L{beforeUpdate}
         or L{beforeSave} methods returns C{False}, in which case the unsaved
         object will be returned).
-        """        
+        """
         def _saveOnSuccess(result):
-            if result == False:
+            if result is False:
                 return defer.succeed(self)
             return self._config.updateObj(self)
-        
+
         def _beforeSave(result):
-            if result == False:
+            if result is False:
                 return defer.succeed(self)
             return defer.maybeDeferred(self.beforeSave).addCallback(_saveOnSuccess)
-        
+
         return defer.maybeDeferred(self.beforeUpdate).addCallback(_beforeSave)
 
 
@@ -225,10 +223,10 @@ class DBObject(Validator):
         Update the properties for this object from the database.
 
         @return: A C{Deferred} object.
-        """        
+        """
         return self._config.refreshObj(self)
 
-               
+
     def toHash(self, cols, includeBlank=False, exclude=None, base=None):
         """
         Convert this object to a dictionary.
@@ -250,7 +248,7 @@ class DBObject(Validator):
             if col in exclude:
                 continue
             value = getattr(self, col, None)
-            if (value != None or includeBlank):
+            if (value is not None or includeBlank):
                 h[col] = value
         return h
 
@@ -260,7 +258,7 @@ class DBObject(Validator):
         Delete this instance from the database.  Calls L{beforeDelete} before deleting from
         the database.
 
-        @return: A C{Deferred}.        
+        @return: A C{Deferred}.
         """
 
         def _delete(result):
@@ -270,7 +268,7 @@ class DBObject(Validator):
             return self.__class__.deleteAll(where=["id = ?", oldid])
 
         def _deleteOnSuccess(result):
-            if result == False:
+            if result is False:
                 return defer.succeed(self)
             else:
                 ds = []
@@ -314,9 +312,9 @@ class DBObject(Validator):
     def addRelation(klass, relation, rtype):
         """
         Add a relationship to the given Class.
-        
+
         @param klass: The class extending this one.
-        
+
         @param relation: Either a string with the name of property to create
         for this class or a dictionary decribing the relationship.  For instance,
         if a User L{HasMany} Pictures then the relation could either by 'pictures'
@@ -327,9 +325,9 @@ class DBObject(Validator):
         the C{TYPES} class variable in the class L{Relationship}.
         """
         if type(relation) is dict:
-            if not relation.has_key('name'):
+            if 'name' not in relation:
                 msg = "No key 'name' in the relation %s in class %s" % (relation, klass.__name__)
-                raise InvalidRelationshipError, msg
+                raise InvalidRelationshipError(msg)
             name = relation['name']
             args = relation
         else:
@@ -344,11 +342,11 @@ class DBObject(Validator):
         """
         Initialize the cache of relationship objects for this class.
         """
-        klass.RELATIONSHIP_CACHE = {}        
+        klass.RELATIONSHIP_CACHE = {}
         for rtype in Relationship.TYPES.keys():
             for relation in getattr(klass, rtype):
                 klass.addRelation(relation, rtype)
-        
+
 
     @classmethod
     def tablename(klass):
@@ -415,7 +413,7 @@ class DBObject(Validator):
         @param limit: An C{int} specifying the limit of the results.  If this is 1,
         then the return value will be either an instance of C{klass} or C{None}.
 
-        @param orderby: A C{str} describing the ordering, like C{orderby='first_name DESC'}.        
+        @param orderby: A C{str} describing the ordering, like C{orderby='first_name DESC'}.
 
         @return: A C{Deferred} which returns the following to a callback:
         If id is specified (or C{limit} is 1) then a single
@@ -466,7 +464,7 @@ class DBObject(Validator):
         @param where: Conditionally delete instances.  This parameter is of the same form
         found in L{find}.
 
-        @return: A C{Deferred}.        
+        @return: A C{Deferred}.
         """
         config = Registry.getConfig()
         tablename = klass.tablename()
@@ -478,10 +476,10 @@ class DBObject(Validator):
         """
         Find whether or not at least one instance of the given C{klass} exists, optionally
         with specific conditions specified in C{where}.
-        
+
         @param where: Conditionally find instances.  This parameter is of the same form
         found in L{find}.
-        
+
         @return: A C{Deferred} which returns the following to a callback:
         A boolean as to whether or not at least one object was found.
         """
@@ -496,12 +494,11 @@ class DBObject(Validator):
         """
         tablename = self.tablename()
         attrs = {}
-        if Registry.SCHEMAS.has_key(tablename):
-            for key in Registry.SCHEMAS[tablename]:
-                attrs[key] = getattr(self, key, None)
+        for key in Registry.SCHEMAS.get(tablename, []):
+            attrs[key] = getattr(self, key, None)
         return "<%s object: %s>" % (self.__class__.__name__, str(attrs))
 
-    
+
     def __getattribute__(self, name):
         """
         Get the given attribute.
@@ -513,12 +510,12 @@ class DBObject(Validator):
         of the class will be returned.
         """
         klass = object.__getattribute__(self, "__class__")
-        if not klass.RELATIONSHIP_CACHE is None and klass.RELATIONSHIP_CACHE.has_key(name):
+        if klass.RELATIONSHIP_CACHE is not None and name in klass.RELATIONSHIP_CACHE:
             if object.__getattribute__(self, 'id') is None:
-                raise ReferenceNotSavedError, "Cannot get/set relationship on unsaved object"
+                raise ReferenceNotSavedError("Cannot get/set relationship on unsaved object")
             relationshipKlass, args = klass.RELATIONSHIP_CACHE[name]
             return relationshipKlass(self, name, args)
-        return object.__getattribute__(self, name)        
+        return object.__getattribute__(self, name)
 
 
     def __eq__(self, other):
@@ -543,7 +540,7 @@ class DBObject(Validator):
         @param other: The other object to compare this one to.
 
         @return: A boolean.
-        """        
+        """
         return not self == other
 
 

@@ -1,3 +1,4 @@
+_trial_temp.lock
 apidoc/*
 doc/*.html
 *.pyc

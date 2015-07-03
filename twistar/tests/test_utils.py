@@ -1,16 +1,14 @@
 from twisted.trial import unittest
-from twisted.enterprise import adbapi
 from twisted.internet.defer import inlineCallbacks
 
 from twistar import utils
-from twistar.registry import Registry
 
-from utils import *
+from utils import User, initDB, tearDownDB
 
 from collections import OrderedDict
 
+
 class UtilsTest(unittest.TestCase):
-    
     @inlineCallbacks
     def setUp(self):
         yield initDB(self)
@@ -20,7 +18,7 @@ class UtilsTest(unittest.TestCase):
     @inlineCallbacks
     def test_joinWheres_precedence(self):
         yield User(first_name="Second").save()
-        
+
         first = ['first_name = ?', "First"]
         last = ['last_name = ?', "Last"]
         second = ['first_name = ?', "Second"]
@@ -35,7 +33,7 @@ class UtilsTest(unittest.TestCase):
     def test_joinMultipleWheres_empty_arg(self):
         where = utils.joinMultipleWheres([], joiner='AND')
         self.assertEqual(where, [])
-    
+
 
     def test_joinMultipleWheres_single_where(self):
         where = ['first_name = ?', "First"]
@@ -82,4 +80,3 @@ class UtilsTest(unittest.TestCase):
     @inlineCallbacks
     def tearDown(self):
         yield tearDownDB(self)
-

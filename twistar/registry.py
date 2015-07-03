@@ -4,9 +4,8 @@ Module handling global registration of variables and classes.
 
 from twisted.python import reflect
 
-from BermiInflector.Inflector import Inflector
-
 from twistar.exceptions import ClassNotRegisteredError
+
 
 class Registry:
     """
@@ -29,7 +28,7 @@ class Registry:
         knows how to find them.
 
         @param klasses: Any number of parameters, each of which is a class.
-        """        
+        """
         for klass in klasses:
             Registry.REGISTRATION[klass.__name__] = klass
 
@@ -38,24 +37,24 @@ class Registry:
     def getClass(klass, name):
         """
         Get a registered class by the given name.
-        """        
-        if not Registry.REGISTRATION.has_key(name):
-            raise ClassNotRegisteredError, "You never registered the class named %s" % name
+        """
+        if name not in Registry.REGISTRATION:
+            raise ClassNotRegisteredError("You never registered the class named %s" % name)
         return Registry.REGISTRATION[name]
 
-    
+
     @classmethod
     def getDBAPIClass(klass, name):
         """
         Per U{http://www.python.org/dev/peps/pep-0249/} each DBAPI driver must implement it's
         own Date/Time/Timestamp/etc classes.  This method provides a generalized way to get them
         from whatever DB driver is being used.
-        """        
+        """
         driver = Registry.DBPOOL.dbapi.__name__
         path = "%s.%s" % (driver, name)
         return reflect.namedAny(path)
 
-    
+
     @classmethod
     def getConfig(klass):
         """
@@ -64,26 +63,24 @@ class Registry:
         """
         if Registry.IMPL is not None:
             return Registry.IMPL
-        
+
         if Registry.DBPOOL is None:
             msg = "You must set Registry.DBPOOL to a adbapi.ConnectionPool before calling this method."
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
         dbapi = Registry.DBPOOL.dbapi
         if dbapi.__name__ == "MySQLdb":
-            from twistar.dbconfig.mysql import MySQLDBConfig                        
+            from twistar.dbconfig.mysql import MySQLDBConfig
             Registry.IMPL = MySQLDBConfig()
         elif dbapi.__name__ == "sqlite3":
-            from twistar.dbconfig.sqlite import SQLiteDBConfig                        
+            from twistar.dbconfig.sqlite import SQLiteDBConfig
             Registry.IMPL = SQLiteDBConfig()
         elif dbapi.__name__ == "psycopg2":
-            from twistar.dbconfig.postgres import PostgreSQLDBConfig            
+            from twistar.dbconfig.postgres import PostgreSQLDBConfig
             Registry.IMPL = PostgreSQLDBConfig()
         elif dbapi.__name__ == "pyodbc":
             from twistar.dbconfig.pyodbc import PyODBCDBConfig
             Registry.IMPL = PyODBCDBConfig()
         else:
-            raise NotImplementedError, "twisteddb does not support the %s driver" % dbapi.__name__
-        
+            raise NotImplementedError("twisteddb does not support the %s driver" % dbapi.__name__)
+
         return Registry.IMPL
-
-

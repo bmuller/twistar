@@ -17,13 +17,13 @@ class Relationship:
 
     @see: L{HABTM}, L{HasOne}, L{HasMany}, L{BelongsTo}
     """
-    
+
     def __init__(self, inst, propname, givenargs):
         """
         Constructor.
 
         @param inst: The L{DBObject} instance.
-        
+
         @param propname: The property name in the L{DBObject} instance that
         results in this class being created.
 
@@ -37,7 +37,6 @@ class Relationship:
         self.inst = inst
         self.dbconfig = Registry.getConfig()
 
-        ## Set args
         self.args = {
             'class_name': propname,
             'association_foreign_key': self.infl.foreignKey(self.infl.singularize(propname)),
@@ -58,7 +57,7 @@ class BelongsTo(Relationship):
     """
     Class representing a belongs-to relationship.
     """
-    
+
     def get(self):
         """
         Get the object that belong to the caller.
@@ -94,7 +93,7 @@ class BelongsTo(Relationship):
         Remove the relationship linking the object that belongs to the caller.
 
         @return: A C{Deferred} with a callback value of the caller.
-        """                
+        """
         setattr(self.inst, self.othername, None)
         return self.inst.save()
 
@@ -104,7 +103,7 @@ class HasMany(Relationship):
     """
     A class representing the has many relationship.
     """
-    
+
     def get(self, **kwargs):
         """
         Get the objects that caller has.
@@ -134,13 +133,13 @@ class HasMany(Relationship):
 
 
     def _generateGetArgs(self, kwargs):
-        if self.args.has_key('as'):
+        if 'as' in self.args:
             w = "%s_id = ? AND %s_type = ?" % (self.args['as'], self.args['as'])
             where = [w, self.inst.id, self.thisclass.__name__]
         else:
             where = ["%s = ?" % self.thisname, self.inst.id]
 
-        if kwargs.has_key('where'):
+        if 'where' in kwargs:
             kwargs['where'] = joinWheres(where, kwargs['where'])
         else:
             kwargs['where'] = where
@@ -153,11 +152,11 @@ class HasMany(Relationship):
         for other in others:
             if other.id is None:
                 msg = "You must save all other instances before defining a relationship"
-                raise ReferenceNotSavedError, msg
+                raise ReferenceNotSavedError(msg)
             setattr(other, "%s_id" % self.args['as'], self.inst.id)
             setattr(other, "%s_type" % self.args['as'], self.thisclass.__name__)
             ds.append(other.save())
-        return defer.DeferredList(ds)        
+        return defer.DeferredList(ds)
 
 
     def _update(self, _, others):
@@ -167,9 +166,9 @@ class HasMany(Relationship):
         for other in others:
             if other.id is None:
                 msg = "You must save all other instances before defining a relationship"
-                raise ReferenceNotSavedError, msg
+                raise ReferenceNotSavedError(msg)
             ids.append(str(other.id))
-        where = ["id IN (%s)" % ",".join(ids)]                
+        where = ["id IN (%s)" % ",".join(ids)]
         return self.dbconfig.update(tablename, args, where)
 
 
@@ -179,12 +178,12 @@ class HasMany(Relationship):
 
         @return: A C{Deferred}.
         """
-        if self.args.has_key('as'):
+        if 'as' in self.args:
             return self._set_polymorphic(others)
-        
+
         tablename = self.otherklass.tablename()
         args = {self.thisname: None}
-        where = ["%s = ?" % self.thisname, self.inst.id]        
+        where = ["%s = ?" % self.thisname, self.inst.id]
         d = self.dbconfig.update(tablename, args, where)
         if len(others) > 0:
             d.addCallback(self._update, others)
@@ -196,19 +195,19 @@ class HasMany(Relationship):
         Clear the list of all of the objects that this one has.
         """
         return self.set([])
-        
+
 
 class HasOne(Relationship):
     """
     A class representing the has one relationship.
     """
-    
+
     def get(self):
         """
         Get the object that caller has.
 
         @return: A C{Deferred} with a callback value of the object this one has (or c{None}).
-        """                
+        """
         return self.otherklass.find(where=["%s = ?" % self.thisname, self.inst.id], limit=1)
 
 
@@ -217,10 +216,10 @@ class HasOne(Relationship):
         Set the object that caller has.
 
         @return: A C{Deferred}.
-        """                        
+        """
         tablename = self.otherklass.tablename()
         args = {self.thisname: self.inst.id}
-        where = ["id = ?", other.id]        
+        where = ["id = ?", other.id]
         return self.dbconfig.update(tablename, args, where)
 
 
@@ -229,7 +228,7 @@ class HABTM(Relationship):
     A class representing the "has and bleongs to many" relationship.  One additional argument
     this class uses in the L{Relationship.__init__} argument list is C{join_table}.
     """
-    
+
     def tablename(self):
         """
         Get the tablename (specified either in the C{join_table} relationship property
@@ -239,7 +238,7 @@ class HABTM(Relationship):
         be C{student_teacher}.
         """
         # if specified by user
-        if self.args.has_key('join_table'):
+        if 'join_table' in self.args:
             return self.args['join_table']
 
         # otherwise, create and cache
@@ -250,8 +249,8 @@ class HABTM(Relationship):
             tables.sort()
             self._tablename = "_".join(tables)
         return self._tablename
-    
-    
+
+
     def get(self, **kwargs):
         """
         Get the objects that caller has.
@@ -268,7 +267,7 @@ class HABTM(Relationship):
                 return defer.succeed([])
             ids = [str(row[self.othername]) for row in rows]
             where = ["id IN (%s)" % ",".join(ids)]
-            if kwargs.has_key('where'):
+            if 'where' in kwargs:
                 kwargs['where'] = joinWheres(where, kwargs['where'])
             else:
                 kwargs['where'] = where
@@ -277,7 +276,7 @@ class HABTM(Relationship):
 
         tablename = self.tablename()
         where = ["%s = ?" % self.thisname, self.inst.id]
-        if kwargs.has_key('join_where'):
+        if 'join_where' in kwargs:
             where = joinWheres(where, kwargs.pop('join_where'))
         return self.dbconfig.select(tablename, where=where).addCallback(_get)
 
@@ -295,11 +294,11 @@ class HABTM(Relationship):
         def _get(rows):
             if len(rows) == 0:
                 return defer.succeed(0)
-            if not kwargs.has_key('where'):
+            if 'where' not in kwargs:
                 return defer.succeed(len(rows))
             ids = [str(row[self.othername]) for row in rows]
             where = ["id IN (%s)" % ",".join(ids)]
-            if kwargs.has_key('where'):
+            if 'where' in kwargs:
                 where = joinWheres(where, kwargs['where'])
             return self.dbconfig.count(self.otherklass.tablename(), where=where)
 
@@ -313,17 +312,17 @@ class HABTM(Relationship):
         for other in others:
             if other.id is None:
                 msg = "You must save all other instances before defining a relationship"
-                raise ReferenceNotSavedError, msg                
+                raise ReferenceNotSavedError(msg)
             args.append({self.thisname: self.inst.id, self.othername: other.id})
         return self.dbconfig.insertMany(self.tablename(), args)
-        
+
 
     def set(self, others):
         """
         Set the objects that caller has.
 
         @return: A C{Deferred}.
-        """                        
+        """
         where = ["%s = ?" % self.thisname, self.inst.id]
         d = self.dbconfig.delete(self.tablename(), where=where)
         if len(others) > 0:
@@ -334,7 +333,7 @@ class HABTM(Relationship):
     def clear(self):
         """
         Clear the list of all of the objects that this one has.
-        """        
+        """
         return self.set([])
 
 

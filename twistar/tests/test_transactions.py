@@ -1,14 +1,13 @@
 from twisted.trial import unittest
-from twisted.enterprise import adbapi
 from twisted.internet.defer import inlineCallbacks
 
-from twistar.exceptions import ReferenceNotSavedError
 from twistar.utils import transaction
 from twistar.exceptions import TransactionError
 
-from utils import *
+from utils import initDB, tearDownDB, Registry, Transaction
 
-class TransactionTest(unittest.TestCase):    
+
+class TransactionTest(unittest.TestCase):
     @inlineCallbacks
     def setUp(self):
         yield initDB(self)
@@ -17,7 +16,7 @@ class TransactionTest(unittest.TestCase):
 
     @inlineCallbacks
     def tearDown(self):
-        yield tearDownDB(self)            
+        yield tearDownDB(self)
 
 
     @inlineCallbacks
@@ -41,7 +40,7 @@ class TransactionTest(unittest.TestCase):
             def finish(trans):
                 return Transaction(name="unique name").save()
             return Transaction(name="unique name").save().addCallback(finish)
-        
+
         try:
             yield interaction()
         except TransactionError:

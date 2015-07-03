@@ -5,8 +5,9 @@ Base module for interfacing with databases.
 from twisted.python import log
 from twisted.internet import defer
 
-from twistar.registry import Registry        
+from twistar.registry import Registry
 from twistar.exceptions import ImaginaryTableError, CannotRefreshError
+
 
 class InteractionBase:
     """
@@ -17,7 +18,7 @@ class InteractionBase:
     @cvar includeBlankInInsert: If True, then insert/update queries will include
     setting object properties that have not be set to null in their respective columns.
     """
-    
+
     LOG = False
     includeBlankInInsert = True
 
@@ -34,7 +35,7 @@ class InteractionBase:
             return s.encode(encoding)
         return str(s)
 
-    
+
     def log(self, query, args, kwargs):
         """
         Log the query and any args or kwargs using C{twisted.python.log.msg} if
@@ -46,7 +47,7 @@ class InteractionBase:
         if len(args) > 0:
             log.msg("TWISTAR args: %s" % ",".join(map(self.logEncode, *args)))
         elif len(kwargs) > 0:
-            log.msg("TWISTAR kargs: %s" % str(kwargs))        
+            log.msg("TWISTAR kargs: %s" % str(kwargs))
 
 
     def executeOperation(self, query, *args, **kwargs):
@@ -62,7 +63,7 @@ class InteractionBase:
         """
         Simply makes same C{twisted.enterprise.dbapi.ConnectionPool.runQuery} call, but
         with call to L{log} function.
-        """        
+        """
         self.log(query, args, kwargs)
         return Registry.DBPOOL.runQuery(query, *args, **kwargs)
 
@@ -71,7 +72,7 @@ class InteractionBase:
         """
         Execute given query within the given transaction.  Also, makes call
         to L{log} function.
-        """        
+        """
         self.log(query, args, kwargs)
         return txn.execute(query, *args, **kwargs)
 
@@ -103,14 +104,14 @@ class InteractionBase:
         one = False
         cacheTableStructure = select is None
         select = select or "*"
-        
+
         if id is not None:
             where = ["id = ?", id]
             one = True
 
         if not isinstance(limit, tuple) and limit is not None and int(limit) == 1:
             one = True
-            
+
         q = "SELECT %s FROM %s" % (select, tablename)
         args = []
         if where is not None:
@@ -120,12 +121,12 @@ class InteractionBase:
             q += " GROUP BY " + group
         if orderby is not None:
             q += " ORDER BY " + orderby
-            
+
         if isinstance(limit, tuple):
             q += " LIMIT %s OFFSET %s" % (limit[0], limit[1])
         elif limit is not None:
             q += " LIMIT " + str(limit)
-            
+
         return self.runInteraction(self._doselect, q, args, tablename, one, cacheTableStructure)
 
 
@@ -148,9 +149,9 @@ class InteractionBase:
         results = []
         for result in txn.fetchall():
             vals = self.valuesToHash(txn, result, tablename, cacheable)
-            results.append(vals)            
+            results.append(vals)
         return results
-    
+
 
     def insertArgsToString(self, vals):
         """
@@ -164,7 +165,7 @@ class InteractionBase:
         Insert a row into the given table.
 
         @param tablename: Table to insert a row into.
-        
+
         @param vals: Values to insert.  Should be a dictionary in the form of
         C{{'name': value, 'othername': value}}.
 
@@ -182,7 +183,7 @@ class InteractionBase:
         q = "INSERT INTO %s %s %s" % (tablename, colnames, params)
 
         # if we have a transaction use it
-        if not txn is None:
+        if txn is not None:
             self.executeTxn(txn, q, vals.values())
             return self.getLastInsertID(txn)
 
@@ -208,7 +209,7 @@ class InteractionBase:
         Insert many values into a table.
 
         @param tablename: Table to insert a row into.
-        
+
         @param vals: Values to insert.  Should be a list of dictionaries in the form of
         C{{'name': value, 'othername': value}}.
 
@@ -239,7 +240,7 @@ class InteractionBase:
         @param where: Conditional of the same form as the C{where} parameter in L{DBObject.find}.
         If given, the rows deleted will be restricted to ones matching this conditional.
 
-        @return: A C{Deferred}.        
+        @return: A C{Deferred}.
         """
         q = "DELETE FROM %s" % tablename
         args = []
@@ -254,12 +255,12 @@ class InteractionBase:
         Update a row into the given table.
 
         @param tablename: Table to insert a row into.
-        
+
         @param args: Values to insert.  Should be a dictionary in the form of
         C{{'name': value, 'othername': value}}.
 
         @param where: Conditional of the same form as the C{where} parameter in L{DBObject.find}.
-        If given, the rows updated will be restricted to ones matching this conditional.        
+        If given, the rows updated will be restricted to ones matching this conditional.
 
         @param txn: If txn is given it will be used for the query,
         otherwise a typical runQuery will be used
@@ -276,7 +277,7 @@ class InteractionBase:
             args += whereargs
         if limit is not None:
             q += " LIMIT " + str(limit)
-            
+
         if txn is not None:
             return self.executeTxn(txn, q, args)
         return self.executeOperation(q, args)
@@ -298,7 +299,7 @@ class InteractionBase:
         future reference?
         """
         cols = [row[0] for row in txn.description]
-        if cacheable and not Registry.SCHEMAS.has_key(tablename):
+        if cacheable and tablename not in Registry.SCHEMAS:
             Registry.SCHEMAS[tablename] = cols
         h = {}
         for index in range(len(values)):
@@ -312,11 +313,11 @@ class InteractionBase:
         Get the schema (in the form of a list of column names) for
         a given tablename.  Use the given transaction if specified.
         """
-        if not Registry.SCHEMAS.has_key(tablename) and txn is not None:
+        if tablename not in Registry.SCHEMAS and txn is not None:
             try:
                 self.executeTxn(txn, "SELECT * FROM %s LIMIT 1" % tablename)
-            except Exception, e:
-                raise ImaginaryTableError, "Table %s does not exist." % tablename
+            except Exception:
+                raise ImaginaryTableError("Table %s does not exist." % tablename)
             Registry.SCHEMAS[tablename] = [row[0] for row in txn.description]
         return Registry.SCHEMAS.get(tablename, [])
 
@@ -338,7 +339,7 @@ class InteractionBase:
             tablename = klass.tablename()
             cols = self.getSchema(tablename, txn)
             if len(cols) == 0:
-                raise ImaginaryTableError, "Table %s does not exist." % tablename
+                raise ImaginaryTableError("Table %s does not exist." % tablename)
             vals = obj.toHash(cols, includeBlank=self.__class__.includeBlankInInsert, exclude=['id'])
             self.insert(tablename, vals, txn)
             obj.id = self.getLastInsertID(txn)
@@ -352,12 +353,12 @@ class InteractionBase:
         Update the given object's row in the object's table.
 
         @return: A C{Deferred} that sends a callback the updated object.
-        """        
+        """
         def _doupdate(txn):
             klass = obj.__class__
             tablename = klass.tablename()
             cols = self.getSchema(tablename, txn)
-            
+
             vals = obj.toHash(cols, includeBlank=True, exclude=['id'])
             return self.update(tablename, vals, where=['id = ?', obj.id], txn=txn)
         # We don't want to return the cursor - so add a blank callback returning the obj
@@ -369,10 +370,10 @@ class InteractionBase:
         Update the given object based on the information in the object's table.
 
         @return: A C{Deferred} that sends a callback the updated object.
-        """                
+        """
         def _dorefreshObj(newobj):
             if obj is None:
-                raise CannotRefreshError, "Can't refresh object if id not longer exists."
+                raise CannotRefreshError("Can't refresh object if id not longer exists.")
             for key in newobj.keys():
                 setattr(obj, key, newobj[key])
         return self.select(obj.tablename(), obj.id).addCallback(_dorefreshObj)
@@ -398,7 +399,7 @@ class InteractionBase:
         """
         Convert dictionary of arguments to form needed for DB update query.  This method will
         vary by database driver.
-        
+
         @param args: Values to insert.  Should be a dictionary in the form of
         C{{'name': value, 'othername': value}}.
 

@@ -1,20 +1,19 @@
 from twisted.trial import unittest
-from twisted.enterprise import adbapi
 from twisted.internet.defer import inlineCallbacks
 
 from twistar.registry import Registry
 from twistar.dbconfig.base import InteractionBase
 
-from utils import *
+from utils import User, Picture, Avatar, initDB, tearDownDB, Coltest
+
 
 class DBConfigTest(unittest.TestCase):
-    
     @inlineCallbacks
     def setUp(self):
         yield initDB(self)
         self.user = yield User(first_name="First", last_name="Last", age=10).save()
         self.avatar = yield Avatar(name="an avatar name", user_id=self.user.id).save()
-        self.picture = yield Picture(name="a pic", size=10, user_id=self.user.id).save()        
+        self.picture = yield Picture(name="a pic", size=10, user_id=self.user.id).save()
         self.dbconfig = Registry.getConfig()
 
 
@@ -28,13 +27,13 @@ class DBConfigTest(unittest.TestCase):
         # make a fake user
         user = yield User(first_name="Another First").save()
         tablename = User.tablename()
-        
+
         where = ['first_name = ?', "First"]
         result = yield self.dbconfig.select(tablename, where=where, limit=1, orderby="first_name ASC")
         self.assertTrue(result is not None)
         self.assertEqual(result['id'], self.user.id)
 
-        result = yield self.dbconfig.select(tablename, limit=100, orderby="first_name ASC" )       
+        result = yield self.dbconfig.select(tablename, limit=100, orderby="first_name ASC" )
         self.assertEqual(len(result), 2)
         self.assertTrue(result[0]['id'] == user.id and result[1]['id'] == self.user.id)
 
@@ -42,18 +41,18 @@ class DBConfigTest(unittest.TestCase):
     @inlineCallbacks
     def test_delete(self):
         tablename = User.tablename()
-        
+
         yield User(first_name="Another First").save()
         yield self.dbconfig.delete(tablename, ['first_name like ?', "%nother Fir%"])
-        
+
         result = yield self.dbconfig.select(tablename)
         self.assertEqual(len(result), 1)
         self.assertTrue(result[0]['id'] == self.user.id)
-        
+
 
     @inlineCallbacks
     def test_update(self):
-        tablename = User.tablename()        
+        tablename = User.tablename()
         user = yield User(first_name="Another First").save()
 
         args = {'first_name': "test", "last_name": "foo", "age": 91}
@@ -66,13 +65,13 @@ class DBConfigTest(unittest.TestCase):
     @inlineCallbacks
     def test_insert(self):
         tablename = User.tablename()
-        args = {'first_name': "test", "last_name": "foo", "age": 91}        
+        args = {'first_name': "test", "last_name": "foo", "age": 91}
         id = yield self.dbconfig.insert(tablename, args)
 
         where = ['first_name = ? AND last_name = ? AND age = ?']
         where = where + ["test", "foo", 91]
         users = yield User.find(where=where)
-        
+
         self.assertEqual(len(users), 1)
         self.assertEqual(users[0].id, id)
         for key, value in args.items():
@@ -91,9 +90,9 @@ class DBConfigTest(unittest.TestCase):
                 self.assertEqual(value, users[1][key])
         return self.dbconfig.runInteraction(run)
 
- 
+
     @inlineCallbacks
-    def test_insert_many(self):   
+    def test_insert_many(self):
         tablename = User.tablename()
 
         args = []
@@ -121,7 +120,7 @@ class DBConfigTest(unittest.TestCase):
         self.assertEqual(saved, user)
 
         for key, value in args.items():
-            self.assertEqual(value, getattr(user, key))        
+            self.assertEqual(value, getattr(user, key))
 
 
     @inlineCallbacks
@@ -137,7 +136,7 @@ class DBConfigTest(unittest.TestCase):
         user = yield User.find(user.id)
 
         for key, value in args.items():
-            self.assertEqual(value, getattr(user, key))                
+            self.assertEqual(value, getattr(user, key))
 
 
     @inlineCallbacks
@@ -161,13 +160,11 @@ class DBConfigTest(unittest.TestCase):
 
     def test_unicode_logging(self):
         InteractionBase.LOG = True
-        
+
         ustr = u'\N{SNOWMAN}'
         InteractionBase().log(ustr, [ustr], {ustr: ustr})
-        
+
         ustr = '\xc3\xa8'
         InteractionBase().log(ustr, [ustr], {ustr: ustr})
-        
+
         InteractionBase.LOG = False
-
-

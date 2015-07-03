@@ -24,7 +24,7 @@ def transaction(interaction):
             return result
         except Exception, e:
             config.txn = None
-            raise TransactionError, str(e)
+            raise TransactionError(str(e))
 
     def wrapper(*args, **kwargs):
         return Registry.DBPOOL.runInteraction(_transaction, args, kwargs)
@@ -36,7 +36,7 @@ def createInstances(props, klass):
     """
     Create an instance of C{list} of instances of a given class
     using the given properties.
-    
+
     @param props: One of:
       1. A dict, in which case return an instance of klass
       2. A list of dicts, in which case return a list of klass instances
@@ -47,7 +47,7 @@ def createInstances(props, klass):
         ks = [klass(**prop) for prop in props]
         ds = [defer.maybeDeferred(k.afterInit) for k in ks]
         return defer.DeferredList(ds).addCallback(lambda _: ks)
-    
+
     if props is not None:
         k = klass(**props)
         return defer.maybeDeferred(k.afterInit).addCallback(lambda _: k)
@@ -130,6 +130,6 @@ def deferredDict(d):
         for index in range(len(results)):
             rvalue[names[index]] = results[index][1]
         return rvalue
-    
+
     dl = defer.DeferredList(d.values())
     return dl.addCallback(handle, d.keys())

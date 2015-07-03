@@ -1,11 +1,11 @@
-from twistar.registry import Registry
 from twistar.dbconfig.base import InteractionBase
+
 
 class PyODBCDBConfig(InteractionBase):
 
     def whereToString(self, where):
         assert(type(where) is list)
-        query = where[0] #? will be correct
+        query = where[0]
         args = where[1:]
         return (query, args)
 

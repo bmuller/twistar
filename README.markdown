@@ -6,7 +6,7 @@ The Twistar Project provides an ActiveRecord (ORM) pattern interface to the Twis
 ## Installation
 
 ```
-easy_install twistar
+pip install twistar
 ```
 
 ## Usage
@@ -66,7 +66,14 @@ You will need to install the sqlite3 python package if you want to run the defau
 trial twistar
 ```
 
-See the README in the twistar/tests folder for more information on testing with different database types.
+By default, the tests are run with the database driver sqlite3.  To change this, set the DBTYPE environment variable:
+
+```
+DBTYPE=postgres trial twistar
+DBTYPE=mysql trial twistar
+```
+
+You'll need a database named "twistar" for each of those tests (or you can change the dbname, user, etc in the `<db type>_config.py` file in the tests folder).
 
 ## Documenation
 If you intent on generating API documentation, you will need pydoctor.  If you want to generate the user documentation, you will need to install Twisted Lore.
