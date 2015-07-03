@@ -67,15 +67,29 @@ class DBConfigTest(unittest.TestCase):
     def test_insert(self):
         tablename = User.tablename()
         args = {'first_name': "test", "last_name": "foo", "age": 91}        
-        yield self.dbconfig.insert(tablename, args)
+        id = yield self.dbconfig.insert(tablename, args)
 
         where = ['first_name = ? AND last_name = ? AND age = ?']
         where = where + ["test", "foo", 91]
         users = yield User.find(where=where)
         
         self.assertEqual(len(users), 1)
+        self.assertEqual(users[0].id, id)
         for key, value in args.items():
             self.assertEqual(value, getattr(users[0], key))
+
+
+    def test_insertWithTx(self):
+        def run(txn):
+            tablename = User.tablename()
+            args = {'first_name': "test", "last_name": "foo", "age": 91}
+            objid = self.dbconfig.insert(tablename, args, txn)
+            users = self.dbconfig._doselect(txn, "select * from %s" % User.tablename(), [], User.tablename())
+            self.assertEqual(len(users), 2)
+            self.assertEqual(users[1]['id'], objid)
+            for key, value in args.items():
+                self.assertEqual(value, users[1][key])
+        return self.dbconfig.runInteraction(run)
 
  
     @inlineCallbacks
