@@ -132,8 +132,9 @@ class Validator(object):
         @param kwargs: Keyword arguments.  Right now, all but a
         C{message} value are ignored.
         """
-        func = lambda obj: presenceOf(obj, names, kwargs)
-        klass.addValidator(func)
+        def vfunc(obj):
+            return presenceOf(obj, names, kwargs)
+        klass.addValidator(vfunc)
 
 
     @classmethod
@@ -148,8 +149,9 @@ class Validator(object):
         @param kwargs: Keyword arguments.  Right now, all but a
         C{message} value are ignored.
         """
-        func = lambda obj: uniquenessOf(obj, names, kwargs)
-        klass.addValidator(func)
+        def vfunc(obj):
+            return uniquenessOf(obj, names, kwargs)
+        klass.addValidator(vfunc)
 
 
     @classmethod
@@ -170,8 +172,9 @@ class Validator(object):
         @param kwargs: Keyword arguments.  Right now, all but
         C{message}, C{range}, and C{length} values are ignored.
         """
-        func = lambda obj: lengthOf(obj, names, kwargs)
-        klass.addValidator(func)
+        def vfunc(obj):
+            return lengthOf(obj, names, kwargs)
+        klass.addValidator(vfunc)
 
 
     @classmethod

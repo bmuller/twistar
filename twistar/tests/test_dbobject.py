@@ -66,7 +66,7 @@ class DBObjectTest(unittest.TestCase):
         self.assertTrue(type(u.id) == int or type(u.id) == long)
 
         # Test table doesn't exist
-        f = FakeObject(blah = "something")
+        f = FakeObject(blah="something")
         self.failUnlessFailure(f.save(), ImaginaryTableError)
 
         dateklass = Registry.getDBAPIClass("Date")

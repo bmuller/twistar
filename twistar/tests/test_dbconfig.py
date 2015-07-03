@@ -33,7 +33,7 @@ class DBConfigTest(unittest.TestCase):
         self.assertTrue(result is not None)
         self.assertEqual(result['id'], self.user.id)
 
-        result = yield self.dbconfig.select(tablename, limit=100, orderby="first_name ASC" )
+        result = yield self.dbconfig.select(tablename, limit=100, orderby="first_name ASC")
         self.assertEqual(len(result), 2)
         self.assertTrue(result[0]['id'] == user.id and result[1]['id'] == self.user.id)
 

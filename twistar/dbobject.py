@@ -391,7 +391,7 @@ class DBObject(Validator):
         Will return all matches.
         """
         where = dictToWhere(attrs)
-        return klass.find(where = where)
+        return klass.find(where=where)
 
 
     @classmethod

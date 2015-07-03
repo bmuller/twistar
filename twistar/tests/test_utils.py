@@ -58,10 +58,10 @@ class UtilsTest(unittest.TestCase):
     def test_dictToWhere(self):
         self.assertEqual(utils.dictToWhere({}), None)
 
-        result = utils.dictToWhere({ 'one': 'two' }, "BLAH")
+        result = utils.dictToWhere({'one': 'two'}, "BLAH")
         self.assertEqual(result, ["(one = ?)", "two"])
 
-        result = utils.dictToWhere({ 'one': None }, "BLAH")
+        result = utils.dictToWhere({'one': None}, "BLAH")
         self.assertEqual(result, ["(one is ?)", None])
 
         result = utils.dictToWhere(OrderedDict([

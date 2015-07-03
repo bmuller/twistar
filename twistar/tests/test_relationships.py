@@ -113,7 +113,7 @@ class RelationshipTest(unittest.TestCase):
             ids.append(pic.id)
 
         pics = yield self.user.pictures.get()
-        picids = [pic.id for pic in pics]
+        picids = [p.id for p in pics]
         self.assertEqual(ids, picids)
 
 
@@ -174,11 +174,11 @@ class RelationshipTest(unittest.TestCase):
         for _ in range(3):
             pic = yield Picture(name="a pic").save()
             pics.append(pic)
-        picids = [int(pic.id) for pic in pics]
+        picids = [int(p.id) for p in pics]
 
         yield self.user.pictures.set(pics)
         results = yield self.user.pictures.get()
-        resultids = [int(pic.id) for pic in results]
+        resultids = [int(p.id) for p in results]
         picids.sort()
         resultids.sort()
         self.assertEqual(picids, resultids)
@@ -188,11 +188,11 @@ class RelationshipTest(unittest.TestCase):
         for _ in range(3):
             pic = yield Picture(name="a pic").save()
             pics.append(pic)
-        picids = [pic.id for pic in pics]
+        picids = [p.id for p in pics]
 
         yield self.user.pictures.set(pics)
         results = yield self.user.pictures.get()
-        resultids = [pic.id for pic in results]
+        resultids = [p.id for p in results]
         self.assertEqual(picids, resultids)
 
 

@@ -108,8 +108,7 @@ def joinMultipleWheres(wheres, joiner="AND"):
     if not wheres:
         return []
 
-    f = lambda x, y: joinWheres(x, y, joiner)
-    return reduce(f, wheres)
+    return reduce(lambda x, y: joinWheres(x, y, joiner), wheres)
 
 
 def deferredDict(d):

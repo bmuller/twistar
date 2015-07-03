@@ -3,4 +3,4 @@ python:
   - "2.7"
   - "pypy"
 install: pip install . pep8 pyflakes
-script: pep8 --ignore=E303,E251,E201,E202 --max-line-length=140 ./twistar && find ./twistar -name '*.py' | xargs pyflakes && trial twistar
+script: pep8 --ignore=E303 --max-line-length=140 ./twistar && find ./twistar -name '*.py' | xargs pyflakes && trial twistar

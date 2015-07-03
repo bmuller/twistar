@@ -11,5 +11,5 @@ install:
 	python setup.py install
 
 lint:
-	pep8 --ignore=E303,E251,E201,E202 --max-line-length=140 ./twistar
+	pep8 --ignore=E303 --max-line-length=140 ./twistar
 	find ./twistar -name '*.py' | xargs pyflakes
