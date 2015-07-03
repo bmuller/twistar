@@ -99,8 +99,12 @@ class DBConfigTest(unittest.TestCase):
         args = {'first_name': "test_insert_obj", "last_name": "foo", "age": 91}
         user = User(**args)
 
-        yield self.dbconfig.insertObj(user)
+        saved = yield self.dbconfig.insertObj(user)
         user = yield User.find(where=['first_name = ?', "test_insert_obj"], limit=1)
+        # ensure that id was set on save
+        self.assertEqual(saved.id, user.id)
+        # and all values are still the same
+        self.assertEqual(saved, user)
 
         for key, value in args.items():
             self.assertEqual(value, getattr(user, key))        

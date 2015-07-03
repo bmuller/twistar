@@ -28,7 +28,7 @@ def initDB(testKlass):
         txn.execute("""CREATE TABLE categories (id SERIAL PRIMARY KEY,
                        name VARCHAR(255))""")
         txn.execute("""CREATE TABLE posts_categories (category_id INT, blogpost_id INT)""")
-        txn.execute("""CREATE TABLE transactions (id SERIAL PRIMARY KEY, name VARCHAR(255) UNIQUE""")
+        txn.execute("""CREATE TABLE transactions (id SERIAL PRIMARY KEY, name VARCHAR(255) UNIQUE)""")
 
     return CONNECTION.runInteraction(runInitTxn)
 
