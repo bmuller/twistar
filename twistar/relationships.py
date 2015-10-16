@@ -225,7 +225,7 @@ class HasOne(Relationship):
 
 class HABTM(Relationship):
     """
-    A class representing the "has and bleongs to many" relationship.  One additional argument
+    A class representing the "has and belongs to many" relationship.  One additional argument
     this class uses in the L{Relationship.__init__} argument list is C{join_table}.
     """
 
