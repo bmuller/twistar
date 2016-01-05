@@ -60,10 +60,11 @@ u = User.findBy(first_name="John", age=25).addCallback(found)
 This is a very simple example - see http://findingscience.com/twistar for more complicated examples and additional uses.
 
 ## Testing
-You will need to install the sqlite3 python package if you want to run the default tests.  To run the tests:
+To run unit-tests you simply require [Tox](https://tox.readthedocs.org)
 
+To run the tests:
 ```
-trial twistar
+tox
 ```
 
 By default, the tests are run with the database driver sqlite3.  To change this, set the DBTYPE environment variable:
