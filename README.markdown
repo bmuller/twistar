@@ -1,5 +1,5 @@
 # twistar: Asynchronous Python ORM
-[![Build Status](https://secure.travis-ci.org/bmuller/twistar.png?branch=master)](https://travis-ci.org/bmuller/twistar)
+[![Build Status](https://secure.travis-ci.org/bmuller/twistar.png?branch=master)](https://travis-ci.org/bmuller/twistar) [![Coverage Status](https://coveralls.io/repos/bmuller/twistar/badge.svg?branch=master)](https://coveralls.io/r/bmuller/twistar?branch=master)
 
 The Twistar Project provides an ActiveRecord (ORM) pattern interface to the Twisted Project's RDBMS library.  This file contains minimal documentation - see the project home page at http://findingscience.com/twistar for more information.
 
@@ -60,10 +60,11 @@ u = User.findBy(first_name="John", age=25).addCallback(found)
 This is a very simple example - see http://findingscience.com/twistar for more complicated examples and additional uses.
 
 ## Testing
-You will need to install the sqlite3 python package if you want to run the default tests.  To run the tests:
+To run unit-tests you simply require [Tox](https://tox.readthedocs.org)
 
+To run the tests:
 ```
-trial twistar
+tox
 ```
 
 By default, the tests are run with the database driver sqlite3.  To change this, set the DBTYPE environment variable:
@@ -75,7 +76,7 @@ DBTYPE=mysql trial twistar
 
 You'll need a database named "twistar" for each of those tests (or you can change the dbname, user, etc in the `<db type>_config.py` file in the tests folder).
 
-## Documenation
+## Documentation
 If you intent on generating API documentation, you will need pydoctor.  If you want to generate the user documentation, you will need to install Twisted Lore.
 
 To generate documentation:

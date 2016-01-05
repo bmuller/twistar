@@ -1,6 +1,35 @@
 language: python
-python:
-  - "2.7"
-  - "pypy"
-install: pip install . pep8 pyflakes
-script: pep8 --ignore=E303 --max-line-length=140 ./twistar && find ./twistar -name '*.py' | xargs pyflakes && trial twistar
+sudo: false
+
+matrix:
+  include:
+    - env: TOXENV=py27-twisted12
+      python: "2.7"
+    - env: TOXENV=py27-twisted13
+      python: "2.7"
+    - env: TOXENV=py27-twisted14
+      python: "2.7"
+    - env: TOXENV=py27-twisted15
+      python: "2.7"
+    - env: TOXENV=py35-twisted15
+      python: "3.5"
+    - env: TOXENV=pypy-twisted12
+      python: "pypy"
+    - env: TOXENV=pypy-twisted13
+      python: "pypy"
+    - env: TOXENV=pypy-twisted14
+      python: "pypy"
+    - env: TOXENV=pypy-twisted15
+      python: "pypy"
+    - env: TOXENV=pypy3-twisted15
+      python: "pypy3"
+  allow_failures:
+    - env: TOXENV=py35-twisted15
+    - env: TOXENV=pypy3-twisted15
+
+install:
+    - pip install tox coveralls
+
+script: tox
+
+after_success: coveralls

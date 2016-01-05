@@ -6,3 +6,5 @@ _trial_temp
 build
 dist
 twistar.egg-info
+.tox
+.coverage
