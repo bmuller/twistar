@@ -75,7 +75,7 @@ DBTYPE=mysql trial twistar
 
 You'll need a database named "twistar" for each of those tests (or you can change the dbname, user, etc in the `<db type>_config.py` file in the tests folder).
 
-## Documenation
+## Documentation
 If you intent on generating API documentation, you will need pydoctor.  If you want to generate the user documentation, you will need to install Twisted Lore.
 
 To generate documentation:
