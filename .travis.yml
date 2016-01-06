@@ -3,8 +3,6 @@ sudo: false
 
 matrix:
   include:
-    - env: TOXENV=coverage
-      python: "2.7"
     - env: TOXENV=py27-twisted12
       python: "2.7"
     - env: TOXENV=py27-twisted13
