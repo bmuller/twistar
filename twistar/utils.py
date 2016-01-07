@@ -22,7 +22,7 @@ def transaction(interaction):
             result = threads.blockingCallFromThread(reactor, interaction, txn, *args, **kwargs)
             config.txn = None
             return result
-        except Exception, e:
+        except Exception as e:
             config.txn = None
             raise TransactionError(str(e))
 

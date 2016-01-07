@@ -4,7 +4,7 @@ from twisted.internet.defer import inlineCallbacks
 from twistar.utils import transaction
 from twistar.exceptions import TransactionError
 
-from utils import initDB, tearDownDB, Registry, Transaction
+from twistar.tests.utils import initDB, tearDownDB, Registry, Transaction
 
 
 class TransactionTest(unittest.TestCase):

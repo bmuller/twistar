@@ -6,8 +6,7 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 import re
-from Rules.English import English
-from Rules.Spanish import Spanish
+from BermiInflector.Rules.English import English
 
 class Inflector :
     """

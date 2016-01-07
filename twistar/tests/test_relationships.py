@@ -3,8 +3,8 @@ from twisted.internet.defer import inlineCallbacks
 
 from twistar.exceptions import ReferenceNotSavedError
 
-from utils import Boy, Girl, tearDownDB, initDB, Registry, Comment, Category
-from utils import User, Avatar, Picture, FavoriteColor, Nickname, Blogpost
+from twistar.tests.utils import Boy, Girl, tearDownDB, initDB, Registry, Comment, Category
+from twistar.tests.utils import User, Avatar, Picture, FavoriteColor, Nickname, Blogpost
 
 
 class RelationshipTest(unittest.TestCase):

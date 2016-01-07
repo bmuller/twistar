@@ -5,18 +5,15 @@ import os
 
 DBTYPE = os.environ.get('DBTYPE', 'sqlite')
 if DBTYPE == 'mysql':
-    print "Using MySQL for tests"
-    import mysql_config
+    import twistar.tests.mysql_config
     initDB = mysql_config.initDB
     tearDownDB = mysql_config.tearDownDB
 elif DBTYPE == 'postgres':
-    print "Using PostgreSQL for tests"
-    import postgres_config
+    import twistar.tests.postgres_config
     initDB = postgres_config.initDB
     tearDownDB = postgres_config.tearDownDB
 else:
-    print "Using SQLite for tests"
-    import sqlite_config
+    import twistar.tests.sqlite_config
     initDB = sqlite_config.initDB
     tearDownDB = sqlite_config.initDB
 

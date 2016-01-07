@@ -3,7 +3,7 @@ from twisted.internet.defer import inlineCallbacks
 
 from twistar import utils
 
-from utils import User, initDB, tearDownDB
+from twistar.tests.utils import User, initDB, tearDownDB
 
 from collections import OrderedDict
 

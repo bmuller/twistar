@@ -4,7 +4,7 @@ from twisted.internet.defer import inlineCallbacks
 from twistar.exceptions import ImaginaryTableError
 from twistar.registry import Registry
 
-from utils import User, Avatar, Picture, tearDownDB, initDB, FakeObject, DBObject
+from twistar.tests.utils import User, Avatar, Picture, tearDownDB, initDB, FakeObject, DBObject
 
 
 class DBObjectTest(unittest.TestCase):
