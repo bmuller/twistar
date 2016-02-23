@@ -7,7 +7,7 @@ from twisted.python import reflect
 from twistar.exceptions import ClassNotRegisteredError
 
 
-class Registry:
+class Registry(object):
     """
     A data store containing mostly class variables that act as constants.
 
