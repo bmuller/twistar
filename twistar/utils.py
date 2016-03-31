@@ -43,7 +43,7 @@ def createInstances(props, klass):
 
     @return: A C{Deferred} that will pass the result to a callback
     """
-    if type(props) is list:
+    if isinstance(props, list):
         ks = [klass(**prop) for prop in props]
         ds = [defer.maybeDeferred(k.afterInit) for k in ks]
         return defer.DeferredList(ds).addCallback(lambda _: ks)
