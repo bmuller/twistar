@@ -324,7 +324,7 @@ class DBObject(Validator):
         @param rtype: The relationship type.  It should be a key value from
         the C{TYPES} class variable in the class L{Relationship}.
         """
-        if type(relation) is dict:
+        if isinstance(relation, dict):
             if 'name' not in relation:
                 msg = "No key 'name' in the relation %s in class %s" % (relation, klass.__name__)
                 raise InvalidRelationshipError(msg)

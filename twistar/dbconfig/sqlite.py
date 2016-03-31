@@ -4,7 +4,7 @@ from twistar.dbconfig.base import InteractionBase
 
 class SQLiteDBConfig(InteractionBase):
     def whereToString(self, where):
-        assert(type(where) is list)
+        assert(isinstance(where, list))
         query = where[0]
         args = where[1:]
         return (query, args)
