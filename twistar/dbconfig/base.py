@@ -389,7 +389,7 @@ class InteractionBase(object):
 
         @return: A conditional in the same form as the C{where} parameter in L{DBObject.find}.
         """
-        assert(type(where) is list)
+        assert(isinstance(where, list))
         query = where[0].replace("?", "%s")
         args = where[1:]
         return (query, args)
