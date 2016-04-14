@@ -106,7 +106,10 @@ class InteractionBase(object):
         select = select or "*"
 
         if id is not None:
-            where = ["id = ?", id]
+            if where is None:
+                where = ["id = ?", id]
+            else:
+                where = [" AND ".join([where[0], "id = ?"])] + where[1:] + [id]
             one = True
 
         if not isinstance(limit, tuple) and limit is not None and int(limit) == 1:

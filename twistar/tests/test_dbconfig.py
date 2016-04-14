@@ -39,6 +39,18 @@ class DBConfigTest(unittest.TestCase):
 
 
     @inlineCallbacks
+    def test_select_id(self):
+        tablename = User.tablename()
+
+        result = yield self.dbconfig.select(tablename, self.user.id, where=None, limit=1, orderby="first_name ASC")
+        self.assertTrue(result is not None)
+
+        where = ['first_name = ?', "DNE"]
+        result = yield self.dbconfig.select(tablename, self.user.id, where=where, limit=1, orderby="first_name ASC")
+        self.assertTrue(result is None)
+
+
+    @inlineCallbacks
     def test_delete(self):
         tablename = User.tablename()
 
