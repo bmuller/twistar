@@ -7,7 +7,7 @@ from twisted.internet import defer
 
 from twistar.registry import Registry
 from twistar.exceptions import ImaginaryTableError, CannotRefreshError
-
+from twistar.utils import joinWheres
 
 class InteractionBase(object):
     """
@@ -109,7 +109,7 @@ class InteractionBase(object):
             if where is None:
                 where = ["id = ?", id]
             else:
-                where = [" AND ".join([where[0], "id = ?"])] + where[1:] + [id]
+                where = joinWheres(where, ["id = ?", id])
             one = True
 
         if not isinstance(limit, tuple) and limit is not None and int(limit) == 1:
