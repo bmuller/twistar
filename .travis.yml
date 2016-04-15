@@ -28,8 +28,8 @@ matrix:
     - env: TOXENV=pypy3-twisted15
 
 install:
-    - pip install tox coveralls
+    - pip install tox coveralls pep8 pyflakes
 
-script: tox
+script: make lint && tox
 
 after_success: coveralls
