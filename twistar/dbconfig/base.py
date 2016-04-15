@@ -9,6 +9,7 @@ from twistar.registry import Registry
 from twistar.exceptions import ImaginaryTableError, CannotRefreshError
 from twistar.utils import joinWheres
 
+
 class InteractionBase(object):
     """
     Class that specific database implementations extend.
