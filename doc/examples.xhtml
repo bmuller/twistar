@@ -59,9 +59,11 @@ Objects representing rows in a database need only extend the
 </p>
 <pre class="python">
 from twistar.dbobject import DBObject
+from twistar.registry import Registry
 
 class User(DBObject):
      pass
+Registry.register(User)
 </pre>
 <p>
 Assuming that the <q>users</q> table has some VARCHAR fields like first_name and last_name and, say,
