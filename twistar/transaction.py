@@ -2,7 +2,7 @@ import threading
 import functools
 
 from twisted.enterprise import adbapi
-from twisted.internet.defer import inlineCallbacks, maybeDeferred, returnValue, Deferred
+from twisted.internet.defer import maybeDeferred, Deferred
 from twisted.python import threadable
 
 from twistar.registry import Registry
@@ -26,9 +26,9 @@ class TransactionGuard(threading.local):
 class _Transaction(object):
     """Mostly borrowed from sqlalchemy and adapted to adbapi"""
 
-    def __init__(self, parent):
-        # Transactions must not be started in the main thread
-        if threading.current_thread() not in Registry.DBPOOL.threadpool.threads:
+    def __init__(self, parent, thread_check=True):
+        # Transactions must be started in db thread unless explicitely permitted
+        if thread_check and threading.current_thread() not in Registry.DBPOOL.threadpool.threads:
             raise TransactionError("Transaction must only be started in a db pool thread")
 
         self._actual_parent = parent
@@ -95,9 +95,9 @@ class _Transaction(object):
 
 class _RootTransaction(adbapi.Transaction, _Transaction):
 
-    def __init__(self, pool, connection):
+    def __init__(self, pool, connection, thread_check=True):
         adbapi.Transaction.__init__(self, pool, connection)
-        _Transaction.__init__(self, None)
+        _Transaction.__init__(self, None, thread_check=thread_check)
 
     def close(self):
         # don't set to None but errorout on subsequent access
@@ -166,22 +166,22 @@ def _transaction_dec(func, create_transaction):
     return wrapper
 
 
-def transaction(func=None):
+def transaction(func=None, thread_check=True):
     if func is None:
         conn_pool = Registry.DBPOOL
         cfg = Registry.getConfig()
 
         if cfg.txnGuard.txn is None:
             conn = conn_pool.connectionFactory(conn_pool)
-            return _RootTransaction(conn_pool, conn)
+            return _RootTransaction(conn_pool, conn, thread_check=thread_check)
         else:
-            return _Transaction(cfg.txnGuard.txn)
+            return _Transaction(cfg.txnGuard.txn, thread_check=thread_check)
     else:
-        return _transaction_dec(func, transaction)
+        return _transaction_dec(func, functools.partial(transaction, thread_check=thread_check))
 
 
-def nested_transaction(func=None):
+def nested_transaction(func=None, thread_check=True):
     if func is None:
         pass
     else:
-        _transaction_dec(func, nested_transaction)
+        _transaction_dec(func, functools.partial(nested_transaction, thread_check=thread_check))

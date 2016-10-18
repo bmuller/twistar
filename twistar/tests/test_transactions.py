@@ -254,6 +254,9 @@ class TransactionTests(unittest.TestCase):
         # Error if started in main thread:
         yield self._assertRaises(maybeDeferred(transaction), TransactionError)
 
+        # But shouldn't fail if called with thread_check=False
+        transaction(thread_check=False).rollback()
+
         # Error if rollbacked/commited in another thread:
         main_thread_d = Deferred()
         on_cb_added = Event()
