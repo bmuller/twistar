@@ -27,8 +27,13 @@ class _Transaction(object):
     """Mostly borrowed from sqlalchemy and adapted to adbapi"""
 
     def __init__(self, parent):
+        # Transactions must not be started in the main thread
+        if threading.current_thread() not in Registry.DBPOOL.threadpool.threads:
+            raise TransactionError("Transaction must only be started in a db pool thread")
+
         self._actual_parent = parent
         self.is_active = True
+        self._threadId = threadable.getThreadID()
 
         if not self._parent.is_active:
             raise TransactionError("Parent transaction is inactive")
@@ -39,7 +44,15 @@ class _Transaction(object):
     def _parent(self):
         return self._actual_parent or self
 
+    def _assertCorrectThread(self):
+        if threadable.getThreadID() != self._threadId:
+            raise TransactionError("Tried to rollback a transaction from a different thread.\n"
+                                   "Make sure that you properly use blockingCallFromThread() and\n"
+                                   "that you don't add callbacks to Deferreds which get resolved from another thread.")
+
     def rollback(self):
+        self._assertCorrectThread()
+
         if not self._parent.is_active:
             return
 
@@ -51,6 +64,8 @@ class _Transaction(object):
         self._parent.rollback()
 
     def commit(self):
+        self._assertCorrectThread()
+
         if not self._parent.is_active:
             raise TransactionError("This transaction is inactive")
 
@@ -107,26 +122,37 @@ class _SavepointTransaction(object):
 
 
 def _transaction_dec(func, create_transaction):
-    @inlineCallbacks
+
     def _runTransaction(*args, **kwargs):
-        with create_transaction() as txn:
-            res = yield maybeDeferred(func, txn, *args, **kwargs)
-            returnValue(res)
+        txn = create_transaction()
+
+        def on_succcess(result):
+            if txn.is_active:
+                try:
+                    txn.commit()
+                except:
+                    txn.rollback()
+            return result
+
+        def on_error(fail):
+            if txn.is_active:
+                txn.rollback()
+
+            return fail
+
+        d = maybeDeferred(func, txn, *args, **kwargs)
+        d.addCallbacks(on_succcess, on_error)
+        d.addErrback(on_error)
+        return d
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        d = None  # declare here so that on_result can acces it
+        d = None  # declare here so that on_result can access it
 
-        def on_result(success, result):
+        def on_result(success, txn_deferred):
             from twisted.internet import reactor
-
-            if not success:
-                reactor.callFromThread(d.errback, result)
-            elif isinstance(result, Deferred):
-                result.addCallbacks(lambda res: reactor.callFromThread(d.callback, res),
-                                    lambda res: reactor.callFromThread(d.errback, res))
-            else:
-                reactor.callFromThread(d.callback, result)
+            txn_deferred.addCallbacks(lambda res: reactor.callFromThread(d.callback, res),
+                                      lambda fail: reactor.callFromThread(d.errback, fail))
 
         if threadable.isInIOThread():
             d = Deferred()

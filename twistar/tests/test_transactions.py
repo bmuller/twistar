@@ -3,8 +3,7 @@ from threading import Event
 
 from twisted.trial import unittest
 from twisted.internet import reactor
-from twisted.internet.error import AlreadyCalled
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import Deferred, inlineCallbacks, returnValue, maybeDeferred
 from twisted.python import threadable
 
 from twistar.transaction import transaction
@@ -251,3 +250,40 @@ class TransactionTests(unittest.TestCase):
             txn.commit()
 
         yield self._assertRaises(trans2(), TransactionError)
+
+        # Error if started in main thread:
+        yield self._assertRaises(maybeDeferred(transaction), TransactionError)
+
+        # Error if rollbacked/commited in another thread:
+        main_thread_d = Deferred()
+        on_cb_added = Event()
+        on_callbacked = Event()
+
+        @transaction
+        def trans3(txn):
+            def from_mainthread(do_commit):
+                if do_commit:
+                    txn.commit()
+                else:
+                    txn.rollback()
+
+            main_thread_d.addCallback(from_mainthread)
+            on_cb_added.set()
+            on_callbacked.wait()  # don't return (which would cause commit) until main thread executed callbacks
+            return main_thread_d  # deferred will fail if from_mainthread() raised an Exception
+
+        d = trans3()
+        on_cb_added.wait()  # we need to wait for the callback to be registered otherwise it would be executed in db thread
+        main_thread_d.callback(True)  # will commit the transaction in main thread
+        on_callbacked.set()
+        yield self._assertRaises(d, TransactionError)
+
+        main_thread_d = Deferred()
+        on_cb_added.clear()
+        on_callbacked.clear()
+
+        d = trans3()
+        on_cb_added.wait()
+        main_thread_d.callback(False)  # will rollback the transaction in main thread
+        on_callbacked.set()
+        yield self._assertRaises(d, TransactionError)
