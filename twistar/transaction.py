@@ -188,6 +188,38 @@ def _transaction_dec(func, create_transaction):
 
 
 def transaction(func=None, nested=False, thread_check=True):
+    """Starts a new transaction.
+
+    A Transaction object returned by this function can be used as a context manager,
+    which will atomatically be commited or rolledback if an exception is raised.
+
+    Transactions must only be used in db threads. This behaviour can be overriden by setting the
+    'thread_check' to False, allowing transactions to be started in arbitrary threads which is
+    useful to e.g simplify testcases.
+
+    If this function is used as decorator, the decorated function will be executed in a db thread and
+    gets the Transaction passed as first argument. Decorated functions are allowed to return Deferreds.
+    E.g:
+        @transaction
+        def someFunc(txn, param1):
+            # Runs in a db thread
+
+        d = someFunc(1)  # will be calledback (in mainthread) when someFunc returns
+
+    You have to make sure, that you use blockingCallFromThread() or use synchronization if you need to
+    interact with code which runs in the mainthread. Also care has to be taken when waiting for Deferreds.
+    You must assure that the callbacks will be invoked from the db thread.
+
+    Per default transactions can be nested: Commiting such a "nested" transaction will simply do nothing,
+    but a rollback on it will rollback the outermost transaction. This allow creation of functions which will
+    either create a new transaction or will participate in an already ongoing tranaction which is handy for library code.
+
+    SAVEPOINT transactions can be used by either setting the 'nested' flag to true or by calling the 'nested_transaction' function.
+    """
+    if nested and Registry.DBPOOL.dbapi.__name__ == "sqlite3":
+        # nees some modification on our side, see: http://docs.sqlalchemy.org/en/latest/dialects/sqlite.html#serializable-isolation-savepoints-transactional-ddl
+        raise NotImplementedError("sqlite currently not supported")
+
     if func is None:
         conn_pool = Registry.DBPOOL
         cfg = Registry.getConfig()
