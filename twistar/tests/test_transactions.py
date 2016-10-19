@@ -6,7 +6,7 @@ from twisted.internet import reactor
 from twisted.internet.defer import Deferred, inlineCallbacks, returnValue, maybeDeferred
 from twisted.python import threadable
 
-from twistar.transaction import transaction
+from twistar.transaction import transaction, nested_transaction
 from twistar.exceptions import TransactionError
 
 from twistar.tests.utils import initDB, tearDownDB, Registry, Transaction, DBTYPE
@@ -231,6 +231,58 @@ class TransactionTests(unittest.TestCase):
 
         count = yield Transaction.count()
         self.assertEqual(count, 1)
+
+    @inlineCallbacks
+    def test_savepoints_commit(self):
+        @transaction
+        @inlineCallbacks
+        def trans1(txn):
+            yield Transaction(name="TEST1").save()
+            with nested_transaction():
+                yield Transaction(name="TEST2").save()
+            yield Transaction(name="TEST3").save()
+
+        yield trans1()
+        objects = yield Transaction.all()
+        self.assertEqual([obj.name for obj in objects], ["TEST1", "TEST2", "TEST3"])
+
+    @inlineCallbacks
+    def test_savepoints_rollback(self):
+        @transaction
+        @inlineCallbacks
+        def trans1(txn):
+            yield Transaction(name="TEST1").save()
+            with nested_transaction() as txn2:
+                yield Transaction(name="TEST2").save()
+                txn2.rollback()
+            yield Transaction(name="TEST3").save()
+
+        yield trans1()
+        objects = yield Transaction.all()
+        self.assertEqual([obj.name for obj in objects], ["TEST1", "TEST3"])
+
+    @inlineCallbacks
+    def test_savepoints_mixed(self):
+        @nested_transaction
+        @inlineCallbacks
+        def trans1(txn):
+            yield Transaction(name="TEST3").save()
+            with transaction() as txn2:
+                yield Transaction(name="TEST4").save()
+                txn2.rollback()
+
+        @transaction
+        @inlineCallbacks
+        def trans2(txn):
+            yield Transaction(name="TEST1").save()
+            with nested_transaction():
+                yield Transaction(name="TEST2").save()
+                yield trans1()
+            yield Transaction(name="TEST5").save()
+
+        yield trans2()
+        objects = yield Transaction.all()
+        self.assertEqual([obj.name for obj in objects], ["TEST1", "TEST2", "TEST5"])
 
     @inlineCallbacks
     def test_sanity_checks(self):

@@ -31,9 +31,15 @@ class _Transaction(object):
         if thread_check and threading.current_thread() not in Registry.DBPOOL.threadpool.threads:
             raise TransactionError("Transaction must only be started in a db pool thread")
 
+        if parent is None:
+            self._root = self
+        else:
+            self._root = parent._root
+
         self._actual_parent = parent
         self.is_active = True
         self._threadId = threadable.getThreadID()
+        self._savepoint_seq = 0
 
         if not self._parent.is_active:
             raise TransactionError("Parent transaction is inactive")
@@ -90,7 +96,7 @@ class _Transaction(object):
                 raise
 
     def __getattr__(self, key):
-        return getattr(self._parent, key)
+        return getattr(self._root, key)
 
 
 class _RootTransaction(adbapi.Transaction, _Transaction):
@@ -117,8 +123,23 @@ class _RootTransaction(adbapi.Transaction, _Transaction):
         return getattr(self._cursor, key)
 
 
-class _SavepointTransaction(object):
-    pass
+class _SavepointTransaction(_Transaction):
+
+    def __init__(self, parent, thread_check=True):
+        super(_SavepointTransaction, self).__init__(parent, thread_check=thread_check)
+
+        self._root._savepoint_seq += 1
+        self._name = "twistar_savepoint_{}".format(self._root._savepoint_seq)
+
+        self.execute("SAVEPOINT {}".format(self._name))
+
+    def _do_rollback(self):
+        if self.is_active:
+            self.execute("ROLLBACK TO SAVEPOINT {}".format(self._name))
+
+    def _do_commit(self):
+        if self.is_active:
+            self.execute("RELEASE SAVEPOINT {}".format(self._name))
 
 
 def _transaction_dec(func, create_transaction):
@@ -166,7 +187,7 @@ def _transaction_dec(func, create_transaction):
     return wrapper
 
 
-def transaction(func=None, thread_check=True):
+def transaction(func=None, nested=False, thread_check=True):
     if func is None:
         conn_pool = Registry.DBPOOL
         cfg = Registry.getConfig()
@@ -174,14 +195,12 @@ def transaction(func=None, thread_check=True):
         if cfg.txnGuard.txn is None:
             conn = conn_pool.connectionFactory(conn_pool)
             return _RootTransaction(conn_pool, conn, thread_check=thread_check)
+        elif nested:
+            return _SavepointTransaction(cfg.txnGuard.txn, thread_check=thread_check)
         else:
             return _Transaction(cfg.txnGuard.txn, thread_check=thread_check)
     else:
-        return _transaction_dec(func, functools.partial(transaction, thread_check=thread_check))
+        return _transaction_dec(func, functools.partial(transaction, nested=nested, thread_check=thread_check))
 
 
-def nested_transaction(func=None, thread_check=True):
-    if func is None:
-        pass
-    else:
-        _transaction_dec(func, functools.partial(nested_transaction, thread_check=thread_check))
+nested_transaction = functools.partial(transaction, nested=True)
