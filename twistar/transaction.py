@@ -217,7 +217,8 @@ def transaction(func=None, nested=False, thread_check=True):
     SAVEPOINT transactions can be used by either setting the 'nested' flag to true or by calling the 'nested_transaction' function.
     """
     if nested and Registry.DBPOOL.dbapi.__name__ == "sqlite3":
-        # nees some modification on our side, see: http://docs.sqlalchemy.org/en/latest/dialects/sqlite.html#serializable-isolation-savepoints-transactional-ddl
+        # needs some modification on our side, see:
+        # http://docs.sqlalchemy.org/en/latest/dialects/sqlite.html#serializable-isolation-savepoints-transactional-ddl
         raise NotImplementedError("sqlite currently not supported")
 
     if func is None:

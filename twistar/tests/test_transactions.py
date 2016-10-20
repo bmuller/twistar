@@ -3,7 +3,7 @@ from threading import Event
 
 from twisted.trial import unittest
 from twisted.internet import reactor
-from twisted.internet.defer import Deferred, inlineCallbacks, returnValue, maybeDeferred
+from twisted.internet.defer import Deferred, inlineCallbacks, returnValue, maybeDeferred, DeferredList
 from twisted.python import threadable
 
 from twistar.transaction import transaction, nested_transaction
@@ -231,6 +231,35 @@ class TransactionTests(unittest.TestCase):
 
         count = yield Transaction.count()
         self.assertEqual(count, 1)
+
+    @inlineCallbacks
+    def test_parallel_massive(self):
+        # Make sure that everything works alright even when starting a massive amount of parallel transactions
+        if DBTYPE == "sqlite":
+            raise unittest.SkipTest("Parallel connections are not supported by sqlite")
+
+        N = 100
+
+        @transaction
+        @inlineCallbacks
+        def trans(txn, i):
+            yield Transaction(name=str(i)).save()
+            if i % 2 == 1:
+                txn.rollback()
+            else:
+                txn.commit()
+
+        deferreds = [trans(i) for i in range(N)]
+
+        results = yield DeferredList(deferreds)
+        self.assertTrue(all(success for success, result in results))
+
+        objects = yield Transaction.all()
+        actual = sorted(int(obj.name) for obj in objects)
+        actual = [str(i) for i in actual]
+        expected = [str(i) for i in range(0, N, 2)]
+
+        self.assertEquals(actual, expected)
 
     @inlineCallbacks
     def test_savepoints_commit(self):
