@@ -8,6 +8,7 @@ from twisted.internet import defer
 from twistar.registry import Registry
 from twistar.exceptions import ImaginaryTableError, CannotRefreshError
 from twistar.utils import joinWheres
+from twistar.transaction import TransactionGuard
 
 
 class InteractionBase(object):
@@ -25,7 +26,7 @@ class InteractionBase(object):
 
 
     def __init__(self):
-        self.txn = None
+        self.txnGuard = TransactionGuard()
 
 
     def logEncode(self, s, encoding='utf-8'):
@@ -155,7 +156,6 @@ class InteractionBase(object):
             vals = self.valuesToHash(txn, result, tablename, cacheable)
             results.append(vals)
         return results
-
 
     def insertArgsToString(self, vals):
         """
@@ -327,8 +327,8 @@ class InteractionBase(object):
 
 
     def runInteraction(self, interaction, *args, **kwargs):
-        if self.txn is not None:
-            return defer.succeed(interaction(self.txn, *args, **kwargs))
+        if self.txnGuard.txn is not None:
+            return defer.succeed(interaction(self.txnGuard.txn, *args, **kwargs))
         return Registry.DBPOOL.runInteraction(interaction, *args, **kwargs)
 
 
@@ -345,8 +345,7 @@ class InteractionBase(object):
             if len(cols) == 0:
                 raise ImaginaryTableError("Table %s does not exist." % tablename)
             vals = obj.toHash(cols, includeBlank=self.__class__.includeBlankInInsert, exclude=['id'])
-            self.insert(tablename, vals, txn)
-            obj.id = self.getLastInsertID(txn)
+            obj.id = self.insert(tablename, vals, txn)
             return obj
 
         return self.runInteraction(_doinsert)

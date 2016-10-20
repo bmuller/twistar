@@ -8,30 +8,6 @@ from twistar.registry import Registry
 from twistar.exceptions import TransactionError
 
 
-def transaction(interaction):
-    """
-    A decorator to wrap any code in a transaction.  If any exceptions are raised, all modifications
-    are rolled back.  The function that is decorated should accept at least one argument, which is
-    the transaction (in case you want to operate directly on it).
-    """
-    def _transaction(txn, args, kwargs):
-        config = Registry.getConfig()
-        config.txn = txn
-        # get the result of the functions *synchronously*, since this is in a transaction
-        try:
-            result = threads.blockingCallFromThread(reactor, interaction, txn, *args, **kwargs)
-            config.txn = None
-            return result
-        except Exception, e:
-            config.txn = None
-            raise TransactionError(str(e))
-
-    def wrapper(*args, **kwargs):
-        return Registry.DBPOOL.runInteraction(_transaction, args, kwargs)
-
-    return wrapper
-
-
 def createInstances(props, klass):
     """
     Create an instance of C{list} of instances of a given class

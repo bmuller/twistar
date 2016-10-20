@@ -6,7 +6,8 @@ from twisted.internet import defer
 from twistar.registry import Registry
 from twistar.relationships import Relationship
 from twistar.exceptions import InvalidRelationshipError, DBObjectSaveError, ReferenceNotSavedError
-from twistar.utils import createInstances, deferredDict, dictToWhere, transaction
+from twistar.utils import createInstances, deferredDict, dictToWhere
+from twistar.transaction import transaction
 from twistar.validation import Validator, Errors
 
 from BermiInflector.Inflector import Inflector
