@@ -9,8 +9,6 @@ from twisted.internet import defer
 from twistar.registry import Registry
 from twistar.exceptions import ImaginaryTableError, CannotRefreshError
 from twistar.utils import joinWheres
-from six.moves import map
-import six
 from six.moves import range
 
 
