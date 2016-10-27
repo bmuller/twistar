@@ -7,6 +7,5 @@ relational databases.
 @author: Brian Muller U{bamuller@gmail.com}
 """
 from __future__ import absolute_import
-from six.moves import map
 version_info = (1, 6)
 version = '.'.join(map(str, version_info))
