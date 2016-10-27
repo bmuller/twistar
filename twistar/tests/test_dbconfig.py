@@ -180,5 +180,6 @@ class DBConfigTest(unittest.TestCase):
 
         ustr = '\xc3\xa8'
         InteractionBase().log(ustr, [ustr], {ustr: ustr})
+        InteractionBase().log(ustr, [], {ustr: ustr})
 
         InteractionBase.LOG = False
