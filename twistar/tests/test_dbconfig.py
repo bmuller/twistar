@@ -1,10 +1,12 @@
+from __future__ import absolute_import
 from twisted.trial import unittest
 from twisted.internet.defer import inlineCallbacks
 
 from twistar.registry import Registry
 from twistar.dbconfig.base import InteractionBase
 
-from utils import User, Picture, Avatar, initDB, tearDownDB, Coltest
+from .utils import User, Picture, Avatar, initDB, tearDownDB, Coltest
+from six.moves import range
 
 
 class DBConfigTest(unittest.TestCase):

@@ -2,9 +2,11 @@
 Package providing validation support for L{DBObject}s.
 """
 
+from __future__ import absolute_import
 from twisted.internet import defer
 from BermiInflector.Inflector import Inflector
 from twistar.utils import joinWheres, deferredDict
+import six
 
 
 def presenceOf(obj, names, kwargs):
@@ -226,7 +228,7 @@ class Errors(dict):
         Returns C{True} if there are any errors associated with any properties,
         C{False} otherwise.
         """
-        for value in self.itervalues():
+        for value in six.itervalues(self):
             if len(value) > 0:
                 return False
         return True
@@ -249,7 +251,7 @@ class Errors(dict):
         Return all errors as a single string.
         """
         s = []
-        for values in self.itervalues():
+        for values in six.itervalues(self):
             for value in values:
                 s.append(value)
         if len(s) == 0:
@@ -261,4 +263,4 @@ class Errors(dict):
         """
         Get the sum of all errors for all properties.
         """
-        return sum([len(value) for value in self.itervalues()])
+        return sum([len(value) for value in six.itervalues(self)])

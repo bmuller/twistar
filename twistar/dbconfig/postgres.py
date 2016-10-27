@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from twistar.dbconfig.base import InteractionBase
 
 
@@ -18,7 +19,7 @@ class PostgreSQLDBConfig(InteractionBase):
 
 
     def escapeColNames(self, colnames):
-        return map(lambda x: '"%s"' % x, colnames)
+        return ['"%s"' % x for x in colnames]
 
 
     def count(self, tablename, where=None):

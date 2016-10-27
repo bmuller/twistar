@@ -2,6 +2,7 @@
 Module handling global registration of variables and classes.
 """
 
+from __future__ import absolute_import
 from twisted.python import reflect
 
 from twistar.exceptions import ClassNotRegisteredError

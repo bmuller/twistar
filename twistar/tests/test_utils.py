@@ -1,9 +1,10 @@
+from __future__ import absolute_import
 from twisted.trial import unittest
 from twisted.internet.defer import inlineCallbacks
 
 from twistar import utils
 
-from utils import User, initDB, tearDownDB
+from .utils import User, initDB, tearDownDB
 
 from collections import OrderedDict
 

@@ -1,10 +1,12 @@
+from __future__ import absolute_import
 from twisted.trial import unittest
 from twisted.internet.defer import inlineCallbacks
 
 from twistar.exceptions import ImaginaryTableError
 from twistar.registry import Registry
 
-from utils import User, Avatar, Picture, tearDownDB, initDB, FakeObject, DBObject
+from .utils import User, Avatar, Picture, tearDownDB, initDB, FakeObject, DBObject
+from six.moves import range
 
 
 class DBObjectTest(unittest.TestCase):
@@ -59,11 +61,11 @@ class DBObjectTest(unittest.TestCase):
     def test_creation(self):
         # test creating blank object
         u = yield User().save()
-        self.assertTrue(type(u.id) == int or type(u.id) == long)
+        self.assertTrue(type(u.id) == int or type(u.id) == int)
 
         # test creating object with props that don't correspond to columns
         u = yield User(a_fake_column="blech").save()
-        self.assertTrue(type(u.id) == int or type(u.id) == long)
+        self.assertTrue(type(u.id) == int or type(u.id) == int)
 
         # Test table doesn't exist
         f = FakeObject(blah="something")
@@ -173,7 +175,7 @@ class DBObjectTest(unittest.TestCase):
     @inlineCallbacks
     def test_validation(self):
         User.validatesPresenceOf('first_name', message='cannot be blank, fool.')
-        User.validatesLengthOf('last_name', range=xrange(1, 101))
+        User.validatesLengthOf('last_name', range=range(1, 101))
         User.validatesUniquenessOf('first_name')
 
         u = User()

@@ -2,10 +2,14 @@
 General catchall for functions that don't make sense as methods.
 """
 
+from __future__ import absolute_import
 from twisted.internet import defer, threads, reactor
 
 from twistar.registry import Registry
 from twistar.exceptions import TransactionError
+import six
+from six.moves import range
+from functools import reduce
 
 
 def transaction(interaction):
@@ -22,7 +26,7 @@ def transaction(interaction):
             result = threads.blockingCallFromThread(reactor, interaction, txn, *args, **kwargs)
             config.txn = None
             return result
-        except Exception, e:
+        except Exception as e:
             config.txn = None
             raise TransactionError(str(e))
 
@@ -68,11 +72,11 @@ def dictToWhere(attrs, joiner="AND"):
         return None
 
     wheres = []
-    for key, value in attrs.iteritems():
+    for key, value in six.iteritems(attrs):
         comparator = 'is' if value is None else '='
         wheres.append("(%s %s ?)" % (key, comparator))
 
-    return [(" %s " % joiner).join(wheres)] + attrs.values()
+    return [(" %s " % joiner).join(wheres)] + list(attrs.values())
 
 
 def joinWheres(wone, wtwo, joiner="AND"):
@@ -130,5 +134,5 @@ def deferredDict(d):
             rvalue[names[index]] = results[index][1]
         return rvalue
 
-    dl = defer.DeferredList(d.values())
-    return dl.addCallback(handle, d.keys())
+    dl = defer.DeferredList(list(d.values()))
+    return dl.addCallback(handle, list(d.keys()))

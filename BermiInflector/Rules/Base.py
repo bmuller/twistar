@@ -4,7 +4,9 @@
 # bermi a-t bermilabs - com
 # See the end of this file for the free software, open source license (BSD-style).
 
+from __future__ import absolute_import
 import re
+from six.moves import range
 
 class Base:
     '''Locale inflectors must inherit from this base class inorder to provide

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from twistar.dbobject import DBObject
 from twistar.registry import Registry
 
@@ -5,18 +7,18 @@ import os
 
 DBTYPE = os.environ.get('DBTYPE', 'sqlite')
 if DBTYPE == 'mysql':
-    print "Using MySQL for tests"
-    import mysql_config
+    print("Using MySQL for tests")
+    from . import mysql_config
     initDB = mysql_config.initDB
     tearDownDB = mysql_config.tearDownDB
 elif DBTYPE == 'postgres':
-    print "Using PostgreSQL for tests"
-    import postgres_config
+    print("Using PostgreSQL for tests")
+    from . import postgres_config
     initDB = postgres_config.initDB
     tearDownDB = postgres_config.tearDownDB
 else:
-    print "Using SQLite for tests"
-    import sqlite_config
+    print("Using SQLite for tests")
+    from . import sqlite_config
     initDB = sqlite_config.initDB
     tearDownDB = sqlite_config.initDB
 

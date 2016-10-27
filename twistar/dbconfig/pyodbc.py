@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from twistar.dbconfig.base import InteractionBase
 
 
@@ -11,9 +12,9 @@ class PyODBCDBConfig(InteractionBase):
 
 
     def updateArgsToString(self, args):
-        colnames = self.escapeColNames(args.keys())
+        colnames = self.escapeColNames(list(args.keys()))
         setstring = ",".join([key + " = ?" for key in colnames])
-        return (setstring, args.values())
+        return (setstring, list(args.values()))
 
 
     def insertArgsToString(self, vals):

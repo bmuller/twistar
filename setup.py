@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
 from setuptools import setup, find_packages
 
 from twistar import version
@@ -13,5 +14,5 @@ setup(
     url="http://findingscience.com/twistar",
     packages=find_packages(),
     requires=["twisted.enterprise.adbapi"],
-    install_requires=['twisted >= 12.1']
+    install_requires=['twisted >= 12.1','six']
 )

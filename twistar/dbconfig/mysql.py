@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import MySQLdb
 
 from twisted.enterprise import adbapi
@@ -23,7 +24,7 @@ class ReconnectingMySQLConnectionPool(adbapi.ConnectionPool):
     def _runInteraction(self, interaction, *args, **kw):
         try:
             return adbapi.ConnectionPool._runInteraction(self, interaction, *args, **kw)
-        except MySQLdb.OperationalError, e:
+        except MySQLdb.OperationalError as e:
             if e[0] not in (2006, 2013):
                 raise
             log.err("Lost connection to MySQL, retrying operation.  If no errors follow, retry was successful.")

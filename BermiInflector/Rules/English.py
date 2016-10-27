@@ -5,8 +5,10 @@
 #
 # See the end of this file for the free software, open source license (BSD-style).
 
+from __future__ import absolute_import
 import re
-from Base import Base
+from .Base import Base
+from six.moves import range
 
 class English (Base):
     """
