@@ -12,7 +12,7 @@ class PyODBCDBConfig(InteractionBase):
 
 
     def updateArgsToString(self, args):
-        colnames = self.escapeColNames(list(args.keys()))
+        colnames = self.escapeColNames(args.keys())
         setstring = ",".join([key + " = ?" for key in colnames])
         return (setstring, list(args.values()))
 

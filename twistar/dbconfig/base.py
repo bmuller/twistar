@@ -174,7 +174,7 @@ class InteractionBase(object):
         params = self.insertArgsToString(vals)
         colnames = ""
         if len(vals) > 0:
-            ecolnames = self.escapeColNames(list(vals.keys()))
+            ecolnames = self.escapeColNames(vals.keys())
             colnames = "(" + ",".join(ecolnames) + ")"
             params = "VALUES %s" % params
         q = "INSERT INTO %s %s %s" % (tablename, colnames, params)
@@ -212,7 +212,7 @@ class InteractionBase(object):
 
         @return: A C{Deferred}.
         """
-        colnames = ",".join(self.escapeColNames(list(vals[0].keys())))
+        colnames = ",".join(self.escapeColNames(vals[0].keys()))
         params = ",".join([self.insertArgsToString(val) for val in vals])
         args = []
         for val in vals:
