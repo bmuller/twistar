@@ -13,6 +13,5 @@ setup(
     license="MIT",
     url="http://findingscience.com/twistar",
     packages=find_packages(),
-    requires=["twisted.enterprise.adbapi"],
     install_requires=['twisted >= 12.1','six']
 )
