@@ -2,6 +2,7 @@
 Module descripting different types of object relationships.
 """
 
+from __future__ import absolute_import
 from twisted.internet import defer
 
 from BermiInflector.Inflector import Inflector

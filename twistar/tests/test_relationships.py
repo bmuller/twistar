@@ -1,10 +1,12 @@
+from __future__ import absolute_import
 from twisted.trial import unittest
 from twisted.internet.defer import inlineCallbacks
 
 from twistar.exceptions import ReferenceNotSavedError
 
-from utils import Boy, Girl, tearDownDB, initDB, Registry, Comment, Category
-from utils import User, Avatar, Picture, FavoriteColor, Nickname, Blogpost
+from .utils import Boy, Girl, tearDownDB, initDB, Registry, Comment, Category
+from .utils import User, Avatar, Picture, FavoriteColor, Nickname, Blogpost
+from six.moves import range
 
 
 class RelationshipTest(unittest.TestCase):

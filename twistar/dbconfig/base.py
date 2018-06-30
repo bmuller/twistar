@@ -2,12 +2,14 @@
 Base module for interfacing with databases.
 """
 
+from __future__ import absolute_import
 from twisted.python import log
 from twisted.internet import defer
 
 from twistar.registry import Registry
 from twistar.exceptions import ImaginaryTableError, CannotRefreshError
 from twistar.utils import joinWheres
+from six.moves import range
 
 
 class InteractionBase(object):
@@ -28,15 +30,6 @@ class InteractionBase(object):
         self.txn = None
 
 
-    def logEncode(self, s, encoding='utf-8'):
-        """
-        Encode the given string if necessary for printing to logs.
-        """
-        if isinstance(s, unicode):
-            return s.encode(encoding)
-        return str(s)
-
-
     def log(self, query, args, kwargs):
         """
         Log the query and any args or kwargs using C{twisted.python.log.msg} if
@@ -46,7 +39,7 @@ class InteractionBase(object):
             return
         log.msg("TWISTAR query: %s" % query)
         if len(args) > 0:
-            log.msg("TWISTAR args: %s" % ",".join(map(self.logEncode, *args)))
+            log.msg("TWISTAR args: %s" % ",".join(args))
         elif len(kwargs) > 0:
             log.msg("TWISTAR kargs: %s" % str(kwargs))
 
@@ -188,11 +181,11 @@ class InteractionBase(object):
 
         # if we have a transaction use it
         if txn is not None:
-            self.executeTxn(txn, q, vals.values())
+            self.executeTxn(txn, q, list(vals.values()))
             return self.getLastInsertID(txn)
 
         def _insert(txn, q, vals):
-            self.executeTxn(txn, q, vals.values())
+            self.executeTxn(txn, q, list(vals.values()))
             return self.getLastInsertID(txn)
         return self.runInteraction(_insert, q, vals)
 
@@ -205,7 +198,7 @@ class InteractionBase(object):
 
         @return: A C{List} of string escaped column names.
         """
-        return map(lambda x: "`%s`" % x, colnames)
+        return ["`%s`" % x for x in colnames]
 
 
     def insertMany(self, tablename, vals):
@@ -223,7 +216,7 @@ class InteractionBase(object):
         params = ",".join([self.insertArgsToString(val) for val in vals])
         args = []
         for val in vals:
-            args = args + val.values()
+            args = args + list(val.values())
         q = "INSERT INTO %s (%s) VALUES %s" % (tablename, colnames, params)
         return self.executeOperation(q, args)
 
@@ -409,9 +402,9 @@ class InteractionBase(object):
 
         @return: A tuple of the form C{('name = %s, othername = %s, ...', argvalues)}.
         """
-        colnames = self.escapeColNames(args.keys())
+        colnames = self.escapeColNames(list(args.keys()))
         setstring = ",".join([key + " = %s" for key in colnames])
-        return (setstring, args.values())
+        return (setstring, list(args.values()))
 
 
     def count(self, tablename, where=None):

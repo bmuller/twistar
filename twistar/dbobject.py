@@ -1,6 +1,7 @@
 """
 Code relating to the base L{DBObject} object.
 """
+from __future__ import absolute_import
 from twisted.internet import defer
 
 from twistar.registry import Registry
@@ -10,6 +11,7 @@ from twistar.utils import createInstances, deferredDict, dictToWhere, transactio
 from twistar.validation import Validator, Errors
 
 from BermiInflector.Inflector import Inflector
+import six
 
 
 class DBObject(Validator):
@@ -82,7 +84,7 @@ class DBObject(Validator):
         @param kwargs: A C{dict} whose keys will be turned into properties and whose values
         will then be assigned to those properties.
         """
-        for k, v in kwargs.iteritems():
+        for k, v in six.iteritems(kwargs):
             setattr(self, k, v)
 
 
@@ -297,7 +299,7 @@ class DBObject(Validator):
         """
         if len(relations) == 0:
             klass = object.__getattribute__(self, "__class__")
-            allrelations = klass.RELATIONSHIP_CACHE.keys()
+            allrelations = list(klass.RELATIONSHIP_CACHE.keys())
             if len(allrelations) == 0:
                 return defer.succeed({})
             return self.loadRelations(*allrelations)

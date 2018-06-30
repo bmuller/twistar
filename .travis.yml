@@ -11,7 +11,9 @@ matrix:
       python: "2.7"
     - env: TOXENV=py27-twisted15
       python: "2.7"
-    - env: TOXENV=py35-twisted15
+    - env: TOXENV=py27-twisted16
+      python: "2.7"
+    - env: TOXENV=py35-twisted16
       python: "3.5"
     - env: TOXENV=pypy-twisted12
       python: "pypy"
@@ -21,11 +23,12 @@ matrix:
       python: "pypy"
     - env: TOXENV=pypy-twisted15
       python: "pypy"
-    - env: TOXENV=pypy3-twisted15
+    - env: TOXENV=pypy-twisted16
+      python: "pypy"
+    - env: TOXENV=pypy3-twisted16
       python: "pypy3"
   allow_failures:
-    - env: TOXENV=py35-twisted15
-    - env: TOXENV=pypy3-twisted15
+    - env: TOXENV=pypy3-twisted16
 
 install:
     - pip install tox coveralls pep8 pyflakes

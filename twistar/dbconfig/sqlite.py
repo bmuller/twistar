@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from twistar.registry import Registry
 from twistar.dbconfig.base import InteractionBase
 
@@ -13,7 +14,7 @@ class SQLiteDBConfig(InteractionBase):
     def updateArgsToString(self, args):
         colnames = self.escapeColNames(args.keys())
         setstring = ",".join([key + " = ?" for key in colnames])
-        return (setstring, args.values())
+        return (setstring, list(args.values()))
 
 
     def insertArgsToString(self, vals):
