@@ -39,13 +39,12 @@ class InteractionBase(object):
             return
         log.msg("TWISTAR query: %s" % query)
         if len(args) > 0:
-            if isinstance(args[0], list):
+            if isinstance(args[0], list): # if args contains a list object
                 log.msg("TWISTAR args: %s" % ",".join(*args))
             else:
                 log.msg("TWISTAR args: %s" % ",".join(args))
         elif len(kwargs) > 0:
             log.msg("TWISTAR kargs: %s" % str(kwargs))
-
 
 
     def executeOperation(self, query, *args, **kwargs):
