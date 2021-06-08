@@ -87,8 +87,7 @@ class TxConnectionPool(ConnectionPool):
         return d
 
     def dumpThreadPoolStats(self):
-        return '\t'.join([ 'queue: %s'   % len(self.threadpool.q.queue),
-                           'waiters: %s' % len(self.threadpool.waiters),
+        return '\t'.join([ 'waiters: %s' % len(self.threadpool.waiters),
                            'workers: %s' % len(self.threadpool.working),
                            'total: %s'   % len(self.threadpool.threads),
                          ])
