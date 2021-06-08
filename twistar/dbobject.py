@@ -546,7 +546,7 @@ class DBObject(Validator):
         Rollback current object transaction(s). Clean up transaction once finished.
         """
         if self._transaction is None:
-                raise TransactionNotStartedError("Cannot call commit without a transaction")
+                raise TransactionNotStartedError("Cannot call rollback without a transaction")
         else:
                 def _resetTxn(result):
                         self._transaction = None
