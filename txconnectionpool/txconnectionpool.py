@@ -118,7 +118,7 @@ class TxConnectionPool(ConnectionPool):
 
     def _commitTransaction(self, trans):
         if trans._cursor is None:
-            raise TransactionNotStartedError("Cannot call rollback without a transaction")
+            raise TransactionNotStartedError("Cannot call commit without a transaction")
 
         worker = self._removeWorkerFromDict(trans)
 
