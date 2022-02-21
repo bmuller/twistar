@@ -46,8 +46,12 @@ class TxConnectionPool(ConnectionPool):
 
             return t
 
+        def stopWorkerOnError(err):
+            # stop the thread if initTx fails
+            return self._stopTxWorker(worker).addCallback(lambda _: err)
+
         d = worker.submit(initTx)
-        return d
+        return d.addErrback(stopWorkerOnError)
 
     def runQueryInTransaction(self, trans, *args, **kw):
         """Execute an SQL query in the specified Transaction and return the result.
@@ -122,9 +126,14 @@ class TxConnectionPool(ConnectionPool):
 
         worker = self._removeWorkerFromDict(trans)
 
-        conn = trans._connection
-        trans.close()
-        conn.commit()
+        try:
+            conn = trans._connection
+            trans.close()
+            conn.commit()
+        except Exception as e:
+            log.err("commit error %r", e)
+            self._stopTxWorker(worker)
+            raise e
 
         return worker
 
@@ -139,6 +148,8 @@ class TxConnectionPool(ConnectionPool):
             conn.rollback()
         except Exception, e:
             log.err("Rollback error %s"%(e))
+            self._stopTxWorker(worker)
+            raise e
 
         return worker
 
