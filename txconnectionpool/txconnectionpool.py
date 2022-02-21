@@ -19,8 +19,8 @@ class TxConnectionPool(ConnectionPool):
         Since this connection will be in use until the Transaction is
         completed, the thread that we call the function in gets blocked
         until then.  The Semaphore it is waiting on is stored in
-        the self.transLock dictionary. 
-        """        
+        the self.transLock dictionary.
+        """
 
         warning_limit = self.threadpool.max / 10
         if len(self.threadpool.working) >= self.threadpool.max:
@@ -45,7 +45,7 @@ class TxConnectionPool(ConnectionPool):
             self.txWorkersLock.release()
 
             return t
-        
+
         d = worker.submit(initTx)
         return d
 
@@ -63,7 +63,7 @@ class TxConnectionPool(ConnectionPool):
         Execute the specified function into the transaction thread and return result
         """
         return self._deferToTrans(f, trans, *args, **kw)
-      
+
     def runOperationInTransaction(self, trans, *args, **kw):
         """Execute an SQL query in the specified Transaction and return None.
 
@@ -78,7 +78,7 @@ class TxConnectionPool(ConnectionPool):
         d = self._deferToTrans(self._commitTransaction, trans)
         d.addCallback(self._stopTxWorker)
         return d
- 
+
     def rollbackTransaction(self, trans):
         """Exit the transaction without committing."""
 
@@ -91,7 +91,7 @@ class TxConnectionPool(ConnectionPool):
                            'workers: %s' % len(self.threadpool.working),
                            'total: %s'   % len(self.threadpool.threads),
                          ])
- 
+
     def _stopTxWorker(self, worker):
         return worker.stop()
 
@@ -107,7 +107,7 @@ class TxConnectionPool(ConnectionPool):
             log.msg('Exception in SQL query %s'%args)
             log.deferr()
             raise
-     
+
     def _runOperationInTransaction(self, trans, *args, **kwargs):
         try:
             return trans.execute(*args, **kwargs)
@@ -127,7 +127,7 @@ class TxConnectionPool(ConnectionPool):
         conn.commit()
 
         return worker
-     
+
     def _rollbackTransaction(self, trans):
         if trans._cursor is None:
             raise TransactionNotStartedError("Cannot call rollback without a transaction")
@@ -153,7 +153,7 @@ class TxConnectionPool(ConnectionPool):
             self.txWorkersLock.release()
 
         return worker
- 
+
     def _deferToTrans(self, f, trans, *args, **kwargs):
         """Internal function.
 
@@ -172,5 +172,5 @@ class TxConnectionPool(ConnectionPool):
             raise e
         finally:
             self.txWorkersLock.release()
-        
+
         return d
