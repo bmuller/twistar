@@ -20,5 +20,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: python -m pip install -q Twisted
+      - name: Run txconnectionpool tests
+        run: trial txconnectionpool
       - name: Run test
         run: trial twistar

@@ -50,7 +50,7 @@ class TxThreadWorker(object):
 
     def stop(self):
         """
-        Start this ThreadWorker.
+        Stop this ThreadWorker.
 
         @returns: a deferred which will fire when ThreadWorker has been stopped.
         @rtype: a C{Defer}
